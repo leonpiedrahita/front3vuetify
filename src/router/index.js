@@ -30,7 +30,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('https://front3vuetify.vercel.app/'),
+  history: createWebHistory(process.env.BASE_URL),
   routes,
 })
 

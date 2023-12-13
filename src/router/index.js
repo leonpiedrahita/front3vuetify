@@ -16,6 +16,20 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/hola',
+    component: () => import('@/layouts/default/Default.vue'),
+    children: [
+      {
+        path: '',
+        name: 'Home2',
+        // route level code-splitting
+        // this generates a separate chunk (about.[hash].js) for this route
+        // which is lazy-loaded when the route is visited.
+        component: () => import(/* webpackChunkName: "home" */ '@/views/Home2.vue'),
+      },
+    ],
+  },
   {//creo un nuevo componente a partir de su ruta
     path: '/login',
     name: 'Login',

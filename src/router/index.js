@@ -27,6 +27,14 @@ const routes = [
       public: true
     },
   },
+  {
+    path: '/listarclientes',
+    name: 'ListarClientes',
+    component: () => import(/* webpackChunkName: "listarclientes" */ '../views/ListarClientes.vue'),
+    meta: {
+      auth: true
+    }
+  },
 ]
 
 const router = createRouter({

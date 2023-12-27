@@ -1,22 +1,20 @@
 <template>
   <v-card class="pa-2">
-
-       <!-- se crea la data table prinecipal para listar los clientes -->
-       <v-data-table
+  <!-- se crea la data table prinecipal para listar los clientes -->
+  <v-data-table
       :headers="headers"
-      :items="clientes"
+      :items="equipos"
       :expanded.sync="expanded"
       show-expand
       single-expand
       :search="search"
-      sort-by="nombre"
       class="elevation-1"
-      item-key="nit"
+      item-value="nit"
       :loading="cargando"
       loading-text="Cargando ... por favor espere"
       ><!-- Se crea la data table secundaria para listar las sedes -->
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length">
+      <template v-slot:expanded-row="{ columns, item }">
+        <td :colspan="columns.length">
           <div class="sp-details" justify="center">
             <div class="col-xs-5 col-md-8 text-center">
               <v-data-table :headers="encabezado" :items="item.sede">
@@ -261,7 +259,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <p>{{this.clientes}}</p> 
+    <p>{{this.equipos}}</p> 
   </v-card>
 </template>
 <script>
@@ -283,21 +281,21 @@ export default {
     esperarguardar: false,
     encabezado: [
       {
-        text: "Sede",
+        title: "Sede",
         value: "nombre",
         align: "center",
         class: "titulo--text font-weight-bold",
         width: "50%",
       },
       {
-        text: "Dirección",
+        title: "Dirección",
         value: "direccion",
         align: "center",
         class: "titulo--text font-weight-bold",
         width: "50%",
       },
       {
-        text: "Eliminar sede",
+        title: "Eliminar sede",
         value: "eliminarsede",
         sortable: false,
 
@@ -307,39 +305,39 @@ export default {
     ],
     headers: [
       {
-        text: "Nombre/Razón social",
+        title: "Nombre/Razón social",
         align: "center",
         value: "nombre",
         class: "titulo--text font-weight-bold",
       },
       {
-        text: "NIT",
+        title: "NIT",
         value: "nit",
         align: "center",
         class: "titulo--text font-weight-bold",
       },
       {
-        text: "Nombre de contacto principal",
+        title: "Nombre de contacto principal",
         value: "contactoprincipal[0].nombre",
         align: "center",
         class: "titulo--text font-weight-bold",
       },
       {
-        text: "Teléfono de contacto principal",
+        title: "Teléfono de contacto principal",
         value: "contactoprincipal[0].telefono",
         align: "center",
         divider: true,
         class: "titulo--text font-weight-bold",
       },
       {
-        text: "Editar cliente",
+        title: "Editar cliente",
         value: "editarsede",
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
       },
       {
-        text: "Agregar Sede",
+        title: "Agregar Sede",
         value: "agregarsede",
         sortable: false,
         align: "center",
@@ -348,7 +346,7 @@ export default {
     ],
   
     editedIndex: -1,
-    clientes: [],
+    equipos: [],
     prueba: {},
     editedItem: {
       nit: "",
@@ -427,7 +425,7 @@ export default {
           
         })
         .then((response) => {
-          this.clientes = response.data; //el this es porque no es propia de la funcion sino de l componente
+          this.equipos = response.data; //el this es porque no es propia de la funcion sino de l componente
 
           this.cargando = false;
           /* this.equipos.contactoprincipal =
@@ -532,7 +530,7 @@ export default {
     agregarCliente() {
       //Editar categoria
       this.esperarguardar = true;
-      const encontrarnit = this.clientes.find(
+      const encontrarnit = this.equipos.find(
         (registro) => registro.nit === this.editedItem.nit
       );
 

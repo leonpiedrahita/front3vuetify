@@ -116,7 +116,10 @@ const store = createStore({
             
         },
         
-    }
+    },
+    getters: {
+        getToolbarColor: state => state.color,
+      },
 
 })
 

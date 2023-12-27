@@ -35,6 +35,14 @@ const routes = [
       auth: true
     }
   },
+  {
+    path: '/segura',
+    name: 'Segura',
+    component: () => import(/* webpackChunkName: "listarclientes" */ '../views/Segura.vue'),
+    meta: {
+      auth: true
+    }
+  },
 ]
 
 const router = createRouter({

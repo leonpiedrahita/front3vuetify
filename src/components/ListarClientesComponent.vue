@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pa-2">
+  <v-card class="pa-2 mt-15 " >
   <!-- se crea la data table prinecipal para listar los clientes -->
   <v-data-table
       :headers="headers"
@@ -45,7 +45,14 @@
            </v-col>
         
         <v-col cols="6" sm="2" >
-          <v-btn class="c6" large @click="nuevoCliente()"> Nuevo Cliente </v-btn>
+          <v-btn color="c6" 
+          
+            min-width="228"
+            
+            size="large"
+            
+            variant="flat"
+          large @click="nuevoCliente()"> Nuevo Cliente </v-btn>
           </v-col>
           
         </v-row>
@@ -441,7 +448,7 @@ export default {
       this.$store.dispatch("autoLogin");
 
       if (this.$store.state.existe === 0) {
-        this.$router.push({ name: "Login" });
+        this.$router.push({ name: 'Login' });
       } else {
         this.Agregarcliente = true;
         this.dialog = true;
@@ -635,6 +642,7 @@ export default {
 .toolbar {
   flex-wrap: wrap;
 }
+
 @media (max-width: 767px) {
   .tamano {
     display: none;

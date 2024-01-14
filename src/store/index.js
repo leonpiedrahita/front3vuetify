@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 /* import { jwtdecode } from './modules'; */
 import jwtdecode from 'jwt-decode';
+import router from '../router'
 const store = createStore({
 
     
@@ -92,7 +93,7 @@ const store = createStore({
         salir({ commit }) {//para borrar los datos y devolver el usuario a Home
             commit("setToken", null);
             commit("setUsuario", null);
-            localStorage.removeItem('token');
+            localStorage.removeItem('token');  
             router.push({ name: 'Login' });
         },
         guardarUbicacion({ commit }, {ubicacion, icono,color}) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
@@ -117,9 +118,7 @@ const store = createStore({
         },
         
     },
-    getters: {
-        getToolbarColor: state => state.color,
-      },
+   
 
 })
 

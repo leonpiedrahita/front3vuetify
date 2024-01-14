@@ -8,6 +8,8 @@
 import App from './App.vue'
 import store from './store'
 import axiosPlugin from './plugins/axios';
+import router from './router'
+
 // Composables
 import { createApp } from 'vue'
 
@@ -18,5 +20,6 @@ const app = createApp(App)
 
 registerPlugins(app)
 app.use(store);
+app.use(router);
 app.use(axiosPlugin);
 app.mount('#app')

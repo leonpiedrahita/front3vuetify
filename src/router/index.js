@@ -27,21 +27,24 @@ const routes = [
       public: true
     },
   },
-  {
-    path: '/listarclientes',
-    name: 'ListarClientes',
-    component: () => import(/* webpackChunkName: "listarclientes" */ '../views/ListarClientes.vue'),
-    meta: {
-      auth: true
-    }
-  },
+ 
   {
     path: '/segura',
     name: 'Segura',
     component: () => import(/* webpackChunkName: "listarclientes" */ '../views/Segura.vue'),
     meta: {
       auth: true
-    }
+    },
+    children: [
+      {
+        path: '/listarclientes',
+        name: 'ListarClientes',
+        component: () => import(/* webpackChunkName: "listarclientes" */ '../views/ListarClientes.vue'),
+        meta: {
+          auth: true
+        }
+      },
+    ]
   },
 ]
 

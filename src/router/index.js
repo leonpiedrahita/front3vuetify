@@ -44,6 +44,14 @@ const routes = [
           auth: true
         }
       },
+      {
+        path: '/listarequipos',
+        name: 'ListarEquipos',
+        component: () => import(/* webpackChunkName: "listarclientes" */ '../views/ListarEquipos.vue'),
+        meta: {
+          auth: true
+        }
+      },
     ]
   },
 ]

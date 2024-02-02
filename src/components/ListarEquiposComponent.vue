@@ -101,8 +101,8 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete
                         v-model="nuevoequipo.ubicacion.nombre"
-                        :items="ubicacionclientes"
-                        item-text="nombre"
+                        :items="nombreUbicacionesCliente"
+                        
                         label="Sede"
                         :rules="[(v) => !!v || 'Campo Requerido']"
                         required
@@ -215,7 +215,7 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete
                         v-model="equipomodificado.ubicacionnombre"
-                        :items="ubicacionclientesmodificado"
+                        :items="nombreUbicacionesClienteModificado"
                         item-text="nombre"
                         label="Sede"
                         :rules="[(v) => !!v || 'Campo Requerido']"
@@ -406,7 +406,7 @@
         </v-icon>
       </template>
     </v-data-table>
-    <pre> {{ this.$store.state.detallesequipo }} </pre>
+    <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
   </v-card>
   </template>
   <script>
@@ -429,6 +429,8 @@
       observaciones: "",
       listadeetapas: [],
       listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler"],
+      nombreUbicacionesCliente:[],
+      nombreUbicacionesClienteModificado:[],
       ordenes: [
         {
           etapaactual: 1, // Paso actual
@@ -593,102 +595,34 @@
           }
         });
       },
-      nuevamarca: function () {
-        // `this` apunta a la instancia vm
-        this.nuevoequipo.marca = this.refequipos.map((equipo) => {
-          if (equipo.nombre === this.nuevoequipo.nombre) {
-            return equipo.marca;
-          }
-        });
-  
-        var filtered = this.nuevoequipo.marca.filter(function (el) {
-          return el != null;
-        });
-        this.nuevoequipo.marca = filtered[0];
-  
-        this.nuevoequipo.id = this.refequipos.map((equipo) => {
-          if (equipo.nombre === this.nuevoequipo.nombre) {
-            return equipo.id;
-          }
-        });
-        var filtered = this.nuevoequipo.id.filter(function (el) {
-          return el != null;
-        });
-        this.nuevoequipo.id = filtered[0];
-      },
-  
-      nuevopropietario: function () {
-        // `this` apunta a la instancia vm
-        this.nuevoequipo.propietario.id = this.clientes.map((cliente) => {
-          if (cliente.nombre === this.nuevoequipo.propietario.nombre) {
-            return cliente._id;
-          }
-        });
-        var filtered = this.nuevoequipo.propietario.id.filter(function (el) {
-          return el != null;
-        });
-        this.nuevoequipo.propietario.id = filtered[0];
-      },
-      nuevocliente: function () {
-        // `this` apunta a la instancia vm
-        this.nuevoequipo.cliente.id = this.clientes.map((cliente) => {
-          if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
-            return cliente._id;
-          }
-        });
-        var filtered = this.nuevoequipo.cliente.id.filter(function (el) {
-          return el != null;
-        });
-        this.nuevoequipo.cliente.id = filtered[0];
-        this.ubicacionclientes = this.clientes.map((cliente) => {
-          if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
-            return cliente.sede;
-          }
-        });
-        var filtered = this.ubicacionclientes.filter(function (el) {
-          return el != null;
-        });
-        this.ubicacionclientes = filtered[0];
-      },
-      nuevopropietariomodificado: function () {
-        // `this` apunta a la instancia vm
-        this.equipomodificado.propietario.id = this.clientes.map((cliente) => {
-          if (cliente.nombre === this.equipomodificado.propietario.nombre) {
-            return cliente._id;
-          }
-        });
-        var filtered = this.equipomodificado.propietario.id.filter(function (el) {
-          return el != null;
-        });
-        this.equipomodificado.propietario.id = filtered[0];
-      },
-      nuevoclientemodificado: function () {
-        // `this` apunta a la instancia vm
-        this.equipomodificado.cliente.id = this.clientes.map((cliente) => {
-          if (cliente.nombre === this.equipomodificado.cliente.nombre) {
-            return cliente._id;
-          }
-        });
-        var filtered = this.equipomodificado.cliente.id.filter(function (el) {
-          return el != null;
-        });
-        this.equipomodificado.cliente.id = filtered[0];
-        this.ubicacionclientesmodificado = this.clientes.map((cliente) => {
-          if (cliente.nombre === this.equipomodificado.cliente.nombre) {
-            return cliente.sede;
-          }
-        });
-        var filtered = this.ubicacionclientesmodificado.filter(function (el) {
-          return el != null;
-        });
-        this.ubicacionclientesmodificado = filtered[0];
-      },
+
+      
     },
   
     watch: {
       dialog(val) {
         val || this.close();
       },
+      'nuevoequipo.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando nuevoequipo.nombre cambie
+      this.nuevamarca();
+    },
+    'nuevoequipo.propietario.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando nuevoequipo.propietario.nombre cambie
+      this.nuevopropietario();
+    },
+    'nuevoequipo.cliente.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando nuevoequipo.cliente.nombre cambie
+      this.nuevocliente();
+    },
+    'equipomodificado.cliente.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
+      this.nuevopropietariomodificado();
+    },
+    'equipomodificado.cliente.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
+      this.nuevoclientemodificado();
+    }
     },
     beforeCreate() {
       this.$store.dispatch("autoLogin");
@@ -1113,6 +1047,102 @@
             return error;
           });
       },
+      nuevamarca: function () {
+        // `this` apunta a la instancia vm
+        this.nuevoequipo.marca = this.refequipos.map((equipo) => {
+          if (equipo.nombre === this.nuevoequipo.nombre) {
+            return equipo.marca;
+          }
+        });
+  
+        var filtered = this.nuevoequipo.marca.filter(function (el) {
+          return el != null;
+        });
+        this.nuevoequipo.marca = filtered[0];
+  
+        this.nuevoequipo.id = this.refequipos.map((equipo) => {
+          if (equipo.nombre === this.nuevoequipo.nombre) {
+            return equipo.id;
+          }
+        });
+        var filtered = this.nuevoequipo.id.filter(function (el) {
+          return el != null;
+        });
+        this.nuevoequipo.id = filtered[0];
+      },
+  
+      nuevopropietario: function () {
+        // `this` apunta a la instancia vm
+        this.nuevoequipo.propietario.id = this.clientes.map((cliente) => {
+          if (cliente.nombre === this.nuevoequipo.propietario.nombre) {
+            return cliente._id;
+          }
+        });
+        var filtered = this.nuevoequipo.propietario.id.filter(function (el) {
+          return el != null;
+        });
+        this.nuevoequipo.propietario.id = filtered[0];
+      },
+
+      nuevopropietariomodificado: function () {
+        // `this` apunta a la instancia vm
+        this.equipomodificado.propietario.id = this.clientes.map((cliente) => {
+          if (cliente.nombre === this.equipomodificado.propietario.nombre) {
+            return cliente._id;
+          }
+        });
+        var filtered = this.equipomodificado.propietario.id.filter(function (el) {
+          return el != null;
+        });
+        this.equipomodificado.propietario.id = filtered[0];
+      },
+            nuevocliente: function () {
+        // `this` apunta a la instancia vm
+        this.nuevoequipo.cliente.id = this.clientes.map((cliente) => {
+          if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
+            return cliente._id;
+          }
+        });
+        var filtered = this.nuevoequipo.cliente.id.filter(function (el) {
+          return el != null;
+        });
+        this.nuevoequipo.cliente.id = filtered[0];
+        this.ubicacionclientes = this.clientes.map((cliente) => {
+          if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
+            return cliente.sede;
+          }
+        });
+        var filtered = this.ubicacionclientes.filter(function (el) {
+          return el != null;
+        });
+        this.ubicacionclientes = filtered[0];
+        //NombreUbicacionesCliente es un array con nombres de las sedes de los clientes para que pueda ser mostrado en la lista desplegable
+    this.nombreUbicacionesCliente = this.ubicacionclientes.map(objeto => Object.values(objeto)[0]);
+  
+      },
+      nuevoclientemodificado: function () {
+        // `this` apunta a la instancia vm
+        this.equipomodificado.cliente.id = this.clientes.map((cliente) => {
+          if (cliente.nombre === this.equipomodificado.cliente.nombre) {
+            return cliente._id;
+          }
+        });
+        var filtered = this.equipomodificado.cliente.id.filter(function (el) {
+          return el != null;
+        });
+        this.equipomodificado.cliente.id = filtered[0];
+        this.ubicacionclientesmodificado = this.clientes.map((cliente) => {
+          if (cliente.nombre === this.equipomodificado.cliente.nombre) {
+            return cliente.sede;
+          }
+        });
+        var filtered = this.ubicacionclientesmodificado.filter(function (el) {
+          return el != null;
+        });
+        this.ubicacionclientesmodificado = filtered[0];
+        this.nombreUbicacionesClienteModificado = this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0]);
+      },
+      
     },
     actualizarsede() {
       this.sedeactualizada = "funciona";
@@ -1120,7 +1150,7 @@
   };
   </script>
   <style scoped>
-  .centered-input >>> input {
+  .centered-input :deep(input)  {
     text-align: center;
   }
   .aviso {

@@ -39,11 +39,11 @@
                   <v-list-item-title> Existentes </v-list-item-title>
                 </v-list-item-subtitle>
               </v-list-item>
-              <!--               <v-list-item :to="{ name: 'ListarRefEquipos' }">
+               <v-list-item :to="{ name: 'ListarRefEquipos' }">
                 <v-list-item-subtitle>
                   <v-list-item-title> Referencias </v-list-item-title>
                 </v-list-item-subtitle>
-              </v-list-item> -->
+              </v-list-item> 
             
           </v-list-group>
           <!--             <v-list-item :to="{ name: 'ListarOrdenes' }">

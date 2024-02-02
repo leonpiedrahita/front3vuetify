@@ -7,8 +7,12 @@
 // Components
 import App from './App.vue'
 import store from './store'
-import axiosPlugin from './plugins/axios';
+import axiosPlugin from './plugins/axios'
 import router from './router'
+import { VueSignaturePad } from "vue-signature-pad";
+
+
+
 
 // Composables
 import { createApp } from 'vue'
@@ -21,5 +25,8 @@ const app = createApp(App)
 registerPlugins(app)
 app.use(store);
 app.use(router);
+
 app.use(axiosPlugin);
+app.component("VueSignaturePad", VueSignaturePad);
+
 app.mount('#app')

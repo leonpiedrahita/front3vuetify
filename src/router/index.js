@@ -52,6 +52,55 @@ const routes = [
           auth: true
         }
       },
+      {
+        path: '/formulariogenerarorden',
+        name: 'FormularioGenerarOrden',
+        component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/FormularioGenerarOrden.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
+        path: '/firma',
+        name: 'Firma',
+        component: () => import(/* webpackChunkName: "firma" */ '../views/Firma.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
+        path: '/detallesequipo',
+        name: 'DetallesEquipo',
+        component: () => import(/* webpackChunkName: "detallesequipo" */ '../views/DetallesEquipo.vue'),
+        meta: {
+          public: true
+        },
+      },
+      {
+      path: '/listarrefequipos',
+      name: 'ListarRefEquipos',
+      component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/ListarRefEquipos.vue'),
+      meta: {
+        public: true
+      },
+    },
+    {
+      path: '/formulariorefequipos',
+      name: 'FormularioRefEquipos',
+      component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/FormularioRefEquipos.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
+      path: '/imprimirreporte',
+      name: 'ImprimirReporte',
+      component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/ImprimirReporte.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    
     ]
   },
 ]

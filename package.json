@@ -12,8 +12,6 @@
     "@vuelidate/validators": "^2.0.4",
     "axios": "^1.6.2",
     "html2canvas": "^1.4.1",
-    "html2pdf.js": "^0.10.1",
-    "jspdf": "^2.5.1",
     "jwt-decode": "^3.1.2",
     "roboto-fontface": "*",
     "vue": "^3.2.38",

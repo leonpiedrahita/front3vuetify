@@ -3,9 +3,7 @@
   </template>
   
   <script>
-  import jsPDF from "jspdf";
-  
-  import html2canvas from "html2canvas";
+
 import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue";
   export default {
     components: {
@@ -19,7 +17,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     methods: {
       imprimir() {
         var printContents = document.getElementById("body").innerHTML;
-        var originalContents = document.body.innerHTML;
+        
   
         document.body.innerHTML = printContents;
   
@@ -32,7 +30,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
   </script>
   <style >
   
-  .grid > div {
+  .grid :deep(div)  {
     background-color: #ffffff;
     padding: 5px;
     text-align: center;
@@ -60,7 +58,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     gap: 1px;
     background-color: #424242;
   }
-  .gridencabezado > div {
+  .gridencabezado :deep(div)  {
     align-items: center;
   
     background-color: #ffffff;
@@ -84,7 +82,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     gap: 1px;
     background-color: #424242;
   }
-  .gridcontenido > div {
+  .gridcontenido :deep(div)  {
     background-color: #ffffff;
     padding: 5px;
     text-align: justify;
@@ -106,7 +104,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     gap: 1px;
     background-color: #424242;
   }
-  .gridtitulo > div {
+  .gridtitulo :deep(div)  {
     background-color: #cfd8dc;
     padding: 5px;
     text-align: center;
@@ -194,7 +192,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
   }
     .grid > div {
       background-color: #ffffff;
-      padding: 5px;
+      padding: 2px;
       /* border: 5px solid black; */
       text-align: center;
       text-justify: center;
@@ -213,6 +211,8 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     }
     .titulo {
       grid-column: 1;
+      font-size: 10px;
+  font-family: 'Times New Roman';
     }
     .gridencabezado {
       display: grid;
@@ -222,7 +222,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
       gap: 1px;
       background-color: #424242;
     }
-    .gridencabezado > div {
+    .gridencabezado :deep(div)  {
       align-items: center;
   
       background-color: #ffffff;
@@ -246,9 +246,9 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
       gap: 1px;
       background-color: #424242;
     }
-    .gridcontenido > div {
+    .gridcontenido :deep(div)  {
       background-color: #ffffff;
-      padding: 5px;
+      padding: 2px;
       text-align: justify;
       text-justify: center;
       border-radius: 3px;
@@ -269,9 +269,9 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
       gap: 1px;
       background-color: #424242;
     }
-    .gridtitulo > div {
+    .gridtitulo :deep(div)  {
       background-color: #cfd8dc;
-      padding: 5px;
+      padding: 1px;
       text-align: center;
       text-justify: center;
       border-radius: 3px;
@@ -290,12 +290,16 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     .dato {
       text-align: left;
       text-justify: center;
+      font-size: 10px;
+  font-family: 'Times New Roman';
     }
     .negrita {
       font-weight: bold;
     }
     .subtitulonegrita {
       font-weight: 500;
+      font-size: 10px;
+  font-family: 'Times New Roman';
     }
    
     .miimagen {

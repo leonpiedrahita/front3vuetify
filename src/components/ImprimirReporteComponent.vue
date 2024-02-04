@@ -127,7 +127,9 @@
         <div class="grid principal" fluid>
           <div class="gridfirma">
             <div class="lafirma">
-              <img :src="reporte.firmacliente" style="max-width: 50%" />
+              <img :src="reporte.firmacliente" 
+              style="max-width: 25%"
+              class="imagenfirma" />
             </div>
             <div class="nombrefirma">{{reporte.profesionalcliente}}</div>
           </div>
@@ -135,7 +137,7 @@
             <div class="lafirma">
               <img
                 :src="reporte.firmaingeniero"
-                style="max-width: 50%"
+                style="max-width: 25%"
                 class="imagenfirma"
               />
             </div>
@@ -196,7 +198,7 @@
         /* axios.get('http://localhost:3000/api/reporte/listaruno/61106575e0d7ee0b980450fe') */
         console.log(this.$store.state.identificacion)
         console.log(this.$store.state.ruta + 'api/reporte/listaruno/'+this.$store.state.identificacion)
-        axios.get(this.$store.state.ruta + 'api/reporte/listaruno/'+this.$store.state.identificacion)
+        axios.get(this.$store.state.ruta + 'api/reporte/listaruno/'+'61106575e0d7ee0b980450fe')
         
         .then(
           response =>{
@@ -383,6 +385,8 @@
     .nombrefirma {
       text-align: center;
       text-justify: justify;
+      font-size: 10px;
+  font-family: 'Times New Roman';
     }
     .miimagen {
       content: url("../imagenes/logo/BS.png");
@@ -430,13 +434,11 @@
     }
   }
   @media print {
-      .miimagen {
-    width: 70%;
-    height: 100%;
-  }
+  
     .lafirma {
       height: 100%;
       width: 100%;
+      
     }
     .gridfirma {
       display: grid;
@@ -455,112 +457,7 @@
     .miimagen {
       background: url("../imagenes/logo/biosystems.jpg");
     }
-    .grid > div {
-      background-color: #ffffff;
-      padding: 5px;
-      /* border: 5px solid black; */
-      text-align: center;
-      text-justify: center;
-      border-radius: 3px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(auto, auto);
-      gap: 1px;
-    }
-    .principal {
-      padding: 0px;
-      background-color: #424242;
-      -webkit-print-color-adjust: exact;
-    }
-    .titulo {
-      grid-column: 1;
-    }
-    .gridencabezado {
-      display: grid;
-  
-      grid-template-columns: 2fr 4fr 3fr;
-      grid-template-rows: repeat(1, auto);
-      gap: 1px;
-      background-color: #424242;
-    }
-    .gridencabezado > div {
-      align-items: center;
-  
-      background-color: #ffffff;
-      padding: 5px;
-      text-align: center;
-      text-justify: center;
-      border-radius: 3px;
-  
-      /* border: 5px solid black; */
-    }
-    .nombrereporte {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 100%;
-    }
-    .gridcontenido {
-      display: grid;
-      grid-template-columns: repeat(1, auto);
-      grid-template-rows: repeat(1, auto);
-      gap: 1px;
-      background-color: #424242;
-    }
-    .gridcontenido > div {
-      background-color: #ffffff;
-      padding: 5px;
-      text-align: justify;
-      text-justify: center;
-      border-radius: 3px;
-  
-      /* border: 5px solid black; */
-    }
-    .paddingfilas {
-      background-color: #424242;
-      display: grid;
-      row-gap: 2px;
-      padding: 5px;
-      -webkit-print-color-adjust: exact;
-    }
-    .gridtitulo {
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(1, auto);
-      gap: 1px;
-      background-color: #424242;
-    }
-    .gridtitulo > div {
-      background-color: #cfd8dc;
-      padding: 5px;
-      text-align: center;
-      text-justify: center;
-      border-radius: 3px;
-  
-      /* border: 5px solid black; */
-    }
-    .gridparejas {
-      display: grid;
-      grid-template-columns: 3fr 4fr;
-      grid-template-rows: repeat(1, auto);
-      background-color: #424242;
-      align-items: center;
-  
-      /* border: 5px solid black; */
-    }
-    .dato {
-      text-align: left;
-      text-justify: center;
-    }
-    .negrita {
-      font-weight: bold;
-    }
-    .subtitulonegrita {
-      font-weight: 500;
-    }
-  
+    
   }
   </style>
   

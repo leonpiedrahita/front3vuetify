@@ -79,17 +79,58 @@
             step="0.5"></v-slider>
         </v-col>
         <v-col cols="12" md="3">
-          
-            
-              <v-text-field v-model="reporte.fechadeinicio" label="Día de inicio aaaa-mm-dd" prepend-icon="mdi-calendar"  ></v-text-field>
-            
-          
+          <v-menu
+            v-model="menu1"
+            :close-on-content-click="false"         
+            min-width="auto"
+          >
+            <template v-slot:activator="{props}">
+              <v-text-field
+                v-model="reporte.fechadeinicio"
+                label="Fecha de inicio"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="props"
+               
+              ></v-text-field>
+            </template>
+            <v-date-picker
+            locale="es"
+            @update:model-value="cambiarEstadoDeMenu1"
+              v-model="reporte.fechadeinicio"
+              
+              color="primary"
+              title="Fecha de inicio"
+        header="Seleccionar Fecha"
+            ></v-date-picker>
+          </v-menu>
         </v-col>
-        <v-col cols="12" md="3">
-         
-              <v-text-field v-model="reporte.fechadefinalizacion" label="Día de fin aaaa-mm-dd"
-                prepend-icon="mdi-calendar" ></v-text-field>
-            
+        <v-col cols="12" md="3" >
+          <v-menu
+            v-model="menu2"
+            :close-on-content-click="false"            
+            transition="scale-transition"            
+            min-width="auto"           
+          >
+            <template v-slot:activator="{ props }">
+              <v-text-field
+                v-model="reporte.fechadefinalizacion"
+                label="Fecha de finalización"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-bind="props"
+                
+              ></v-text-field>
+            </template>
+            <v-date-picker
+            locale="es"
+            @update:model-value="cambiarEstadoDeMenu2"
+              v-model="reporte.fechadefinalizacion"
+              color="primary"
+              title="Fecha de finalización"
+        header="Seleccionar Fecha"
+            ></v-date-picker>
+          </v-menu>
         </v-col>
       </v-row>
       <v-divider class="mb-5 mt-5"></v-divider>
@@ -421,7 +462,7 @@ export default {
       duracion: null,
       fechadeinicio: null,
       fechadefinalizacion: null,
-      infoequipo: {
+    infoequipo: {
         nombre: "",
         serie: "",
         marca: "",
@@ -494,6 +535,12 @@ export default {
     });
   },
   methods: {
+    cambiarEstadoDeMenu1() {
+      this.menu1 = !this.menu1;
+    },
+    cambiarEstadoDeMenu2() {
+      this.menu2 = !this.menu2;
+    },
     submit() {
       this.dialogofirma = true;
     },

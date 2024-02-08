@@ -17,7 +17,8 @@ export default defineConfig({
       autoImport: true,
     }),
   ],
-  define: { 'process.env': {} },
+  define: { 'process.env': {},
+  __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true' },//puse esta linea para que dejara de salir el erro que traia ese nombre pero no se mas
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

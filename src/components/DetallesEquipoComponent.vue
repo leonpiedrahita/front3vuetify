@@ -22,8 +22,10 @@
         <v-col>
           <v-card-text>
             
+            <v-treeview  :items="items"> </v-treeview>
           </v-card-text>
         </v-col>
+        
       </v-row>
   
       <pre> {{ equipo }} </pre>

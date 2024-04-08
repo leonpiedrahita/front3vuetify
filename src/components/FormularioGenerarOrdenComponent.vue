@@ -75,8 +75,8 @@
         </v-col>
 
         <v-col cols="12" md="3" class="mt-5">
-          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="10" min="0.5"
-            step="0.5"></v-slider>
+          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15" min="0.5"
+            step="0.25"></v-slider>
         </v-col>
         <v-col cols="12" md="3">
           <v-menu
@@ -94,15 +94,16 @@
                
               ></v-text-field>
             </template>
+            <v-locale-provider locale="es">
             <v-date-picker
             locale="es"
             @update:model-value="cambiarEstadoDeMenu1"
-              v-model="reporte.fechadeinicio"
+              v-model="fechadeiniciocalendario"
               
               color="primary"
               title="Fecha de inicio"
         header="Seleccionar Fecha"
-            ></v-date-picker>
+            ></v-date-picker></v-locale-provider>
           </v-menu>
         </v-col>
         <v-col cols="12" md="3" >
@@ -122,14 +123,15 @@
                 
               ></v-text-field>
             </template>
+            <v-locale-provider locale="es">
             <v-date-picker
             locale="es"
             @update:model-value="cambiarEstadoDeMenu2"
-              v-model="reporte.fechadefinalizacion"
+              v-model="fechadefinalizacioncalendario"
               color="primary"
               title="Fecha de finalización"
         header="Seleccionar Fecha"
-            ></v-date-picker>
+            ></v-date-picker></v-locale-provider>
           </v-menu>
         </v-col>
       </v-row>
@@ -418,9 +420,9 @@ export default {
       "Mantenimiento preventivo y correctivo",
       "Desinstalación",
     ],
-    fechadeinicio: null,
+    fechadeiniciocalendario: null,
     menu1: false,
-    fechadefinalizacion: new Date().toISOString().substr(0, 10),
+    fechadefinalizacioncalendario: null,
     menu2: false,
     checkbox: false,
     esperaguardar: false,
@@ -489,6 +491,7 @@ export default {
   }),
 
   computed: {
+  
     checkboxErrors() {
       const errors = [];
       if (!this.$v.checkbox.$dirty) return errors;
@@ -535,10 +538,14 @@ export default {
     });
   },
   methods: {
-    cambiarEstadoDeMenu1() {
-      this.menu1 = !this.menu1;
+    cambiarEstadoDeMenu1(fechaseleccionadaincio) {
+      
+      this.reporte.fechadeinicio=fechaseleccionadaincio.getDate()+'-'+(fechaseleccionadaincio.getMonth() + 1 )+'-'+fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
+      
+    this.menu1 = !this.menu1;
     },
-    cambiarEstadoDeMenu2() {
+    cambiarEstadoDeMenu2(fechaseleccionadafinalizacion) {
+      this.reporte.fechadefinalizacion=fechaseleccionadafinalizacion.getDate()+'-'+(fechaseleccionadafinalizacion.getMonth() + 1 )+'-'+fechaseleccionadafinalizacion.getFullYear(); // Los meses en JavaScript van de 0 a 11
       this.menu2 = !this.menu2;
     },
     submit() {

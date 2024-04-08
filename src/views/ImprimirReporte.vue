@@ -11,10 +11,11 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     ImprimirReporteComponent
 },
     mounted() {
-      setTimeout(() => {  this.imprimir(); }, 3000);
+      setTimeout(() => {  this.imprimir(); }, 2000);
          
     },
     methods: {
+      
       imprimir() {
         var printContents = document.getElementById("body").innerHTML;
         

@@ -157,10 +157,12 @@
   
   <script>
   import axios from 'axios';
+  
   export default {
     name: "ImprimirReporteComponent",
     components: {},
     data: () => ({
+      identificacion:null,
       reporte: {
       numero: null,
       tipodeasistencia:"",
@@ -190,15 +192,19 @@
       },
      
     }),
+    beforeCreate(){
+  this.identificacion=this.$store.state.identificacion
+    },
    created() {
+    
       this.listar();
     },
     methods: {
       listar() {
         /* axios.get('http://localhost:3000/api/reporte/listaruno/61106575e0d7ee0b980450fe') */
-        console.log(this.$store.state.identificacion)
+        console.log(this.identificacion)
         console.log(this.$store.state.ruta + 'api/reporte/listaruno/'+this.$store.state.identificacion)
-        axios.get(this.$store.state.ruta + 'api/reporte/listaruno/'+'61106575e0d7ee0b980450fe')
+        axios.get(this.$store.state.ruta + 'api/reporte/listaruno/'+this.$store.state.identificacion)
         
         .then(
           response =>{

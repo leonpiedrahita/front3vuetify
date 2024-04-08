@@ -1,79 +1,92 @@
 <template>
-  <v-container class="fill-height">
-    <v-responsive class="d-flex align-center text-center fill-height">
-      <v-img
-        contain
-        height="300"
-        src="@/assets/logo.svg"
-      />
-
-      <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
-
-      <h1 class="text-h2 font-weight-bold">Vuetify</h1>
-
-      <div class="py-14" />
-
-      <v-row class="d-flex align-center justify-center">
-        <v-col cols="auto">
-          <v-btn
-            href="https://next.vuetifyjs.com/components/all/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-view-dashboard"
-              size="large"
-              start
-            />
-
-            Components
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            color="primary"
-            href="https://next.vuetifyjs.com/introduction/why-vuetify/#feature-guides"
-            min-width="228"
-            rel="noopener noreferrer"
-            size="x-large"
-            target="_blank"
-            variant="flat"
-          >
-            <v-icon
-              icon="mdi-speedometer"
-              size="large"
-              start
-            />
-
-            Get Started
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            href="https://community.vuetifyjs.com/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-account-group"
-              size="large"
-              start
-            />
-
-            Community
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-responsive>
+  <v-container>
+    <v-treeview density="compact" :items="items" />
   </v-container>
 </template>
 
 <script setup>
-  //
+  import { ref } from 'vue'
+
+  const items = ref([
+    {
+      value: 1,
+      title: 'Applications :',
+      locked: true,
+      children: [
+        { value: 2, title: 'Calendar : app', locked: false },
+        { value: 3, title: 'Chrome : app', locked: false },
+        { value: 4, title: 'Webstorm : app', locked: true },
+      ],
+    },
+    {
+      value: 5,
+      title: 'Documents :',
+      locked: false,
+      children: [
+        {
+          value: 6,
+          title: 'vuetify :',
+          locked: false,
+          children: [
+            {
+              value: 7,
+              title: 'src :',
+              locked: true,
+              children: [
+                { value: 8, title: 'index : ts', locked: false },
+                { value: 9, title: 'bootstrap : ts', locked: false },
+              ],
+            },
+          ],
+        },
+        {
+          value: 10,
+          title: 'material2 :',
+          locked: false,
+          children: [
+            {
+              value: 11,
+              title: 'src :',
+              locked: false,
+              children: [
+                { value: 12, title: 'v-btn : ts' },
+                { value: 13, title: 'v-card : ts' },
+                { value: 14, title: 'v-window : ts' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      value: 15,
+      title: 'Downloads :',
+      children: [
+        { value: 16, title: 'October : pdf' },
+        { value: 17, title: 'November : pdf' },
+        { value: 18, title: 'Tutorial : html' },
+      ],
+    },
+    {
+      value: 19,
+      title: 'Videos :',
+      children: [
+        {
+          value: 20,
+          title: 'Tutorials :',
+          children: [
+            { value: 21, title: 'Basic layouts : mp4' },
+            { value: 22, title: 'Advanced techniques : mp4' },
+            { value: 23, title: 'All about app : dir' },
+          ],
+        },
+        { value: 24, title: 'Intro : mov' },
+        { value: 25, title: 'Conference introduction : avi' },
+      ],
+    },
+    {
+      value: 26,
+      title: 'Another',
+    },
+  ])
 </script>

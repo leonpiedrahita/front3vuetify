@@ -17,7 +17,7 @@
     "vue": "^3.4.15",
     "vue-router": "^4.0.0",
     "vue-signature-pad": "^3.0.2",
-    "vuetify": "^3.5.2",
+    "vuetify": "^3.5.9",
     "vuex": "^4.0.2",
     "webfontloader": "^1.0.0"
   },

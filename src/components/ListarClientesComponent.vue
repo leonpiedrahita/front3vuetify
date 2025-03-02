@@ -270,149 +270,61 @@
   </v-card>
 </template>
 <script>
- import axios from "axios";
+import axios from "axios";
 export default {
   name: "ListarClientesComponent",
-  data: () => ({
-    expanded: [],
-    input1: "",
-    Editarcliente: false,
-    Agregarcliente: false,
-    dialogo: false,
-    textodialogo: "",
-    dialog: false,
-    dialog2: false,
-    dialogDelete: false,
-    search: "",
-    cargando: true,
-    esperarguardar: false,
-    encabezado: [
-      {
-        title: "Sede",
-        value: "nombre",
-        align: "center",
-        class: "titulo--text font-weight-bold",
-        width: "50%",
+  data() {
+    return {
+      expanded: [],
+      search: "",
+      cargando: true,
+      esperarguardar: false,
+      dialogo: false,
+      textodialogo: "",
+      dialog: false,
+      dialog2: false,
+      dialogDelete: false,
+      Editarcliente: false,
+      Agregarcliente: false,
+      equipos: [],
+      editedIndex: -1,
+      editedItem: {
+        nit: "",
+        nombre: "",
+        contactoprincipal: [{ nombre: "", telefono: "" }],
       },
-      {
-        title: "Dirección",
-        value: "direccion",
-        align: "center",
-        class: "titulo--text font-weight-bold",
-        width: "50%",
-      },
-      {
-        title: "Eliminar sede",
-        value: "eliminarsede",
-        sortable: false,
-
-        class: "titulo--text font-weight-bold ",
-        width: "50%",
-      },
-    ],
-    headers: [
-      {
-        title: "Nombre/Razón social",
-        align: "center",
-        value: "nombre",
-        class: "titulo--text font-weight-bold",
-      },
-      {
-        title: "NIT",
-        value: "nit",
-        align: "center",
-        class: "titulo--text font-weight-bold",
-      },
-      {
-        title: "Nombre de contacto principal",
-        value: "contactoprincipal[0].nombre",
-        align: "center",
-        class: "titulo--text font-weight-bold",
-      },
-      {
-        title: "Teléfono de contacto principal",
-        value: "contactoprincipal[0].telefono",
-        align: "center",
-        divider: true,
-        class: "titulo--text font-weight-bold",
-      },
-      {
-        title: "Editar cliente",
-        value: "editarsede",
-        sortable: false,
-        align: "center",
-        class: "titulo--text font-weight-bold",
-      },
-      {
-        title: "Agregar Sede",
-        value: "agregarsede",
-        sortable: false,
-        align: "center",
-        class: "titulo--text font-weight-bold",
-      },
-    ],
-  
-    editedIndex: -1,
-    equipos: [],
-    prueba: {},
-    editedItem: {
-      nit: "",
-      nombre: "",
-      contactoprincipal: [{}],
-    },
-    editedItem2: {
-      nombre: "",
-      direccion: "",
-    },
-    defaultItem: {
-      nit: "",
-      nombre: "",
-      contactoprincipal: [
-        {
-          nombre: "",
-          telefono: "",
-        },
+      editedItem2: { nombre: "", direccion: "" },
+      defaultItem: { nit: "", nombre: "", contactoprincipal: [{ nombre: "", telefono: "" }] },
+      defaultItem2: { nombre: "", direccion: "" },
+      encabezado: [
+        { title: "Sede", value: "nombre", align: "center", class: "font-weight-bold" },
+        { title: "Dirección", value: "direccion", align: "center", class: "font-weight-bold" },
+        { title: "Eliminar sede", value: "eliminarsede", sortable: false, class: "font-weight-bold" },
       ],
-    },
-    defaultItem2: {
-      nombre: "",
-      direccion: "",
-    },
-  }),
+      headers: [
+        { title: "Nombre/Razón social", align: "center", value: "nombre", class: "font-weight-bold" },
+        { title: "NIT", value: "nit", align: "center", class: "font-weight-bold" },
+        { title: "Nombre de contacto principal", value: "contactoprincipal[0]?.nombre", align: "center", class: "font-weight-bold" },
+        { title: "Teléfono de contacto principal", value: "contactoprincipal[0]?.telefono", align: "center", class: "font-weight-bold" },
+        { title: "Editar cliente", value: "editarsede", sortable: false, align: "center", class: "font-weight-bold" },
+        { title: "Agregar Sede", value: "agregarsede", sortable: false, align: "center", class: "font-weight-bold" },
+      ],
+    };
+  },
 
   computed: {
-    titulocliente() {
-      return "Editar cliente";
-    },
-    titulosede() {
-      return "Agregar sede";
-    },
-    
+    titulocliente() { return "Editar cliente"; },
+    titulosede() { return "Agregar sede"; },
   },
 
   watch: {
-    dialog(val) {
-      val || this.cerrareditar();
-    },
-    dialog2(val) {
-      val || this.cerraragregarsede();
-    },
-    dialogDelete(val) {
-      val || this.cerrareliminarsede();
-    },
+    dialog(val) { if (!val) this.cerrareditar(); },
+    dialog2(val) { if (!val) this.cerraragregarsede(); },
+    dialogDelete(val) { if (!val) this.cerrareliminarsede(); },
   },
-  beforeCreate() {
-    this.$store.dispatch("autoLogin");
-    if (this.$store.state.existe === 0) {
-      this.$router.push({ name: "Login" });
-    }
-    this.$store.dispatch("guardarUbicacion", {
-      ubicacion: "Clientes",
-      icono: "mdi-account-box-multiple",
-      color: "c6",
-    });
-  },
+
   created() {
+    this.$store.dispatch("autoLogin");
     if (this.$store.state.existe === 0) {
       this.$router.push({ name: "Login" });
     } else {
@@ -422,212 +334,131 @@ export default {
 
   methods: {
     listar() {
-      //va a ir a mi backend y me traerá las peticiones de la base de datos
+      if (!this.$store.state.ruta || !this.$store.state.token) {
+        console.error("Falta configuración de ruta o token");
+        return;
+      }
+
       axios
-        .get(this.$store.state.ruta + "api/cliente/listar", {
-          headers: {
-            token: this.$store.state.token,
-            
-          },
-          
-        })
+        .get(`${this.$store.state.ruta}api/cliente/listar`, { headers: { token: this.$store.state.token } })
         .then((response) => {
-          this.equipos = response.data; //el this es porque no es propia de la funcion sino de l componente
-
-          this.cargando = false;
-          /* this.equipos.contactoprincipal =
-            this.equipos.contactoprincipal[this.equipos.contactoprincipal.length - 1]; */
-            //console.log(error);
+          this.equipos = response.data;
         })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
+        .catch((error) => console.error("Error al listar clientes:", error))
+        .finally(() => { this.cargando = false; });
     },
-    nuevoCliente() {
-      this.$store.dispatch("autoLogin");
 
+    nuevoCliente() {
       if (this.$store.state.existe === 0) {
-        this.$router.push({ name: 'Login' });
+        this.$router.push({ name: "Login" });
       } else {
         this.Agregarcliente = true;
         this.dialog = true;
       }
     },
+
     editItem(item) {
-     
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = { ...item };
       this.dialog = true;
       this.Editarcliente = true;
     },
+
     editItem2(item) {
-     
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = { ...item };
       this.dialog2 = true;
     },
+
     deleteItem(item) {
-      
-      this.editedItem2 = Object.assign({}, item);
+      this.editedItem2 = { ...item };
       this.dialogDelete = true;
     },
 
     cerrareliminarsede() {
       this.dialogDelete = false;
       this.$nextTick(() => {
-        this.editedItem2 = Object.assign({}, this.defaultItem2);
+        this.editedItem2 = { ...this.defaultItem2 };
         this.editedIndex = -1;
       });
     },
+
     cerrareditar() {
       this.dialog = false;
       this.$nextTick(() => {
-        this.editedItem.contactoprincipal[0].telefono="";
-          this.editedItem.contactoprincipal[0].nombre="";
-          this.editedItem.nit="";
-          this.editedItem.nombre="";
+        this.editedItem = { ...this.defaultItem };
         this.Editarcliente = false;
         this.Agregarcliente = false;
-
         this.editedIndex = -1;
       });
       this.listar();
     },
+
     cerraragregarsede() {
       this.dialog2 = false;
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedItem2 = Object.assign({}, this.defaultItem2);
+        this.editedItem = { ...this.defaultItem };
+        this.editedItem2 = { ...this.defaultItem2 };
         this.editedIndex = -1;
       });
       this.listar();
     },
 
     editar() {
-      //Editar categoria
-      this.Editarcliente = false;
-      
       axios
-        .patch(
-          this.$store.state.ruta +
-            "api/cliente/actualizar/" +
-            this.editedItem._id,
-          {
-            nombre: this.editedItem.nombre,
-            nit: this.editedItem.nit,
-            contactoprincipal: this.editedItem.contactoprincipal,
-          },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-           this.cerrareditar();
-          this.listar();
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
-
-     
+        .patch(`${this.$store.state.ruta}api/cliente/actualizar/${this.editedItem._id}`, {
+          nombre: this.editedItem.nombre,
+          nit: this.editedItem.nit,
+          contactoprincipal: this.editedItem.contactoprincipal,
+        }, { headers: { token: this.$store.state.token } })
+        .then(() => this.cerrareditar())
+        .catch((error) => console.error("Error al actualizar cliente:", error))
+        .finally(() => this.listar());
     },
+
     agregarCliente() {
-      //Editar categoria
       this.esperarguardar = true;
-      const encontrarnit = this.equipos.find(
-        (registro) => registro.nit === this.editedItem.nit
-      );
+      const encontrarnit = this.equipos.find(registro => registro.nit === this.editedItem.nit);
 
       if (encontrarnit) {
         this.textodialogo = "El NIT ya se encuentra registrado";
-        this.Agregarcliente = false;
-        this.cerrareditar();
         this.dialogo = true;
+        this.cerrareditar();
       } else {
-        this.Agregarcliente = false;
-        
         axios
-          .post(
-            this.$store.state.ruta + "api/cliente/registrar/",
-            {
-              nombre: this.editedItem.nombre,
-              nit: this.editedItem.nit,
-              contactoprincipal: this.editedItem.contactoprincipal,
-            },
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response);
-            this.cerrareditar();
+          .post(`${this.$store.state.ruta}api/cliente/registrar/`, {
+            nombre: this.editedItem.nombre,
+            nit: this.editedItem.nit,
+            contactoprincipal: this.editedItem.contactoprincipal,
+          }, { headers: { token: this.$store.state.token } })
+          .then(() => this.cerrareditar())
+          .catch((error) => console.error("Error al agregar cliente:", error))
+          .finally(() => {
             this.esperarguardar = false;
             this.listar();
-          })
-          .catch((error) => {
-            console.log(error);
-            return error;
           });
       }
     },
-    agregarnuevasede() {
-      //Editar categoria
-      axios
-        .patch(
-          this.$store.state.ruta +
-            "api/cliente/agregarsede/" +
-            this.editedItem._id,
-          {
-            nombre: this.editedItem2.nombre,
-            direccion: this.editedItem2.direccion,
-          },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-          this.listar();
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
 
-      this.cerraragregarsede();
+    agregarnuevasede() {
+      axios
+        .patch(`${this.$store.state.ruta}api/cliente/agregarsede/${this.editedItem._id}`, {
+          nombre: this.editedItem2.nombre,
+          direccion: this.editedItem2.direccion,
+        }, { headers: { token: this.$store.state.token } })
+        .then(() => this.listar())
+        .catch((error) => console.error("Error al agregar sede:", error))
+        .finally(() => this.cerraragregarsede());
     },
+
     save3() {
       axios
-        .patch(
-          this.$store.state.ruta + "api/cliente/eliminarsede/",
-          {
-            nombre: this.editedItem2.nombre,
-            direccion: this.editedItem2.direccion,
-            idcliente: this.editedItem2.idcliente,
-          },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-          this.listar();
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
-
-      this.cerrareliminarsede();
+        .patch(`${this.$store.state.ruta}api/cliente/eliminarsede/`, {
+          nombre: this.editedItem2.nombre,
+          direccion: this.editedItem2.direccion,
+          idcliente: this.editedItem2.idcliente,
+        }, { headers: { token: this.$store.state.token } })
+        .then(() => this.listar())
+        .catch((error) => console.error("Error al eliminar sede:", error))
+        .finally(() => this.cerrareliminarsede());
     },
   },
 };

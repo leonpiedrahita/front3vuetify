@@ -86,11 +86,10 @@
           </v-card-text>
         </v-card>
       </v-card-title>
-      
 
     </v-row>
 
-
+    
 
   </v-card>
   <pre> {{ equipo }} </pre>

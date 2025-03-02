@@ -98,7 +98,8 @@ const routes = [
       component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/ImprimirReporte.vue'),
       meta: {
         auth: true
-      }
+      },
+      props:true,
     },
     
     ]

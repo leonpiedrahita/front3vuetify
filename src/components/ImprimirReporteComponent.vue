@@ -156,69 +156,78 @@
   </template>
   
   <script>
-  import axios from 'axios';
-  
-  export default {
-    name: "ImprimirReporteComponent",
-    components: {},
-    data: () => ({
-      identificacion:null,
-      reporte: {
-      numero: null,
-      tipodeasistencia:"",
-      duracion:"",
-      fechadeinicio:"",
-      fechadefinalizacion:"",
-      infoequipo:{
-        nombre:"",
-        serie:"",
-        marca:"",
-      },
-      propietario:"",
-      nombrecliente:"",
-      nitcliente:"",
-      sedecliente:"",
-      direccioncliente:"",
-      profesionalcliente:"",
-      telefonocliente:"",
-      hallazgos:"",
-      actividades:"",
-      pruebas:"",
-      repuestos:"",
-      observaciones:"",
-        firmacliente:"",
-        firmaingeniero:"",
-        ingeniero:"",
-      },
-     
-    }),
-    beforeCreate(){
-  this.identificacion=this.$store.state.identificacion
-    },
-   created() {
+import axios from "axios";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+
+export default {
+  name: "ImprimirReporteComponent",
+  setup() {
+    const route = useRoute();
+    const idreporte = ref(route.params.idreporte); // Reactivo para asegurar que se actualiza correctamente
+    console.log("ID Reporte recibido:", idreporte.value);
     
-      this.listar();
-    },
-    methods: {
-      listar() {
-        /* axios.get('http://localhost:3000/api/reporte/listaruno/61106575e0d7ee0b980450fe') */
-        console.log(this.identificacion)
-        console.log(this.$store.state.ruta + 'api/reporte/listaruno/'+this.$store.state.identificacion)
-        axios.get(this.$store.state.ruta + 'api/reporte/listaruno/'+this.$store.state.identificacion)
-        
-        .then(
-          response =>{
-            this.reporte = response.data;
-          }
-        )
-        .catch(error=>{
-          console.log(error);
-          return error;
-        })
+    return { idreporte };
+  },
+
+  data() {
+    return {
+      reporte: {
+        numero: null,
+        tipodeasistencia: "",
+        duracion: "",
+        fechadeinicio: "",
+        fechadefinalizacion: "",
+        infoequipo: {
+          nombre: "",
+          serie: "",
+          marca: "",
+        },
+        propietario: "",
+        nombrecliente: "",
+        nitcliente: "",
+        sedecliente: "",
+        direccioncliente: "",
+        profesionalcliente: "",
+        telefonocliente: "",
+        hallazgos: "",
+        actividades: "",
+        pruebas: "",
+        repuestos: "",
+        observaciones: "",
+        firmacliente: "",
+        firmaingeniero: "",
+        ingeniero: "",
       },
+    };
+  },
+
+  created() {
+    this.listar();
+  },
+
+  methods: {
+    listar() {
+      const id = this.$route.params.idreporte || JSON.parse(localStorage.getItem("idreporte"));
+      if (!id) {
+        console.error("No se encontró un ID de reporte.");
+        return;
+      }
+
+      console.log("Consultando reporte con ID:", id);
+      
+      axios
+        .get(`http://localhost:3001/api/reporte/listaruno/${id}`)
+        .then((response) => {
+          this.reporte = response.data;
+        })
+        .catch((error) => {
+          console.error("Error al obtener el reporte:", error);
+        });
     },
-  };
-  </script>
+  },
+};
+</script>
   <style >
   .margentotal{
     margin-left: 2%;

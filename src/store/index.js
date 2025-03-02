@@ -12,8 +12,8 @@ const store = createStore({
         ubicacion:'',
         icono:'',
         color:'',
-        /*ruta:'http://localhost:3000/',*/
-        ruta:'https://backalternativo.1.us-1.fl0.io/',
+        ruta:'http://localhost:3001/',
+        /*ruta:'https://backalternativo.1.us-1.fl0.io/',*/
         /* ruta:' https://infinite-wave-12022.herokuapp.com/', */
        identificacion:"",
        ordenes:{},

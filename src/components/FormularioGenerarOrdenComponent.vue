@@ -611,7 +611,7 @@ export default {
           }
         )
         .then((response) => {
-          localStorage.setItem("idreporte", JSON.stringify(response.data.identificacion));
+          localStorage.setItem("idreporte", response.data.identificacion);
         
           this.esperaguardar = false;
           const identificacion = response.data.identificacion;

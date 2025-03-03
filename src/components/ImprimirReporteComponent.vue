@@ -208,7 +208,7 @@ export default {
 
   methods: {
     listar() {
-      const id = this.$route.params.idreporte || JSON.parse(localStorage.getItem("idreporte"));
+      const id = localStorage.getItem("idreporte");
       if (!id) {
         console.error("No se encontró un ID de reporte.");
         return;

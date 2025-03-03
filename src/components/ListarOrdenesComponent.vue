@@ -3,18 +3,18 @@
         <v-data-table :headers="encabezado" :items="ordenes" :search="search" class="elevation-1" :loading="cargando"
             loading-text="Cargando ... por favor espere">
             <template v-slot:top>
-                
-                <v-toolbar flat>
-                    
-          <v-row justify="space-around">
-            <v-col cols="6" sm="5">
-              <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Equipo/Serie/Cliente/Estado"
-                single-line hide-details></v-text-field>
-            </v-col>
 
-            
-          </v-row>
-        </v-toolbar>
+                <v-toolbar flat>
+
+                    <v-row justify="space-around">
+                        <v-col cols="6" sm="5">
+                            <v-text-field v-model="search" append-icon="mdi-magnify"
+                                label="Buscar: Equipo/Serie/Cliente/Estado" single-line hide-details></v-text-field>
+                        </v-col>
+
+
+                    </v-row>
+                </v-toolbar>
             </template>
             <template v-slot:[`item.crear`]="{ item }">
                 <v-icon medium @click="abrirOrden(item)">
@@ -22,7 +22,9 @@
                 </v-icon>
             </template>
         </v-data-table>
+        
     </v-card>
+    
 </template>
 
 <script>

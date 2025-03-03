@@ -1,6 +1,6 @@
 <template>
     <v-card class="pa-2 mt-15 ">
-        <v-data-table :headers="headers" :items="ordenes" :search="search" class="elevation-1" :loading="cargando"
+        <v-data-table :headers="encabezado" :items="ordenes" :search="search" class="elevation-1" :loading="cargando"
             loading-text="Cargando ... por favor espere">
             <template v-slot:top>
                 
@@ -35,28 +35,28 @@ export default {
         ordenes: [],
         search: "",
         ordenseleccionada: {},
-        headers: [
+        encabezado: [
             {
-                text: "Nombre del dispositivo",
-                value: "equipo.nombre",
+                title: "Nombre del dispositivo",
+                key: "equipo.nombre",
                 align: "center",
             },
-            { text: "Número de serie", value: "equipo.serie", align: "center" },
+            { title: "Número de serie", value: "equipo.serie", align: "center" },
             {
-                text: "Cliente asignado",
+                title: "Cliente asignado",
                 align: "center",
-                value: "equipo.cliente.nombre",
+                key: "equipo.cliente.nombre",
             },
             {
-                text: "Estado",
+                title: "Estado",
                 align: "center",
-                value: "estado",
+                key: "estado",
                 divider: true,
             },
 
             {
-                text: "Ver / Editar",
-                value: "crear",
+                title: "Ver / Editar",
+                key: "crear",
                 sortable: false,
                 align: "center",
             },

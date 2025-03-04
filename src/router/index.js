@@ -27,7 +27,7 @@ const routes = [
       public: true
     },
   },
- 
+
   {
     path: '/segura',
     name: 'Segura',
@@ -77,30 +77,48 @@ const routes = [
         },
       },
       {
-      path: '/listarrefequipos',
-      name: 'ListarRefEquipos',
-      component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/ListarRefEquipos.vue'),
-      meta: {
-        public: true
+        path: '/listarrefequipos',
+        name: 'ListarRefEquipos',
+        component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/ListarRefEquipos.vue'),
+        meta: {
+          public: true
+        },
       },
-    },
-    {
-      path: '/formulariorefequipos',
-      name: 'FormularioRefEquipos',
-      component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/FormularioRefEquipos.vue'),
-      meta: {
-        auth: true
-      }
-    },
-    {
-      path: '/imprimirreporte',
-      name: 'ImprimirReporte',
-      component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/ImprimirReporte.vue'),
-      meta: {
-        auth: true
-      }
-    },
-    
+      {
+        path: '/listarordenes',
+        name: 'ListarOrdenes',
+        component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/ListarOrdenes.vue'),
+        meta: {
+          public: true
+        },
+      },
+      {
+        path: '/pasos',
+        name: 'Pasos',
+        component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/Pasos.vue'),
+        meta: {
+          public: true
+        },
+      },
+      {
+        path: '/formulariorefequipos',
+        name: 'FormularioRefEquipos',
+        component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/FormularioRefEquipos.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
+        path: '/imprimirreporte',
+        name: 'ImprimirReporte',
+        component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/ImprimirReporte.vue'),
+        meta: {
+          auth: true
+        },
+
+        props: true,
+      },
+
     ]
   },
 ]

@@ -46,13 +46,11 @@
               </v-list-item> 
             
           </v-list-group>
-          <!--             <v-list-item :to="{ name: 'ListarOrdenes' }">
-              <v-list-item prepend-icon="mdi-vector-circle"/>
+               <v-list-item :to="{ name: 'ListarOrdenes' }">
+              <v-list-item prepend-icon="mdi-vector-circle" title="Ordenes" />
               
-              <v-list-item-subtitle>
-                <v-list-item-title> Ordenes </v-list-item-title>
-              </v-list-item-subtitle>
-            </v-list-item> -->
+              
+            </v-list-item>
 
           <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
             <template v-slot:activator>

@@ -1,18 +1,9 @@
 <template>
-  <v-card class="pa-2 mt-15 " >
-  <!-- se crea la data table prinecipal para listar los clientes -->
-  <v-data-table
-      :headers="headers"
-      :items="equipos"
-      :expanded.sync="expanded"
-      show-expand
-      single-expand
-      :search="search"
-      class="elevation-1"
-      item-value="nit"
-      :loading="cargando"
-      loading-text="Cargando ... por favor espere"
-      ><!-- Se crea la data table secundaria para listar las sedes -->
+  <v-card class="pa-2 mt-15 ">
+    <!-- se crea la data table prinecipal para listar los clientes -->
+    <v-data-table :headers="headers" :items="equipos" :expanded.sync="expanded" show-expand single-expand
+      :search="search" class="elevation-1" item-value="nit" :loading="cargando"
+      loading-text="Cargando ... por favor espere"><!-- Se crea la data table secundaria para listar las sedes -->
       <template v-slot:expanded-row="{ columns, item }">
         <td :colspan="columns.length">
           <div class="sp-details" justify="center">
@@ -33,29 +24,18 @@
       <template v-slot:top>
         <v-toolbar flat>
           <v-row justify="space-around">
-        
-        <v-col cols="6" sm="5">
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Buscar: Cliente / NIT / Nombre / Teléfono"
-            single-line
-            hide-details
-          ></v-text-field>
-           </v-col>
-        
-        <v-col cols="6" sm="2" >
-          <v-btn color="c6" 
-          
-            min-width="228"
-            
-            size="large"
-            
-            variant="flat"
-          large @click="nuevoCliente()"> Nuevo Cliente </v-btn>
-          </v-col>
-          
-        </v-row>
+
+            <v-col cols="6" sm="5">
+              <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Cliente / NIT / Nombre / Teléfono"
+                single-line hide-details></v-text-field>
+            </v-col>
+
+            <v-col cols="6" sm="2">
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="nuevoCliente()"> Nuevo Cliente
+              </v-btn>
+            </v-col>
+
+          </v-row>
           <!-- Dialogo para editar Cliente -->
           <v-dialog v-model="dialog" max-width="500px">
             <v-card>
@@ -67,40 +47,22 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field
-                        v-model="editedItem.nombre"
-                        label="Nombre/Razón Social"
-                        :rules="[(v) => !!v || 'Campo Requerido']"
-                        required
-                        class="centered-input"
-                      ></v-text-field>
+                      <v-text-field v-model="editedItem.nombre" label="Nombre/Razón Social"
+                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field
-                        v-model="editedItem.nit"
-                        label="NIT"
-                        :rules="[(v) => !!v || 'Campo Requerido']"
-                        required
-                        class="centered-input"
-                      ></v-text-field>
+                      <v-text-field v-model="editedItem.nit" label="NIT" :rules="[(v) => !!v || 'Campo Requerido']"
+                        required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field
-                        v-model="editedItem.contactoprincipal[0].nombre"
-                        label="Nombre de contacto principal"
-                        :rules="[(v) => !!v || 'Campo Requerido']"
-                        required
-                        class="centered-input"
-                      ></v-text-field>
+                      <v-text-field v-model="editedItem.contactoprincipal[0].nombre"
+                        label="Nombre de contacto principal" :rules="[(v) => !!v || 'Campo Requerido']" required
+                        class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field
-                        v-model="editedItem.contactoprincipal[0].telefono"
-                        label="Teléfono de contacto principal"
-                        :rules="[(v) => !!v || 'Campo Requerido']"
-                        required
-                        class="centered-input"
-                      ></v-text-field>
+                      <v-text-field v-model="editedItem.contactoprincipal[0].telefono"
+                        label="Teléfono de contacto principal" :rules="[(v) => !!v || 'Campo Requerido']" required
+                        class="centered-input"></v-text-field>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -111,36 +73,22 @@
                 <v-btn color="error darken-1" text @click="cerrareditar">
                   Cancelar
                 </v-btn>
-                <v-btn
-                  :disabled="
-                    !(
-                      editedItem.contactoprincipal[0].telefono &&
-                      editedItem.contactoprincipal[0].nombre &&
-                      editedItem.nit &&
-                      editedItem.nombre
-                    )
-                  "
-                  color="primary darken-1"
-                  text
-                  @click="editar"
-                  v-if="Editarcliente"
-                >
+                <v-btn :disabled="!(
+        editedItem.contactoprincipal[0].telefono &&
+        editedItem.contactoprincipal[0].nombre &&
+        editedItem.nit &&
+        editedItem.nombre
+      )
+      " color="primary darken-1" text @click="editar" v-if="Editarcliente">
                   Editar
                 </v-btn>
-                <v-btn
-                  :disabled="
-                    !(
-                      editedItem.contactoprincipal[0].telefono &&
-                      editedItem.contactoprincipal[0].nombre &&
-                      editedItem.nit &&
-                      editedItem.nombre
-                    )
-                  "
-                  color="primary darken-1"
-                  text
-                  @click="agregarCliente"
-                  v-if="Agregarcliente"
-                >
+                <v-btn :disabled="!(
+        editedItem.contactoprincipal[0].telefono &&
+        editedItem.contactoprincipal[0].nombre &&
+        editedItem.nit &&
+        editedItem.nombre
+      )
+      " color="primary darken-1" text @click="agregarCliente" v-if="Agregarcliente">
                   Agregar
                 </v-btn>
               </v-card-actions>
@@ -157,22 +105,12 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field
-                        v-model="editedItem2.nombre"
-                        label="Sede"
-                        :rules="[(v) => !!v || 'Campo Requerido']"
-                        required
-                        class="centered-input"
-                      ></v-text-field>
+                      <v-text-field v-model="editedItem2.nombre" label="Sede" :rules="[(v) => !!v || 'Campo Requerido']"
+                        required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field
-                        v-model="editedItem2.direccion"
-                        label="Direccion"
-                        :rules="[(v) => !!v || 'Campo Requerido']"
-                        required
-                        class="centered-input"
-                      ></v-text-field>
+                      <v-text-field v-model="editedItem2.direccion" label="Direccion"
+                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input"></v-text-field>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -183,12 +121,8 @@
                 <v-btn color="error darken-1" text @click="cerraragregarsede">
                   Cancelar
                 </v-btn>
-                <v-btn
-                  :disabled="!(editedItem2.nombre && editedItem2.direccion)"
-                  color="primary darken-1"
-                  text
-                  @click="agregarnuevasede"
-                >
+                <v-btn :disabled="!(editedItem2.nombre && editedItem2.direccion)" color="primary darken-1" text
+                  @click="agregarnuevasede">
                   Agregar
                 </v-btn>
               </v-card-actions>
@@ -197,14 +131,10 @@
           <!-- Diálogo para eliminar sede -->
           <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card>
-              <v-card-title class="text-h5"
-                >¿Desea eliminar la sede?</v-card-title
-              >
+              <v-card-title class="text-h5">¿Desea eliminar la sede?</v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error darken-1" text @click="cerrareliminarsede"
-                  >Cancelar</v-btn
-                >
+                <v-btn color="error darken-1" text @click="cerrareliminarsede">Cancelar</v-btn>
                 <v-btn color="primary darken-1" text @click="save3">Aceptar</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -230,25 +160,17 @@
     </v-data-table>
 
     <v-col cols="auto">
-      <v-dialog
-        transition="dialog-top-transition"
-        max-width="500"
-        v-model="dialogo"
-      >
+      <v-dialog transition="dialog-top-transition" max-width="500" v-model="dialogo">
         <template>
           <v-card>
-            <v-toolbar color="error" dark class="text-h3 d-flex justify-center"
-              >Aviso!!!</v-toolbar
-            >
+            <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
             <v-card-text>
               <div class="text-h2 pa-1 ma-1 aviso">
                 {{ $data.textodialogo }}
               </div>
             </v-card-text>
             <v-card-actions class="justify-center">
-              <v-btn text @click="(dialogo = false), (textodialogo = '')"
-                >Cerrar</v-btn
-              >
+              <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
             </v-card-actions>
           </v-card>
         </template>
@@ -258,19 +180,15 @@
       <v-card color="c6" dark>
         <v-card-text>
           Por favor espere...
-          <v-progress-linear
-            indeterminate
-            color="white"
-            class="mb-0"
-          ></v-progress-linear>
+          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
         </v-card-text>
       </v-card>
     </v-dialog>
-    <p>{{this.equipos}}</p> 
+    <p>{{ this.equipos }}</p>
   </v-card>
 </template>
 <script>
- import axios from "axios";
+import axios from "axios";
 export default {
   name: "ListarClientesComponent",
   data: () => ({
@@ -314,7 +232,7 @@ export default {
       {
         title: "Nombre/Razón social",
         align: "center",
-        value: "nombre",
+        key: "nombre",
         class: "titulo--text font-weight-bold",
       },
       {
@@ -351,7 +269,7 @@ export default {
         class: "titulo--text font-weight-bold",
       },
     ],
-  
+
     editedIndex: -1,
     equipos: [],
     prueba: {},
@@ -387,7 +305,7 @@ export default {
     titulosede() {
       return "Agregar sede";
     },
-    
+
   },
 
   watch: {
@@ -427,9 +345,9 @@ export default {
         .get(this.$store.state.ruta + "api/cliente/listar", {
           headers: {
             token: this.$store.state.token,
-            
+
           },
-          
+
         })
         .then((response) => {
           this.equipos = response.data; //el this es porque no es propia de la funcion sino de l componente
@@ -437,7 +355,7 @@ export default {
           this.cargando = false;
           /* this.equipos.contactoprincipal =
             this.equipos.contactoprincipal[this.equipos.contactoprincipal.length - 1]; */
-            //console.log(error);
+          //console.log(error);
         })
         .catch((error) => {
           console.log(error);
@@ -455,18 +373,18 @@ export default {
       }
     },
     editItem(item) {
-     
+
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
       this.Editarcliente = true;
     },
     editItem2(item) {
-     
+
       this.editedItem = Object.assign({}, item);
       this.dialog2 = true;
     },
     deleteItem(item) {
-      
+
       this.editedItem2 = Object.assign({}, item);
       this.dialogDelete = true;
     },
@@ -481,10 +399,10 @@ export default {
     cerrareditar() {
       this.dialog = false;
       this.$nextTick(() => {
-        this.editedItem.contactoprincipal[0].telefono="";
-          this.editedItem.contactoprincipal[0].nombre="";
-          this.editedItem.nit="";
-          this.editedItem.nombre="";
+        this.editedItem.contactoprincipal[0].telefono = "";
+        this.editedItem.contactoprincipal[0].nombre = "";
+        this.editedItem.nit = "";
+        this.editedItem.nombre = "";
         this.Editarcliente = false;
         this.Agregarcliente = false;
 
@@ -505,12 +423,12 @@ export default {
     editar() {
       //Editar categoria
       this.Editarcliente = false;
-      
+
       axios
         .patch(
           this.$store.state.ruta +
-            "api/cliente/actualizar/" +
-            this.editedItem._id,
+          "api/cliente/actualizar/" +
+          this.editedItem._id,
           {
             nombre: this.editedItem.nombre,
             nit: this.editedItem.nit,
@@ -524,7 +442,7 @@ export default {
         )
         .then((response) => {
           console.log(response);
-           this.cerrareditar();
+          this.cerrareditar();
           this.listar();
         })
         .catch((error) => {
@@ -532,7 +450,7 @@ export default {
           return error;
         });
 
-     
+
     },
     agregarCliente() {
       //Editar categoria
@@ -548,7 +466,7 @@ export default {
         this.dialogo = true;
       } else {
         this.Agregarcliente = false;
-        
+
         axios
           .post(
             this.$store.state.ruta + "api/cliente/registrar/",
@@ -580,8 +498,8 @@ export default {
       axios
         .patch(
           this.$store.state.ruta +
-            "api/cliente/agregarsede/" +
-            this.editedItem._id,
+          "api/cliente/agregarsede/" +
+          this.editedItem._id,
           {
             nombre: this.editedItem2.nombre,
             direccion: this.editedItem2.direccion,
@@ -633,12 +551,14 @@ export default {
 };
 </script>
 <style scoped>
-.centered-input >>> input {
+.centered-input>>>input {
   text-align: center;
 }
+
 .aviso {
   text-align: center;
 }
+
 .toolbar {
   flex-wrap: wrap;
 }

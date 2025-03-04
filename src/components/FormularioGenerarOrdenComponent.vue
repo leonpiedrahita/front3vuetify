@@ -382,10 +382,12 @@ import axios from "axios";
 import { useVuelidate } from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 export default {
   name: "FormularioGenerarOrdenComponent",
   setup() {
     return { v$: useVuelidate() }
+    const router = useRouter();
   },
 
   validations: {
@@ -600,6 +602,7 @@ export default {
           this.$store.state.ruta + "api/reporte/registrar/",
           {
             reporte: this.reporte,
+            id_equipo: this.equipo._id
           },
           {
             headers: {
@@ -608,16 +611,18 @@ export default {
           }
         )
         .then((response) => {
+          localStorage.setItem("idreporte", response.data.identificacion);
+        
           this.esperaguardar = false;
           const identificacion = response.data.identificacion;
           console.log(response);
           this.$store.dispatch("guardarIdentificacion", {
             id: identificacion
           });
-          console.log(this.$store.state.identificacion)
-          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte' }).href;
-          window.open(nuevaVentanaURL, '_blank');
-          this.$router.push({ name: "ListarRefEquipos" });
+          console.log(identificacion)
+          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params:{idreporte:identificacion.toString()} }).href;
+          window.open(nuevaVentanaURL, '_blank',"width=800,height=600");
+          this.$router.push({ name: "ListarEquipos" });
         })
         .catch((error) => {
           this.esperaguardar = false;

@@ -1,7 +1,7 @@
 <template>
-  <v-card class="pa-5 mt-15 ">
-    <v-card-title>Informacion del equipo</v-card-title>
-    <v-row>
+  <v-card class="pa-2 mt-15 ">
+    <v-card-title class="text-center"  >Informacion del equipo</v-card-title>
+    <v-row justify="center">
       <v-card-title>
         <v-card title="Nombre del Analizador" variant="flat">
           <v-card-text>
@@ -33,9 +33,9 @@
     </v-row>
 
 
-    <v-card-title>Informacion del propietario</v-card-title>
+    <v-card-title class="text-center">Informacion del propietario</v-card-title>
 
-    <v-row>
+    <v-row justify="center">
       <v-card-title>
         <v-card title="Nombre/Razón social" variant="flat">
           <v-card-text>
@@ -66,8 +66,8 @@
 
     </v-row>
     <v-divider class="mb-5 mt-5"></v-divider>
-    <v-card-title>Informacion del cliente</v-card-title>
-    <v-row>
+    <v-card-title class="text-center">Informacion del cliente</v-card-title>
+    <v-row justify="center">
       <v-card-title>
         <v-card title="Nombre/Razón social" variant="flat">
           <v-card-text>
@@ -86,99 +86,69 @@
           </v-card-text>
         </v-card>
       </v-card-title>
-      
 
+    </v-row>
+    <v-row>
+    <!-- se crea la data table prinecipal para listar los clientes -->
+    <v-data-table :headers="headers" :items="historial"  
+       class="elevation-1" 
+      loading-text="Cargando ... por favor espere">
+      <template v-slot:[`item.agregarsede`]="{ item }">
+        <div>
+          <v-icon style="margin-left: 10px" medium @click="imprimirReporte(item)">
+            mdi-printer
+          </v-icon>
+        </div>
+      </template>
+    </v-data-table>
     </v-row>
 
 
-
   </v-card>
-  <pre> {{ equipo }} </pre>
+  
 </template>
 <script>
 export default {
   name: "DetallesEquipoComponent",
 
   data: () => ({
-    equipo: {},
-
-    items: [
+    equipo: [],
+    historial: [],
+    reporte: {
+      
+    },
+    headers: [
       {
-        id: 1,
-        name: "Applications :",
-        children: [
-          { id: 2, name: "Calendar : app" },
-          { id: 3, name: "Chrome : app" },
-          { id: 4, name: "Webstorm : app" },
-        ],
+        title: "Fecha de ejecución",
+        key: "fechadefinalizacion",
+        align: "center",
+        
+      },
+    {
+        title: "Tipo de soporte",
+        key: "tipodeasistecia",
+        align: "center",
+        
       },
       {
-        id: 5,
-        name: "Documents :",
-        children: [
-          {
-            id: 6,
-            name: "vuetify :",
-            children: [
-              {
-                id: 7,
-                name: "src :",
-                children: [
-                  { id: 8, name: "index : ts" },
-                  { id: 9, name: "bootstrap : ts" },
-                ],
-              },
-            ],
-          },
-          {
-            id: 10,
-            name: "material2 :",
-            children: [
-              {
-                id: 11,
-                name: "src :",
-                children: [
-                  { id: 12, name: "v-btn : ts" },
-                  { id: 13, name: "v-card : ts" },
-                  { id: 14, name: "v-window : ts" },
-                ],
-              },
-            ],
-          },
-        ],
+        title: "Imprimir",
+        value: "agregarsede",
+        sortable: false,
+        align: "center",
+        
       },
-      {
-        id: 15,
-        name: "Downloads :",
-        children: [
-          { id: 16, name: "October : pdf" },
-          { id: 17, name: "November : pdf" },
-          { id: 18, name: "Tutorial : html" },
-        ],
-      },
-      {
-        id: 19,
-        name: "Videos :",
-        children: [
-          {
-            id: 20,
-            name: "Tutorials :",
-            children: [
-              { id: 21, name: "Basic layouts : mp4" },
-              { id: 22, name: "Advanced techniques : mp4" },
-              { id: 23, name: "All about app : dir" },
-            ],
-          },
-          { id: 24, name: "Intro : mov" },
-          { id: 25, name: "Conference introduction : avi" },
-        ],
-      },
+      
+    ],
+    items: [     
+      
+      
     ],
   }),
 
   computed: {},
   created() {
     this.equipo = this.$store.state.detallesequipo;
+    this.historial = this.equipo.historialdeservicios;
   },
   beforeCreate() {
     this.$store.dispatch("autoLogin");
@@ -191,8 +161,19 @@ export default {
       color: "c6",
     });
   },
-  methods: {},
+  methods: {
+
+  imprimirReporte(item) {
+
+  this.reporte = Object.assign({}, item);
+  console.log("reporte",this.reporte.identificaciondereporte)
+  console.log(typeof(this.reporte.identificaciondereporte))
+  localStorage.setItem("idreporte", this.reporte.identificaciondereporte);
+  const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte' }).href;
+          window.open(nuevaVentanaURL, '_blank',"width=800,height=600");
+},
+  },
 };
 </script>
-  
+
 <style scoped></style>

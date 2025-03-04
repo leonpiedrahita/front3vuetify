@@ -10,6 +10,8 @@ import 'vuetify/styles'
 
 // Composables
 import { createVuetify } from 'vuetify'
+import { VTreeview } from 'vuetify/labs/VTreeview'
+import { VStepperVertical,VStepperVerticalItem,VStepperVerticalActions } from 'vuetify/labs/VStepperVertical'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
@@ -43,5 +45,10 @@ export default createVuetify({
       },
     },
   },
-  
+  components: {
+    VTreeview,
+    VStepperVertical,
+    VStepperVerticalItem,
+    VStepperVerticalActions
+  },
 })

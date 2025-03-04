@@ -232,7 +232,7 @@ export default {
       {
         title: "Nombre/Razón social",
         align: "center",
-        value: "nombre",
+        key: "nombre",
         class: "titulo--text font-weight-bold",
       },
       {

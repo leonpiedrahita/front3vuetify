@@ -285,20 +285,20 @@ export default {
       {
         title: "Propietario",
         align: "center",
-        value: "propietario.nombre",
+        key: "propietario.nombre",
       },
       { title: "Nombre", value: "nombre", align: "center" },
       {
         title: "Cliente asignado",
         align: "center",
-        value: "cliente.nombre",
+        key: "cliente.nombre",
       },
       {
         title: "Ubicacion",
         align: "center",
         value: "ubicacionnombre",
       },
-      { title: "Contrato", value: "tipodecontrato", align: "center" },
+      { title: "Contrato", key: "tipodecontrato", align: "center" },
       {
         title: "Detalles",
         value: "detalles",

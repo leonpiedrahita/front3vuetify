@@ -1,5 +1,6 @@
 <template>
-    <div id="body" class="margentotal">
+  <div v-if="cargando">Cargando reporte...</div>
+    <div  v-else id="body" class="margentotal">
       <div class="paddingfilas">
         <div class="gridencabezado titulo principal negrita">
           <div><img class="miimagen" /></div>
@@ -199,6 +200,7 @@ export default {
         firmaingeniero: "",
         ingeniero: "",
       },
+      cargando: true, // Nueva variable para controlar la carga
     };
   },
 
@@ -223,6 +225,9 @@ export default {
         })
         .catch((error) => {
           console.error("Error al obtener el reporte:", error);
+        })
+        .finally(() => {
+          this.cargando = false; // Marcar como cargado cuando finalice
         });
     },
   },

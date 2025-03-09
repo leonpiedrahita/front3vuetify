@@ -4,7 +4,7 @@
   <v-col cols="4" class="d-flex justify-end">
     <v-btn color="primary" class="ma-3 tabla-normal" @click="imprimirVCard">
   <v-icon left class="mr-2">mdi-printer</v-icon> 
-  Imprimir Información
+  Imprimir hoja de vida
 </v-btn>
   </v-col>
 </v-row>

@@ -1,8 +1,13 @@
 <template>
   <v-card id="vcard-imprimir" class="pa-2 mt-15 ">
+    <v-row justify="end">
+  <v-col cols="4" class="d-flex justify-end">
     <v-btn color="primary" class="ma-3 tabla-normal" @click="imprimirVCard">
-  <v-icon left>mdi-printer</v-icon> Imprimir Información
+  <v-icon left class="mr-2">mdi-printer</v-icon> 
+  Imprimir Información
 </v-btn>
+  </v-col>
+</v-row>
     <v-card-title class="text-center" id="tamanotitulo" >Informacion del equipo</v-card-title>
     <v-row justify="center">
       <v-card-title>

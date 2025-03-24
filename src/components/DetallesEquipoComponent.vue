@@ -1,14 +1,14 @@
 <template>
   <v-card id="vcard-imprimir" class="pa-2 mt-15 ">
     <v-row justify="end">
-  <v-col cols="4" class="d-flex justify-end">
-    <v-btn color="primary" class="ma-3 tabla-normal" @click="imprimirVCard">
-  <v-icon left class="mr-2">mdi-printer</v-icon> 
-  Imprimir hoja de vida
-</v-btn>
-  </v-col>
-</v-row>
-    <v-card-title class="text-center" id="tamanotitulo" >Informacion del equipo</v-card-title>
+      <v-col cols="4" class="d-flex justify-end">
+        <v-btn color="primary" class="ma-3 tabla-normal" @click="imprimirVCard">
+          <v-icon left class="mr-2">mdi-printer</v-icon>
+          Imprimir hoja de vida
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-card-title class="text-center" id="tamanotitulo">Informacion del equipo</v-card-title>
     <v-row justify="center">
       <v-card-title>
         <v-card title="Nombre del Analizador" variant="flat">
@@ -41,7 +41,7 @@
     </v-row>
 
 
-    <v-card-title class="text-center" id="tamanotitulo" >Informacion del propietario</v-card-title>
+    <v-card-title class="text-center" id="tamanotitulo">Informacion del propietario</v-card-title>
 
     <v-row justify="center">
       <v-card-title>
@@ -74,7 +74,7 @@
 
     </v-row>
     <v-divider class="mb-5 mt-5"></v-divider>
-    <v-card-title class="text-center" id="tamanotitulo" >Informacion del cliente</v-card-title>
+    <v-card-title class="text-center" id="tamanotitulo">Informacion del cliente</v-card-title>
     <v-row justify="center">
       <v-card-title>
         <v-card title="Nombre/Razón social" variant="flat">
@@ -97,58 +97,55 @@
       <v-divider class="mb-5 mt-5"></v-divider>
     </v-row>
     <v-row>
-    <!-- se crea la data table prinecipal para listar los clientes -->
-    <v-data-table :headers="headers" :items="historial"  
-    class="tabla-normal elevation-1"
-        
-      loading-text="Cargando ... por favor espere">
-      <template v-slot:[`item.agregarsede`]="{ item }">
-        <div class="columna-imprimir">
-        <div>
-          <v-icon style="margin-left: 10px" medium @click="imprimirReporte(item)">
-            mdi-printer
-          </v-icon>
-        </div>
-      </div>
-      </template>
-    </v-data-table>
+      <!-- se crea la data table prinecipal para listar los clientes -->
+      <v-data-table :headers="headers" :items="historial" class="tabla-normal elevation-1"
+        loading-text="Cargando ... por favor espere">
+        <template v-slot:[`item.agregarsede`]="{ item }">
+          <div class="columna-imprimir">
+            <div>
+              <v-icon style="margin-left: 10px" medium @click="imprimirReporte(item)">
+                mdi-printer
+              </v-icon>
+            </div>
+          </div>
+        </template>
+      </v-data-table>
 
-    <v-data-table-virtual
-    :headers="headersimpresion"
-    class="tabla-imprimir elevation-1"
-    :items="historial"
-    height="400"
-    
-  ></v-data-table-virtual>
+      <v-data-table-virtual :headers="headersimpresion" class="tabla-imprimir elevation-1" :items="historial"
+        height="400"></v-data-table-virtual>
     </v-row>
 
 
   </v-card>
- 
-  
+
+
 </template>
 <script>
+import axios from "axios";
 export default {
+
   name: "DetallesEquipoComponent",
 
   data: () => ({
     equipo: [],
     historial: [],
+    url: '',
+    error: '',
     reporte: {
-      
+
     },
     headers: [
       {
         title: "Fecha de ejecución",
         key: "fechadefinalizacion",
         align: "center",
-        
+
       },
-    {
+      {
         title: "Tipo de soporte",
         key: "tipodeasistecia",
         align: "center",
-        
+
       },
       {
         title: "Imprimir",
@@ -157,27 +154,27 @@ export default {
         align: "center",
         class: "columna-imprimir"
       },
-      
+
     ],
     headersimpresion: [
       {
         title: "Fecha de ejecución",
         key: "fechadefinalizacion",
         align: "center",
-        
+
       },
-    {
+      {
         title: "Tipo de soporte",
         key: "tipodeasistecia",
         align: "center",
-        
+
       },
-    
-      
+
+
     ],
-    items: [     
-      
-      
+    items: [
+
+
     ],
   }),
 
@@ -199,21 +196,56 @@ export default {
   },
   methods: {
 
-  imprimirReporte(item) {
+    imprimirReporte(item) {
 
-  this.reporte = Object.assign({}, item);
-  console.log("reporte",this.reporte.identificaciondereporte)
-  console.log(typeof(this.reporte.identificaciondereporte))
-  localStorage.setItem("idreporte", this.reporte.identificaciondereporte);
-  const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte' }).href;
-          window.open(nuevaVentanaURL, '_blank',"width=800,height=600");
-},
-imprimirVCard() {
-  const contenido = document.getElementById("vcard-imprimir").innerHTML;
-  const estilo = document.head.innerHTML; // Obtiene los estilos actuales
+      this.reporte = Object.assign({}, item);
+      console.log("reporte", this.reporte.identificaciondereporte)
+      console.log(typeof (this.reporte.identificaciondereporte))
+      if (this.reporte.reporteexterno === 0) {
+        localStorage.setItem("idreporte", this.reporte.identificaciondereporte);
+        const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte' }).href;
+        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+      }
+      else if (this.reporte.reporteexterno === 1) {
+        console.log('llavereporte', this.reporte.llavereporte)
+        axios.post(
+          this.$store.state.ruta + 'api/s3/buscarurl',
+          {
+            fileKey: this.reporte.llavereporte
 
-  const ventana = window.open("", "_blank", "width=800,height=600");
-  ventana.document.write(`
+          },
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+          .then((response) => {
+            // Capturar la URL de la respuesta
+            this.url = response.data.url;
+            this.error = '';
+            console.log('URL', this.url)
+            // Abrir la URL en una nueva pestaña
+            window.open(this.url, '_blank');
+          })
+          .catch((error) => {
+            this.error = error.response ? error.response.data.error : 'Error al realizar la solicitud';
+            this.url = '';
+            console.log(error);
+          });
+
+
+      }
+
+
+    },
+
+    imprimirVCard() {
+      const contenido = document.getElementById("vcard-imprimir").innerHTML;
+      const estilo = document.head.innerHTML; // Obtiene los estilos actuales
+
+      const ventana = window.open("", "_blank", "width=800,height=600");
+      ventana.document.write(`
     <html>
       <head>
         <title>Imprimir Información</title>
@@ -226,14 +258,14 @@ imprimirVCard() {
       <body>${contenido}</body>
     </html>
   `);
-  ventana.document.close();
-  
-  // Espera un poco para asegurarse de que los estilos se apliquen antes de imprimir
-  setTimeout(() => {
-    ventana.print();
-    ventana.close();
-  }, 500);
-}
+      ventana.document.close();
+
+      // Espera un poco para asegurarse de que los estilos se apliquen antes de imprimir
+      setTimeout(() => {
+        ventana.print();
+        ventana.close();
+      }, 500);
+    }
   },
 };
 </script>
@@ -246,23 +278,35 @@ imprimirVCard() {
 
 /* En modo impresión */
 @media print {
+
   /* Ocultar la tabla normal y mostrar la tabla de impresión */
   .tabla-normal {
     display: none !important;
   }
+
   .tabla-imprimir {
     display: table !important;
   }
-#tamanotitulo{
-  font-size: 20px !important;
 
-}
+  #tamanotitulo {
+    font-size: 20px !important;
+
+  }
+
   /* Reducir y unificar el tamaño de fuente en toda la impresión */
-  body, table, th, td, 
-  .v-card, .v-card-title, .v-card-text, 
-  .v-toolbar-title, .v-card-subtitle {
-    font-size: 15px !important; /* Tamaño uniforme */
-    line-height: 1.2 !important; /* Ajustar el espaciado */
+  body,
+  table,
+  th,
+  td,
+  .v-card,
+  .v-card-title,
+  .v-card-text,
+  .v-toolbar-title,
+  .v-card-subtitle {
+    font-size: 15px !important;
+    /* Tamaño uniforme */
+    line-height: 1.2 !important;
+    /* Ajustar el espaciado */
   }
 
 
@@ -270,7 +314,8 @@ imprimirVCard() {
 
 
   /* Ajustar márgenes y eliminar scroll */
-  html, body {
+  html,
+  body {
     height: auto !important;
     overflow: visible !important;
     margin: 0;

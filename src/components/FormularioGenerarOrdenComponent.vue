@@ -1,12 +1,12 @@
 <template>
-  <form >
-    <v-row class="pa-2 mt-16"  >
-      
+  <form>
+    <v-row class="pa-2 mt-16">
+
       <v-spacer></v-spacer>
       <v-spacer></v-spacer>
       <v-switch v-model="archivo" color="primary" label="Reporte de servicio externo"></v-switch>
       <v-spacer></v-spacer>
-      
+
 
     </v-row>
 
@@ -75,63 +75,32 @@
         </v-col>
 
         <v-col cols="12" md="3" class="mt-5">
-          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15" min="0.5"
-            step="0.25"></v-slider>
+          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15"
+            min="0.5" step="0.25"></v-slider>
         </v-col>
         <v-col cols="12" md="3">
-          <v-menu
-            v-model="menu1"
-            :close-on-content-click="false"         
-            min-width="auto"
-          >
-            <template v-slot:activator="{props}">
-              <v-text-field
-                v-model="reporte.fechadeinicio"
-                label="Fecha de inicio"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="props"
-               
-              ></v-text-field>
+          <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
+            <template v-slot:activator="{ props }">
+              <v-text-field v-model="reporte.fechadeinicio" label="Fecha de inicio" prepend-icon="mdi-calendar" readonly
+                v-bind="props"></v-text-field>
             </template>
             <v-locale-provider locale="es">
-            <v-date-picker
-            locale="es"
-            @update:model-value="cambiarEstadoDeMenu1"
-              v-model="fechadeiniciocalendario"
-              
-              color="primary"
-              title="Fecha de inicio"
-        header="Seleccionar Fecha"
-            ></v-date-picker></v-locale-provider>
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu1" v-model="fechadeiniciocalendario"
+                color="primary" title="Fecha de inicio" header="Seleccionar Fecha">
+              </v-date-picker>
+            </v-locale-provider>
           </v-menu>
         </v-col>
-        <v-col cols="12" md="3" >
-          <v-menu
-            v-model="menu2"
-            :close-on-content-click="false"            
-            transition="scale-transition"            
-            min-width="auto"           
-          >
+        <v-col cols="12" md="3">
+          <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition" min-width="auto">
             <template v-slot:activator="{ props }">
-              <v-text-field
-                v-model="reporte.fechadefinalizacion"
-                label="Fecha de finalización"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="props"
-                
-              ></v-text-field>
+              <v-text-field v-model="reporte.fechadefinalizacion" label="Fecha de finalización"
+                prepend-icon="mdi-calendar" readonly v-bind="props"></v-text-field>
             </template>
             <v-locale-provider locale="es">
-            <v-date-picker
-            locale="es"
-            @update:model-value="cambiarEstadoDeMenu2"
-              v-model="fechadefinalizacioncalendario"
-              color="primary"
-              title="Fecha de finalización"
-        header="Seleccionar Fecha"
-            ></v-date-picker></v-locale-provider>
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu2"
+                v-model="fechadefinalizacioncalendario" color="primary" title="Fecha de finalización"
+                header="Seleccionar Fecha"></v-date-picker></v-locale-provider>
           </v-menu>
         </v-col>
       </v-row>
@@ -144,8 +113,8 @@
       <v-row>
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.hallazgos" counter clearable autocomplete
-            placeholder="Describa las fallas reportadas por el usuario y los hallazgos" rows="3" row-height="30" auto-grow
-            :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+            placeholder="Describa las fallas reportadas por el usuario y los hallazgos" rows="3" row-height="30"
+            auto-grow :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
 
@@ -212,14 +181,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
 
-              <v-btn color="c6" 
-          
-          min-width="228"
-          
-          size="large"
-          
-          variant="flat"
-        large @click="undo">
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="undo">
                 Deshacer Firma
               </v-btn>
               <v-spacer></v-spacer>
@@ -234,28 +196,21 @@
           <p disabled class="centered-input">Responsable del soporte</p>
           <v-card-actions>
             <v-col cols="12" lg="12" align="center">
-              <v-btn color="c6" 
-          
-          min-width="228"
-          
-          size="large"
-          
-          variant="flat"
-        large @click="guardarReporte" :disabled="!(
-                  this.reporte.tipodeasistencia &&
-                  this.reporte.duracion &&
-                  this.reporte.fechadeinicio &&
-                  this.reporte.fechadefinalizacion &&
-                  this.reporte.profesionalcliente &&
-                  this.reporte.telefonocliente &&
-                  this.reporte.hallazgos &&
-                  this.reporte.actividades &&
-                  this.reporte.pruebas &&
-                  this.reporte.repuestos &&
-                  this.reporte.observaciones &&
-                  this.reporte.firmaingeniero &&
-                  this.reporte.ingeniero
-                )
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="guardarReporte" :disabled="!(
+                this.reporte.tipodeasistencia &&
+                this.reporte.duracion &&
+                this.reporte.fechadeinicio &&
+                this.reporte.fechadefinalizacion &&
+                this.reporte.profesionalcliente &&
+                this.reporte.telefonocliente &&
+                this.reporte.hallazgos &&
+                this.reporte.actividades &&
+                this.reporte.pruebas &&
+                this.reporte.repuestos &&
+                this.reporte.observaciones &&
+                this.reporte.firmaingeniero &&
+                this.reporte.ingeniero
+              )
                 ">
                 Guardar y finalizar
               </v-btn>
@@ -294,63 +249,55 @@
 
 
         <v-col cols="12" md="4">
-          <v-menu v-model="menu1" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y
-            min-width="auto">
-            <template v-slot:activator="{ on, attrs }">
+          <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
+            <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadeinicio" label="Fecha de inicio" prepend-icon="mdi-calendar" readonly
-                v-bind="attrs" v-on="on"></v-text-field>
+                v-bind="props"></v-text-field>
             </template>
-            <v-date-picker v-model="reporte.fechadeinicio" @input="menu1 = false"></v-date-picker>
+            <v-locale-provider locale="es">
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu1" v-model="fechadeiniciocalendario"
+                color="primary" title="Fecha de inicio" header="Seleccionar Fecha">
+              </v-date-picker>
+            </v-locale-provider>
           </v-menu>
         </v-col>
         <v-col cols="12" md="4">
-          <v-menu v-model="menu2" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y
-            min-width="auto">
-            <template v-slot:activator="{ on, attrs }">
+          <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition" min-width="auto">
+            <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadefinalizacion" label="Fecha de finalización"
-                prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                prepend-icon="mdi-calendar" readonly v-bind="props"></v-text-field>
             </template>
-            <v-date-picker v-model="reporte.fechadefinalizacion" @input="menu2 = false"></v-date-picker>
+            <v-locale-provider locale="es">
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu2"
+                v-model="fechadefinalizacioncalendario" color="primary" title="Fecha de finalización"
+                header="Seleccionar Fecha"></v-date-picker></v-locale-provider>
           </v-menu>
         </v-col>
       </v-row>
       <v-divider class="mb-5 mt-5"></v-divider>
       <v-row justify="space-around">
         <v-col cols="12" md="6">
-          <v-file-input v-model="files" placeholder="Seleccione el reporte" label="Reporte" multiple
-            prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp">
-            <template v-slot:selection="{ text }">
-              <v-chip small label color="primary">
-                {{ text }}
+          <v-file-input v-model="files" label="Reporte" placeholder="Seleccione el reporte" multiple
+            prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf" show-size counter
+            :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+            <template v-slot:selection="{ fileNames }">
+              <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
+                {{ file }}
               </v-chip>
             </template>
           </v-file-input>
         </v-col>
       </v-row>
       <v-row>
-
-
-
-
-
         <v-spacer> </v-spacer>
-        <v-btn class="blue darken-1 ma-1" @click="guardarReporte" :disabled="!(
-            this.reporte.tipodeasistencia &&
-            this.reporte.duracion &&
-            this.reporte.fechadeinicio &&
-            this.reporte.fechadefinalizacion &&
-            this.reporte.profesionalcliente &&
-            this.reporte.telefonocliente &&
-            this.reporte.hallazgos &&
-            this.reporte.actividades &&
-            this.reporte.pruebas &&
-            this.reporte.repuestos &&
-            this.reporte.observaciones &&
-            this.reporte.firmaingeniero &&
-            this.reporte.ingeniero
-          )
+        <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="guardarReporteExterno" :disabled="!((
+          reporte.tipodeasistencia &&
+          reporte.fechadeinicio &&
+          reporte.fechadefinalizacion &&
+          files
+        ))
           ">
-          Guardar y finalizar
+          Guardar y finalizar reporte externo
         </v-btn>
         <!--               <v-btn class="blue darken-1 ma-1" @click="save">
                   Guardar y Finalizar
@@ -369,6 +316,19 @@
       </v-dialog>
 
       <v-card-actions> </v-card-actions>
+      <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionguardado">
+          <v-card>
+            <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
+            <v-card-text>
+              <div class="text-h5 pa-5">
+                El reporte externo ha sido guardado exitosamente.
+              </div>
+            </v-card-text>
+            <v-card-actions class="justify-center">
+              <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
     </v-container>
 
     <!-- <pre>
@@ -402,9 +362,10 @@ export default {
   },
 
   data: () => ({
-    files: [],
+    files: null,
     slider: null,
     dialogofirma: false,
+    confirmacionguardado: false,
     options: {
       penColor: "black",
     },
@@ -466,7 +427,7 @@ export default {
       duracion: null,
       fechadeinicio: null,
       fechadefinalizacion: null,
-    infoequipo: {
+      infoequipo: {
         nombre: "",
         serie: "",
         marca: "",
@@ -490,10 +451,18 @@ export default {
     options: {
       firma: "",
     },
+    fileRules: [
+      value => !value || value.length <= 1 || 'Máximo 5 archivos permitidos.',
+      value =>
+        !value || value.every(file => file.size < 5 * 1024 * 1024) || 'Cada archivo debe ser menor a 5MB.',
+      value =>
+        !value || value.every(file => ['image/png', 'image/jpeg', 'image/bmp', 'application/pdf'].includes(file.type))
+        || 'Solo se permiten imágenes y archivos PDF.',
+    ],
   }),
 
   computed: {
-  
+
     checkboxErrors() {
       const errors = [];
       if (!this.$v.checkbox.$dirty) return errors;
@@ -541,13 +510,13 @@ export default {
   },
   methods: {
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
-      
-      this.reporte.fechadeinicio=fechaseleccionadaincio.getDate()+'-'+(fechaseleccionadaincio.getMonth() + 1 )+'-'+fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
-      
-    this.menu1 = !this.menu1;
+
+      this.reporte.fechadeinicio = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
+
+      this.menu1 = !this.menu1;
     },
     cambiarEstadoDeMenu2(fechaseleccionadafinalizacion) {
-      this.reporte.fechadefinalizacion=fechaseleccionadafinalizacion.getDate()+'-'+(fechaseleccionadafinalizacion.getMonth() + 1 )+'-'+fechaseleccionadafinalizacion.getFullYear(); // Los meses en JavaScript van de 0 a 11
+      this.reporte.fechadefinalizacion = fechaseleccionadafinalizacion.getDate() + '-' + (fechaseleccionadafinalizacion.getMonth() + 1) + '-' + fechaseleccionadafinalizacion.getFullYear(); // Los meses en JavaScript van de 0 a 11
       this.menu2 = !this.menu2;
     },
     submit() {
@@ -612,7 +581,7 @@ export default {
         )
         .then((response) => {
           localStorage.setItem("idreporte", response.data.identificacion);
-        
+
           this.esperaguardar = false;
           const identificacion = response.data.identificacion;
           console.log(response);
@@ -620,8 +589,8 @@ export default {
             id: identificacion
           });
           console.log(identificacion)
-          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params:{idreporte:identificacion.toString()} }).href;
-          window.open(nuevaVentanaURL, '_blank',"width=800,height=600");
+          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
           this.$router.push({ name: "ListarEquipos" });
         })
         .catch((error) => {
@@ -630,10 +599,68 @@ export default {
           return error;
         });
     },
+    async guardarReporteExterno() {
+      this.esperaguardar = true;
+
+      try {
+        if (!this.files) {
+          throw new Error("Debe seleccionar un archivo antes de guardar.");
+        }
+
+        if (!this.reporte || !this.equipo || !this.equipo._id) {
+          throw new Error("Datos del reporte o equipo incompletos.");
+        }
+        console.log('Equipo.id', this.equipo._id)
+        console.log(typeof (this.equipo._id))
+        const formData = new FormData();
+        formData.append('file', this.files);
+         formData.append('id_equipo', JSON.stringify(this.equipo._id));
+        formData.append('reporte', JSON.stringify(this.reporte)); 
+
+        const response = await axios.post(
+          `${this.$store.state.ruta}api/s3/guardar`,
+          formData,
+          {
+            headers: {
+              token: this.$store.state.token
+            },
+          }
+        );
+
+        const identificacion = response.data.id;
+        localStorage.setItem("idreporte", identificacion);
+
+        console.log("Reporte creado:", response);
+        this.esperaguardar = false;
+        this.confirmacionguardado = true;
+        // Despachar acción al store
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+
+
+        
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
+ 
+    AceptarConfirmacionGuardado() {
+      this.confirmacionguardado = false;
+      // Redirigir a la lista de equipos
+      this.$router.push({ name: "ListarEquipos" });
+      
+    },
+    onFileChange(files) {
+      // Si no hay archivos seleccionados, establecer 'files' como null
+      this.files = files && files.length > 0 ? files[0] : null;
+      console.log('Archivo seleccionado:', this.files);
+    },
   },
 };
 </script>
-  
+
 <style scoped>
 .centered-input :deep(input) {
   text-align: center;

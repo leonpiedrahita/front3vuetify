@@ -12,9 +12,9 @@ const store = createStore({
         ubicacion:'',
         icono:'',
         color:'',
-        ruta:'http://localhost:3001/',
+       /*  ruta:'http://localhost:3001/', */
         /*ruta:'https://backalternativo.1.us-1.fl0.io/',*/
-       /*  ruta:'https://backalternativo.onrender.com/', */
+        ruta:'https://backalternativo.onrender.com/', 
        identificacion:"",
        ordenes:{},
        equipo:{},

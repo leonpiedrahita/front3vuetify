@@ -18,7 +18,7 @@
     <v-navigation-drawer v-model="drawer" fixed temporary>
       <v-card class="mx-auto" max-width="300" tile>
         <v-list nav>
-          <v-list-item :to="{ name: 'Segura' }" exact><!-- uando doy clic en incicio me envía a Segura -->
+          <v-list-item :to="{ name: 'ListarEquipos' }" exact><!-- uando doy clic en incicio me envía a Segura -->
             <v-list-item prepend-icon="mdi-home" title="Inicio" />
 
 

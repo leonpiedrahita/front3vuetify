@@ -16,7 +16,7 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-dialog v-model="dialog2" max-width="500px" persistent>
+          <v-dialog v-model="dialog2" max-width="500px" >
             <v-card>
               <v-card-title>
                 <span class="headline">{{ formTitle }}</span>
@@ -81,7 +81,7 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogomodificarequipocliente" max-width="500px" persistent>
+          <v-dialog v-model="dialogomodificarequipocliente" max-width="500px" >
             <v-card>
               <v-card-title>
                 <span class="headline">{{ formTitle }}</span>
@@ -203,7 +203,7 @@
               </v-card>
             </template>
           </v-dialog>
-          <v-dialog v-model="dialogoetapa" max-width="500px" persistent>
+          <v-dialog v-model="dialogoetapa" max-width="500px" >
             <v-col cols="12">
               <v-card class="pa-5"><v-select v-model="etapaautorizada" :items="listadeetapas" label="Siguiente paso"
                   required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
@@ -354,7 +354,7 @@ export default {
     },
     nuevoequipo: {
       nombre: "",
-      marca: {},
+      marca: null,
       id: "",
       serie: "",
       placadeinventario: "",
@@ -979,8 +979,9 @@ export default {
         return el != null;
       });
       this.ubicacionclientesmodificado = filtered[0];
-      this.nombreUbicacionesClienteModificado = this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0]);
-    },
+      this.nombreUbicacionesClienteModificado = Array.isArray(this.ubicacionclientesmodificado) 
+  ? this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0]) 
+  : [];    },
 
   },
   actualizarsede() {

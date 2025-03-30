@@ -244,9 +244,9 @@
         </v-icon>
       </template>
     </v-data-table>
-    <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
-  </v-card>
-  <pre> {{ equipos }} </pre>
+<!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
+ -->  </v-card>
+  <!-- <pre> {{ equipos }} </pre> -->
 </template>
 <script>
 import axios from "axios";

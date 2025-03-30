@@ -184,7 +184,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <p>{{ this.equipos }}</p>
+    <!-- <p>{{ this.equipos }}</p> -->
   </v-card>
 </template>
 <script>

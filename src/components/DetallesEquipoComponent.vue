@@ -110,9 +110,22 @@
           </div>
         </template>
       </v-data-table>
-
-      <v-data-table-virtual :headers="headersimpresion" class="tabla-imprimir elevation-1" :items="historial"
-        height="400"></v-data-table-virtual>
+<!-- Tabla HTML (solo para impresión) -->
+<table class="tabla-imprimir">
+    <thead>
+      <tr>
+        <th>Fecha de ejecución</th>
+        <th>Tipo de soporte</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="(item, index) in historial" :key="index">
+        <td>{{ item.fechadefinalizacion }}</td>
+        <td>{{ item.tipodeasistecia }}</td>
+      </tr>
+    </tbody>
+  </table>
+      
     </v-row>
 
 
@@ -274,6 +287,14 @@ export default {
 /* Ocultar la tabla de impresión en vista normal */
 .tabla-imprimir {
   display: none;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-imprimir th, .tabla-imprimir td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: center;
 }
 
 /* En modo impresión */

@@ -1,5 +1,5 @@
 /* CSS para forzar la orientación horizontal en dispositivos móviles */
-@media screen and (orientation: portrait) {
+@media screen and (max-width: 767px) and (orientation: portrait) {
     body {
       display: flex;
       justify-content: center;

@@ -114,8 +114,8 @@
               this.$store.dispatch("guardarToken",data.tokenReturn );//se guarda el token en la tienda
               this.nombre=this.$store.state.user.nombre ,
                        this.confirmacionlogin=true
-            console.log(data);
-          })
+/*             console.log(data);
+ */          })
           .catch((error) => {
             this.errorlogin=true;
             console.log(error);

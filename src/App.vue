@@ -1,13 +1,9 @@
 <template>
-  <div id="app" class="force-landscape">
-    <router-view/>
-  </div>
+  
+  <router-view />
+  
 </template>
 
-<script>
-export default {
-  name: 'App',
-};
+<script setup>
+  //
 </script>
-
-<style src="./assets/style.css"></style>

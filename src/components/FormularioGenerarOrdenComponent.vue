@@ -452,7 +452,7 @@ export default {
       firma: "",
     },
     fileRules: [
-      value => !value || value.length <= 1 || 'Máximo 5 archivos permitidos.',
+      value => !value || value.length <= 1 || 'Máximo 1 archivos permitidos.',
       value =>
         !value || value.every(file => file.size < 5 * 1024 * 1024) || 'Cada archivo debe ser menor a 5MB.',
       value =>

@@ -44,19 +44,19 @@
                 </v-container>
             </v-col>
             <v-col cols="12" lg="6" xs="12" v-if="ordenes.estado !== 'Finalizado'">
-                <v-card class="pa-5"><v-select v-if="ordenes.estado === 'Abierta'" v-model="etapaautorizada"
+                <v-card class="pa-5"><v-select  v-model="etapaautorizada"
                         :items="listadeetapas" label="Siguiente paso" required
                         :rules="[(v) => !!v || 'Campo requerido para confirmar etapa']"></v-select>
                     <v-textarea v-model="observaciones"
                         :rules="[(v) => !!v || 'Campo requerido para confirmar etapa, bloquear o desbloquear orden']"
                         placeholder="Información importante como: Estado del equipo, repuestos pendientes, repuestos devueltos, compañía y número de guía con la que se recibe o entrega, nombre de quién recibe o entrega. Motivo de bloqueo o desbloqueo"></v-textarea>
-                    <v-card-actions><v-btn v-if="ordenes.estado === 'Abierta'" class="primary" color="c6" text
+                    <v-card-actions><v-btn  class="primary" color="c6" text
                             @click="confirmarEtapa()"
                             :disabled="!(this.observaciones && this.etapaautorizada)">Confirmar Etapa</v-btn>
-                        <v-btn v-if="bloqueodesbloqueo && ordenes.estado === 'Abierta'" class="error" text
+                        <!-- <v-btn v-if="bloqueodesbloqueo && ordenes.estado === 'Abierta'" class="error" text
                             @click="bloquear()" :disabled="!this.observaciones">Bloquear orden</v-btn>
                         <v-btn v-if="bloqueodesbloqueo && ordenes.estado === 'Bloqueado'" class="warning" text
-                            @click="desbloquear()" :disabled="!this.observaciones">Desbloquear orden</v-btn>
+                            @click="desbloquear()" :disabled="!this.observaciones">Desbloquear orden</v-btn> -->
                     </v-card-actions>
                 </v-card>
             </v-col>
@@ -357,14 +357,13 @@ export default {
             if (this.$store.state.user.rol === "administrador") {
                 this.listadeetapas = [
                     "Llegada de equipo",
-                    "Cotización solicitada",
-                    "Cotización aprobada",
-                    "Repuestos solicitados",
-                    "Repuestos aprobados para entrega",
-                    "Repuestos entregados",
-                    "Soporte realizado",
-                    "Equipo despachado",
-                    "Entrenamiento realizado",
+                    "Equipo desinfectado",
+                    "Cuarentena",
+                    "Soporte ingeniería",
+                    "Soporte aplicaciones",    
+                    "Pendiente de repuestos",
+                    "Listo para despacho",
+                    "Despachado",
                 ];
             } else if (this.$store.state.user.rol === "soporte") {
                 this.listadeetapas = [

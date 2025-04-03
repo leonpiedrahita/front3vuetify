@@ -16,7 +16,7 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-dialog v-model="dialog2" max-width="500px" >
+          <v-dialog v-model="dialog2" max-width="500px">
             <v-card>
               <v-card-title>
                 <span class="headline">{{ formTitle }}</span>
@@ -43,7 +43,7 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.propietario.nombre" :items="nombresclientes"
                         label="Propietario" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
-      nuevopropietario }}</v-autocomplete>
+                        nuevopropietario }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.cliente.nombre" :items="nombresclientes" label="Cliente"
@@ -67,21 +67,21 @@
                 <v-spacer></v-spacer>
                 <v-btn color="error" text @click="close2"> Cancelar </v-btn>
                 <v-btn :disabled="!(
-        nuevoequipo.nombre &&
-        nuevoequipo.serie &&
-        nuevoequipo.placadeinventario &&
-        nuevoequipo.tipodecontrato &&
-        nuevoequipo.propietario &&
-        nuevoequipo.cliente &&
-        nuevoequipo.ubicacion.nombre
-      )
-      " color="primary darken-1" text @click="save2">
+                  nuevoequipo.nombre &&
+                  nuevoequipo.serie &&
+                  nuevoequipo.placadeinventario &&
+                  nuevoequipo.tipodecontrato &&
+                  nuevoequipo.propietario &&
+                  nuevoequipo.cliente &&
+                  nuevoequipo.ubicacion.nombre
+                )
+                  " color="primary darken-1" text @click="save2">
                   Crear
                 </v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogomodificarequipocliente" max-width="500px" >
+          <v-dialog v-model="dialogomodificarequipocliente" max-width="500px">
             <v-card>
               <v-card-title>
                 <span class="headline">{{ formTitle }}</span>
@@ -108,7 +108,7 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.propietario.nombre" :items="nombresclientes"
                         label="Propietario" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
-      nuevopropietariomodificado }}</v-autocomplete>
+                        nuevopropietariomodificado }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.cliente.nombre" :items="nombresclientes" label="Cliente"
@@ -136,15 +136,15 @@
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(
-        equipomodificado.nombre &&
-        equipomodificado.serie &&
-        equipomodificado.placadeinventario &&
-        equipomodificado.tipodecontrato &&
-        equipomodificado.propietario &&
-        equipomodificado.cliente &&
-        equipomodificado.ubicacionnombre
-      )
-      " color="primary darken-1" text @click="actualizarequipo">
+                  equipomodificado.nombre &&
+                  equipomodificado.serie &&
+                  equipomodificado.placadeinventario &&
+                  equipomodificado.tipodecontrato &&
+                  equipomodificado.propietario &&
+                  equipomodificado.cliente &&
+                  equipomodificado.ubicacionnombre
+                )
+                  " color="primary darken-1" text @click="actualizarequipo">
                   Modificar
                 </v-btn>
               </v-card-actions>
@@ -203,7 +203,7 @@
               </v-card>
             </template>
           </v-dialog>
-          <v-dialog v-model="dialogoetapa" max-width="500px" >
+          <v-dialog v-model="dialogoetapa" max-width="500px">
             <v-col cols="12">
               <v-card class="pa-5"><v-select v-model="etapaautorizada" :items="listadeetapas" label="Siguiente paso"
                   required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
@@ -244,8 +244,8 @@
         </v-icon>
       </template>
     </v-data-table>
-<!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
- -->  </v-card>
+    <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
+ --> </v-card>
   <!-- <pre> {{ equipos }} </pre> -->
 </template>
 <script>
@@ -761,14 +761,13 @@ export default {
       if (this.$store.state.user.rol === "administrador") {
         this.listadeetapas = [
           "Llegada de equipo",
-          "Cotización solicitada",
-          "Cotización aprobada",
-          "Repuestos solicitados",
-          "Repuestos aprobados para entrega",
-          "Repuestos entregados",
-          "Soporte realizado",
-          "Equipo despachado",
-          "Entrenamiento realizado",
+                    "Equipo desinfectado",
+                    "Cuarentena",
+                    "Soporte ingeniería",
+                    "Soporte aplicaciones",    
+                    "Pendiente de repuestos",
+                    "Listo para despacho",
+                    "Despachado",
         ];
       } else if (this.$store.state.user.rol === "soporte") {
         this.listadeetapas = [
@@ -979,9 +978,10 @@ export default {
         return el != null;
       });
       this.ubicacionclientesmodificado = filtered[0];
-      this.nombreUbicacionesClienteModificado = Array.isArray(this.ubicacionclientesmodificado) 
-  ? this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0]) 
-  : [];    },
+      this.nombreUbicacionesClienteModificado = Array.isArray(this.ubicacionclientesmodificado)
+        ? this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0])
+        : [];
+    },
 
   },
   actualizarsede() {

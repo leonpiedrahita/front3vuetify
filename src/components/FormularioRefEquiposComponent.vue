@@ -333,7 +333,7 @@ export default {
         .patch(
           this.$store.state.ruta +
           "api/refequipo/actualizar/" +
-          this.equipo._id,
+          this.equipo.id,
           {
             nombre: this.equipo.nombre,
             marca: this.equipo.marca,

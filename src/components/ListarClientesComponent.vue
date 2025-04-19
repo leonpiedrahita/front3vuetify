@@ -161,11 +161,11 @@
 
     <v-col cols="auto">
       <v-dialog transition="dialog-top-transition" max-width="500" v-model="dialogo">
-        <template>
+        
           <v-card>
             <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
             <v-card-text>
-              <div class="text-h2 pa-1 ma-1 aviso">
+              <div class="text-h3 pa-1 ma-1 aviso">
                 {{ $data.textodialogo }}
               </div>
             </v-card-text>
@@ -173,7 +173,7 @@
               <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
             </v-card-actions>
           </v-card>
-        </template>
+       
       </v-dialog>
     </v-col>
     <v-dialog v-model="esperarguardar" persistent width="500">
@@ -184,7 +184,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <!-- <p>{{ this.equipos }}</p> -->
+    <p>{{ this.equipos }}</p>
   </v-card>
 </template>
 <script>
@@ -461,8 +461,8 @@ export default {
 
       if (encontrarnit) {
         this.textodialogo = "El NIT ya se encuentra registrado";
-        this.Agregarcliente = false;
         this.cerrareditar();
+        this.esperarguardar = false;
         this.dialogo = true;
       } else {
         this.Agregarcliente = false;
@@ -499,7 +499,7 @@ export default {
         .patch(
           this.$store.state.ruta +
           "api/cliente/agregarsede/" +
-          this.editedItem._id,
+          this.editedItem.id,
           {
             nombre: this.editedItem2.nombre,
             direccion: this.editedItem2.direccion,

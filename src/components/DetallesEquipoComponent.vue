@@ -403,11 +403,11 @@ export default {
         window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
       }
       else if (this.reporte.reporteExterno === 1) {
-        console.log('llavereporte', this.reporte.llavereporte)
+        console.log('llavereporte', this.reporte.llaveReporte)
         axios.post(
           this.$store.state.ruta + 'api/s3/buscarurl',
           {
-            fileKey: this.reporte.llavereporte
+            fileKey: this.reporte.llaveReporte
 
           },
           {

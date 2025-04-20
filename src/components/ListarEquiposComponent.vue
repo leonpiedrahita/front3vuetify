@@ -33,7 +33,7 @@
                       <v-text-field v-model="nuevoequipo.marca" label="Marca" disabled></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="nuevoequipo.placadeinventario" label="Número de placa de inventario"
+                      <v-text-field v-model="nuevoequipo.placaDeInventario" label="Número de placa de inventario"
                         required :rules="[(v) => !!v || 'Campo Requerido']"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
@@ -55,7 +55,7 @@
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.tipodecontrato" :items="listacontratos"
+                      <v-autocomplete v-model="nuevoequipo.tipoDeContrato" :items="listacontratos"
                         label="Tipo de contrato" class="vs__search" required
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
@@ -69,8 +69,8 @@
                 <v-btn :disabled="!(
                   nuevoequipo.nombre &&
                   nuevoequipo.serie &&
-                  nuevoequipo.placadeinventario &&
-                  nuevoequipo.tipodecontrato &&
+                  nuevoequipo.placaDeInventario &&
+                  nuevoequipo.tipoDeContrato &&
                   nuevoequipo.propietario &&
                   nuevoequipo.cliente &&
                   nuevoequipo.ubicacion.nombre
@@ -98,7 +98,7 @@
                       <v-text-field v-model="equipomodificado.marca" label="Marca" disabled></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="equipomodificado.placadeinventario" label="Número de placa de inventario"
+                      <v-text-field v-model="equipomodificado.placaDeInventario" label="Número de placa de inventario"
                         required :rules="[(v) => !!v || 'Campo Requerido']"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
@@ -116,13 +116,13 @@
                         }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="equipomodificado.ubicacionnombre"
+                      <v-autocomplete v-model="equipomodificado.ubicacionNombre"
                         :items="nombreUbicacionesClienteModificado" item-text="nombre" label="Sede"
                         :rules="[(v) => !!v || 'Campo Requerido']" required>
                       </v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="equipomodificado.tipodecontrato" :items="listacontratos"
+                      <v-autocomplete v-model="equipomodificado.tipoDeContrato" :items="listacontratos"
                         label="Tipo de contrato" class="vs__search" required
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
@@ -138,11 +138,11 @@
                 <v-btn :disabled="!(
                   equipomodificado.nombre &&
                   equipomodificado.serie &&
-                  equipomodificado.placadeinventario &&
-                  equipomodificado.tipodecontrato &&
+                  equipomodificado.placaDeInventario &&
+                  equipomodificado.tipoDeContrato &&
                   equipomodificado.propietario &&
                   equipomodificado.cliente &&
-                  equipomodificado.ubicacionnombre
+                  equipomodificado.ubicacionNombre
                 )
                   " color="primary darken-1" text @click="actualizarequipo">
                   Modificar
@@ -189,7 +189,7 @@
             </v-card>
           </v-dialog>
           <v-dialog transition="dialog-top-transition" max-width="500" v-model="dialogo">
-            <template>
+            
               <v-card>
                 <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
                 <v-card-text>
@@ -201,7 +201,7 @@
                   <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
                 </v-card-actions>
               </v-card>
-            </template>
+            
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px">
             <v-col cols="12">
@@ -246,7 +246,9 @@
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-  <!-- <pre> {{ equipos }} </pre> -->
+  <pre> {{ equipos }} </pre>
+  <h1>Equipomodificado</h1>
+  <pre> {{ equipomodificado }} </pre>
 </template>
 <script>
 import axios from "axios";
@@ -281,7 +283,7 @@ export default {
     ],
     headers: [
       { title: "Serie", value: "serie", align: "center" },
-      { title: "Inventario", value: "placadeinventario", align: "center" },
+      { title: "Inventario", value: "placaDeInventario", align: "center" },
       {
         title: "Propietario",
         align: "center",
@@ -296,9 +298,9 @@ export default {
       {
         title: "Ubicacion",
         align: "center",
-        value: "ubicacionnombre",
+        value: "ubicacionNombre",
       },
-      { title: "Contrato", key: "tipodecontrato", align: "center" },
+      { title: "Contrato", key: "tipoDeContrato", align: "center" },
       {
         title: "Detalles",
         value: "detalles",
@@ -357,8 +359,8 @@ export default {
       marca: null,
       id: "",
       serie: "",
-      placadeinventario: "",
-      tipodecontrato: "",
+      placaDeInventario: "",
+      tipoDeContrato: "",
       propietario: {
         nombre: "",
         id: "",
@@ -376,8 +378,10 @@ export default {
       nombre: "",
       marca: "",
       serie: "",
-      placadeinventario: "",
-      tipodecontrato: "",
+      placaDeInventario: "",
+      tipoDeContrato: "",
+      clienteId: null,
+      propietarioId:null,
       propietario: {
         nombre: "",
         id: "",
@@ -396,8 +400,8 @@ export default {
       marca: {},
       id: "",
       serie: "",
-      placadeinventario: "",
-      tipodecontrato: "",
+      placaDeInventario: "",
+      tipoDeContrato: "",
       propietario: {
         nombre: "",
         id: "",
@@ -457,10 +461,12 @@ export default {
     'equipomodificado.cliente.nombre': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
       this.nuevopropietariomodificado();
+      this.nuevoclientemodificado();
     },
-    'equipomodificado.cliente.nombre': function (newValue) {
+    'equipomodificado.propietario.nombre': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
       this.nuevoclientemodificado();
+      this.nuevopropietariomodificado();
     }
   },
   beforeCreate() {
@@ -561,7 +567,7 @@ export default {
       );
       const encontrarinventario = this.equipos.find(
         (registro) =>
-          registro.placadeinventario === this.nuevoequipo.placadeinventario
+          registro.placaDeInventario === this.nuevoequipo.placaDeInventario
       );
 
       if (encontrarserie) {
@@ -600,19 +606,20 @@ export default {
       this.close();
     },
     actualizarequipo() {
-      if (this.inventarioactual === this.equipomodificado.placadeinventario) {
+      if (this.inventarioactual === this.equipomodificado.placaDeInventario) {
+        console.log("equipoenviado", this.equipomodificado);
         axios
           .patch(
             this.$store.state.ruta +
             "api/equipo/actualizar/" +
-            this.equipomodificado._id,
+            this.equipomodificado.id,
             {
-              ubicacionnombre: this.equipomodificado.ubicacionnombre,
-              ubicaciondireccion: this.equipomodificado.ubicaciondireccion,
-              cliente: this.equipomodificado.cliente.id,
-              propietario: this.equipomodificado.propietario.id,
-              placadeinventario: this.equipomodificado.placadeinventario,
-              tipodecontrato: this.equipomodificado.tipodecontrato,
+              ubicacionNombre: this.equipomodificado.ubicacionNombre,
+              ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
+              cliente: this.equipomodificado.cliente,
+              propietario: this.equipomodificado.propietario,
+              placaDeInventario: this.equipomodificado.placaDeInventario,
+              tipoDeContrato: this.equipomodificado.tipoDeContrato,
             },
             {
               headers: {
@@ -635,8 +642,8 @@ export default {
       } else {
         const encontrarinventario = this.equipos.find(
           (registro) =>
-            registro.placadeinventario ===
-            this.equipomodificado.placadeinventario
+            registro.placaDeInventario ===
+            this.equipomodificado.placaDeInventario
         );
         if (encontrarinventario) {
           this.textodialogo =
@@ -647,14 +654,14 @@ export default {
             .patch(
               this.$store.state.ruta +
               "api/equipo/actualizar/" +
-              this.equipomodificado._id,
+              this.equipomodificado.id,
               {
-                ubicacionnombre: this.equipomodificado.ubicacionnombre,
-                ubicaciondireccion: this.equipomodificado.ubicaciondireccion,
-                cliente: this.equipomodificado.cliente.id,
-                propietario: this.equipomodificado.propietario.id,
-                placadeinventario: this.equipomodificado.placadeinventario,
-                tipodecontrato: this.equipomodificado.tipodecontrato,
+                ubicacionNombre: this.equipomodificado.ubicacionNombre,
+                ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
+                cliente: this.equipomodificado.clienteId,
+                propietario: this.equipomodificado.propietarioId,
+                placaDeInventario: this.equipomodificado.placaDeInventario,
+                tipoDeContrato: this.equipomodificado.tipoDeContrato,
               },
               {
                 headers: {
@@ -710,7 +717,7 @@ export default {
             this.refequipos = this.refequipos.map((equipo) => ({
               nombre: equipo.nombre,
               marca: equipo.marca,
-              id: equipo._id,
+              id: equipo.id,
             }));
             this.nombresequipos = this.refequipos.map(
               (nombres) => nombres.nombre
@@ -729,7 +736,7 @@ export default {
         this.$router.push({ name: "Login" });
       } else {
         this.equipomodificado = Object.assign({}, item);
-        this.inventarioactual = this.equipomodificado.placadeinventario;
+        this.inventarioactual = this.equipomodificado.placaDeInventario;
 
         this.dialogomodificarequipocliente = true;
         axios
@@ -841,7 +848,7 @@ export default {
             this.$store.dispatch("guardarOrdenesEquipo", {
               ordenes: this.ordenes[0],
               equipo: this.editedItem,
-              idorden: response.data.result._id,
+              idorden: response.data.result.id,
             });
 
             this.close();
@@ -913,7 +920,7 @@ export default {
       // `this` apunta a la instancia vm
       this.nuevoequipo.propietario.id = this.clientes.map((cliente) => {
         if (cliente.nombre === this.nuevoequipo.propietario.nombre) {
-          return cliente._id;
+          return cliente.id;
         }
       });
       var filtered = this.nuevoequipo.propietario.id.filter(function (el) {
@@ -926,7 +933,7 @@ export default {
       // `this` apunta a la instancia vm
       this.equipomodificado.propietario.id = this.clientes.map((cliente) => {
         if (cliente.nombre === this.equipomodificado.propietario.nombre) {
-          return cliente._id;
+          return cliente.id;
         }
       });
       var filtered = this.equipomodificado.propietario.id.filter(function (el) {
@@ -938,7 +945,7 @@ export default {
       // `this` apunta a la instancia vm
       this.nuevoequipo.cliente.id = this.clientes.map((cliente) => {
         if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
-          return cliente._id;
+          return cliente.id;
         }
       });
       var filtered = this.nuevoequipo.cliente.id.filter(function (el) {
@@ -962,7 +969,7 @@ export default {
       // `this` apunta a la instancia vm
       this.equipomodificado.cliente.id = this.clientes.map((cliente) => {
         if (cliente.nombre === this.equipomodificado.cliente.nombre) {
-          return cliente._id;
+          return cliente.id;
         }
       });
       var filtered = this.equipomodificado.cliente.id.filter(function (el) {

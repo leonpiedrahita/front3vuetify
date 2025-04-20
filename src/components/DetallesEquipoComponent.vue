@@ -81,7 +81,7 @@
         <v-card title="Tipo de contrato" variant="flat">
           <v-card-text>
             <v-toolbar-title>
-              {{ equipo.tipodecontrato }}
+              {{ equipo.tipoDeContrato }}
             </v-toolbar-title>
           </v-card-text>
         </v-card>
@@ -115,7 +115,7 @@
         <v-card title="Dirección" variant="flat">
           <v-card-text>
             <v-toolbar-title>
-              {{ equipo.ubicaciondireccion }}
+              {{ equipo.ubicacionDireccion }}
             </v-toolbar-title>
           </v-card-text>
         </v-card>
@@ -175,7 +175,7 @@
         <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
         <v-card-text>
           <div class="text-h5 pa-5">
-            El reporte externo ha sido guardado exitosamente.
+            El documento ha sido guardado exitosamente.
           </div>
         </v-card-text>
         <v-card-actions class="justify-center">
@@ -207,8 +207,8 @@
         </thead>
         <tbody>
           <tr v-for="(item, index) in historial" :key="index">
-            <td>{{ item.fechadefinalizacion }}</td>
-            <td>{{ item.tipodeasistecia }}</td>
+            <td>{{ item.fechaDeFinalizacion }}</td>
+            <td>{{ item.tipoDeAsistencia }}</td>
           </tr>
         </tbody>
       </table>
@@ -217,7 +217,11 @@
 
 
   </v-card>
-
+<pre>
+      
+       {{equipo}}
+    
+      </pre>
 
 </template>
 <script>
@@ -253,7 +257,7 @@ export default {
     encabezadosDocumentosLegales: [
       {
         title: "Documento",
-        key: "nombredocumento",
+        key: "nombreDocumento",
         align: "center",
 
       },
@@ -268,13 +272,13 @@ export default {
     headers: [
       {
         title: "Fecha de ejecución",
-        key: "fechadefinalizacion",
+        key: "fechaDeFinalizacion",
         align: "center",
 
       },
       {
         title: "Tipo de soporte",
-        key: "tipodeasistecia",
+        key: "tipoDeAsistencia",
         align: "center",
 
       },
@@ -290,13 +294,13 @@ export default {
     headersimpresion: [
       {
         title: "Fecha de ejecución",
-        key: "fechadefinalizacion",
+        key: "fechaDeFinalizacion",
         align: "center",
 
       },
       {
         title: "Tipo de soporte",
-        key: "tipodeasistecia",
+        key: "tipoDeAsistencia",
         align: "center",
 
       },
@@ -327,8 +331,8 @@ export default {
   },
   created() {
     this.equipo = this.$store.state.detallesequipo;
-    this.historial = this.equipo.historialdeservicios;
-    this.documentosLegales = this.equipo.documentoslegales;
+    this.historial = this.equipo.historialDeServicios;
+    this.documentosLegales = this.equipo.documentosLegales;
   },
   beforeCreate() {
     this.$store.dispatch("autoLogin");
@@ -356,11 +360,11 @@ export default {
 
       this.documento = Object.assign({}, item);
       
-        console.log('llavereporte', this.documento.llavedocumento)
+        console.log('llavereporte', this.documento.llaveDocumento)
         axios.post(
           this.$store.state.ruta + 'api/s3/buscarurl',
           {
-            fileKey: this.documento.llavedocumento
+            fileKey: this.documento.llaveDocumento
 
           },
           {
@@ -391,14 +395,14 @@ export default {
     imprimirReporte(item) {
 
       this.reporte = Object.assign({}, item);
-      console.log("reporte", this.reporte.identificaciondereporte)
-      console.log(typeof (this.reporte.identificaciondereporte))
-      if (this.reporte.reporteexterno === 0) {
-        localStorage.setItem("idreporte", this.reporte.identificaciondereporte);
+      console.log("reporte", this.reporte.identificacionDeReporte)
+      console.log(typeof (this.reporte.identificacionDeReporte))
+      if (this.reporte.reporteExterno === 0) {
+        localStorage.setItem("idreporte", this.reporte.identificacionDeReporte);
         const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte' }).href;
         window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
       }
-      else if (this.reporte.reporteexterno === 1) {
+      else if (this.reporte.reporteExterno === 1) {
         console.log('llavereporte', this.reporte.llavereporte)
         axios.post(
           this.$store.state.ruta + 'api/s3/buscarurl',
@@ -485,11 +489,11 @@ export default {
         if (!this.nombredocumentoseleccionado) {
           throw new Error("Nombre del documento no seleccionado.");
         }
-        console.log('Equipo.id', this.equipo._id)
-        console.log(typeof (this.equipo._id))
+        console.log('Equipo.id', this.equipo.id)
+        console.log(typeof (this.equipo.id))
         const formData = new FormData();
         formData.append('file', this.files);
-        formData.append('id_equipo', JSON.stringify(this.equipo._id));
+        formData.append('id_equipo', JSON.stringify(this.equipo.id));
         formData.append('serie', JSON.stringify(this.equipo.serie));
         formData.append('nombredocumento', JSON.stringify(this.nombredocumentoseleccionado));
 
@@ -510,13 +514,13 @@ export default {
         this.nombredocumentoseleccionado = null;
         this.files = null;
         axios
-          .get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo._id}`)
+          .get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`)
           /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
           .then((response) => {
             this.equipo = response.data;
             console.log("Equipo actualizado:", this.equipo);
-            this.historial = this.equipo.historialdeservicios;
-            this.documentosLegales = this.equipo.documentoslegales;
+            this.historial = this.equipo.historialDeServicios;
+            this.documentosLegales = this.equipo.documentosLegales;
           })
           .catch((error) => {
             console.error("Error al obtener el reporte:", error);

@@ -47,10 +47,10 @@
           <v-text-field v-model="equipo.cliente.nit" label="NIT" disabled class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicacionnombre" label="Sede" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.ubicacionNombre" label="Sede" disabled class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicaciondireccion" label="Dirección" disabled
+          <v-text-field v-model="equipo.ubicacionDireccion" label="Dirección" disabled
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
@@ -531,21 +531,22 @@ export default {
       this.reporte.propietario = this.equipo.propietario.nombre;
       this.reporte.nombrecliente = this.equipo.cliente.nombre;
       this.reporte.nitcliente = this.equipo.cliente.nit;
-      this.reporte.sedecliente = this.equipo.ubicacionnombre;
-      this.reporte.direccioncliente = this.equipo.ubicaciondireccion;
+      this.reporte.sedecliente = this.equipo.ubicacionNombre;
+      this.reporte.direccioncliente = this.equipo.ubicacionDireccion;
 
       //localStorage.removeItem('equipo')
     },
     buscarfirma() {
       //va a ir a mi backend y me traerá las peticiones de la base de datos
       axios
-        .get(this.$store.state.ruta + "api/firma/buscar", {
+        .get(this.$store.state.ruta + "api/usuario/buscarfirma", {
           headers: {
             token: this.$store.state.token,
           },
         })
         .then((response) => {
-          this.reporte.firmaingeniero = response.data[0].firma; //el this es porque no es propia de la funcion sino de l componente
+          
+          this.reporte.firmaingeniero = response.data.firma; //el this es porque no es propia de la funcion sino de l componente
         })
         .catch((error) => {
           //console.log(error);
@@ -571,7 +572,7 @@ export default {
           this.$store.state.ruta + "api/reporte/registrar/",
           {
             reporte: this.reporte,
-            id_equipo: this.equipo._id
+            id_equipo: this.equipo.id
           },
           {
             headers: {
@@ -607,14 +608,14 @@ export default {
           throw new Error("Debe seleccionar un archivo antes de guardar.");
         }
 
-        if (!this.reporte || !this.equipo || !this.equipo._id) {
+        if (!this.reporte || !this.equipo || !this.equipo.id) {
           throw new Error("Datos del reporte o equipo incompletos.");
         }
-        console.log('Equipo.id', this.equipo._id)
-        console.log(typeof (this.equipo._id))
+        console.log('Equipo.id', this.equipo.id)
+        console.log(typeof (this.equipo.id))
         const formData = new FormData();
         formData.append('file', this.files);
-         formData.append('id_equipo', JSON.stringify(this.equipo._id));
+         formData.append('id_equipo', JSON.stringify(this.equipo.id));
         formData.append('reporte', JSON.stringify(this.reporte)); 
 
         const response = await axios.post(

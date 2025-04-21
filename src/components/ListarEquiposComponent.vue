@@ -205,9 +205,9 @@
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px">
             <v-col cols="12">
-              <v-card class="pa-5"><v-select v-model="etapaautorizada" :items="listadeetapas" label="Siguiente paso"
-                  required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
-                <v-textarea v-model="observaciones"></v-textarea>
+              <v-card class="pa-5"><v-text-field v-model="etapaautorizada" :items="listadeetapas" label="Etapa de Ingreso"
+                  required :rules="[(v) => !!v || 'Campo Requerido']" disabled=""></v-text-field>
+                <!-- <v-textarea v-model="observaciones"></v-textarea> -->
                 <v-card-actions><v-btn class="primary darken-1" text @click="confirmarEtapa(0)">Confirmar
                     Etapa</v-btn></v-card-actions>
               </v-card>
@@ -266,7 +266,7 @@ export default {
     search: "",
     cargando: true,
     esperaguardar: false,
-    etapaautorizada: "",
+    etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler"],
@@ -277,8 +277,8 @@ export default {
         etapaactual: 1, // Paso actual
         ultimaetapa: 1, //Cantidad máxima de pasos
         etapas: [],
-        equipo: {},
-        estado: "Bloqueado",
+        /* equipo: {}, */
+        estado: "Abierta",
       },
     ],
     headers: [
@@ -550,6 +550,7 @@ export default {
     },
 
     save2() {
+      console.log("nuevoequipo", this.nuevoequipo);
       this.nuevoequipo.ubicacion.direccion = this.ubicacionclientes.map(
         (equipo) => {
           if (equipo.nombre === this.nuevoequipo.ubicacion.nombre) {
@@ -767,15 +768,8 @@ export default {
     asignarLista() {
       if (this.$store.state.user.rol === "administrador") {
         this.listadeetapas = [
-          "Llegada de equipo",
-                    "Equipo desinfectado",
-                    "Cuarentena",
-                    "Soporte ingeniería",
-                    "Soporte aplicaciones",    
-                    "Pendiente de repuestos",
-                    "Listo para despacho",
-                    "Despachado",
-        ];
+          "Desinfección"
+                            ];
       } else if (this.$store.state.user.rol === "soporte") {
         this.listadeetapas = [
           "Cotización solicitada",
@@ -822,18 +816,20 @@ export default {
           nombre: this.etapaautorizada,
           comentario: this.observaciones,
           responsable: this.$store.state.user.nombre,
-          hora: date,
+          fecha: date,
+          ubicacion: "Cuarentena"
         });
         this.ordenes[m].etapaactual++;
         this.ordenes[m].ultimaetapa++;
 
         this.esperaguardar = true;
+        
         axios
           .post(
-            this.$store.state.ruta + "api/orden/registrar/",
+            this.$store.state.ruta + "api/ingreso/registrar",
             {
               equipo: this.editedItem,
-              etapas: this.ordenes[0].etapas,
+              etapa: this.ordenes[0].etapas[0],
             },
             {
               headers: {
@@ -857,7 +853,13 @@ export default {
           })
           .catch((error) => {
             this.esperaguardar = false;
-            console.log(error);
+            console.log('Error',error.response.data.error);
+            if (error.response.data.error === `El equipo ya tiene un ingreso en estado "Abierto".`) {
+              this.textodialogo = error.response.data.error;
+              this.dialogoetapa = false;
+              this.dialog = false;
+              this.dialogo = true;
+            } 
             return error;
           });
       }

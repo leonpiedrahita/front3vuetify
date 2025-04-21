@@ -24,7 +24,7 @@
         </v-data-table>
         
     </v-card>
-    
+    <pre>{{ ordenes }}</pre>
 </template>
 
 <script>
@@ -39,7 +39,7 @@ export default {
         ordenseleccionada: {},
         encabezado: [
             {
-                title: "Nombre del dispositivo",
+                title: "Nombre del equipo",
                 key: "equipo.nombre",
                 align: "center",
             },
@@ -69,7 +69,7 @@ export default {
         listar() {
             //va a ir a mi backend y me traerá las peticiones de la base de datos
             axios
-                .get(this.$store.state.ruta + "api/orden/listar")
+                .get(this.$store.state.ruta + "api/ingreso/ingresos")
                 .then((response) => {
                     this.ordenes = response.data; //el this es porque no es propia de la funcion sino de l componente
                     this.cargando = false
@@ -84,7 +84,7 @@ export default {
             this.$store.dispatch("guardarOrdenesEquipo", {
                 ordenes: this.ordenseleccionada,
                 equipo: this.ordenseleccionada.equipo,
-                idorden: this.ordenseleccionada._id
+                idorden: this.ordenseleccionada.id
             });
             this.$router.push({ name: "Pasos" })
         }

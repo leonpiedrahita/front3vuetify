@@ -1,5 +1,8 @@
 <template>
+
   <v-card class="pa-2 mt-15 ">
+    
+
     <v-data-table :headers="headers" :items="equipos" :search="search" class="elevation-1" :loading="cargando"
       loading-text="Cargando ... por favor espere">
       <template v-slot:top>
@@ -15,6 +18,11 @@
                 Nuevo Equipo
               </v-btn>
             </v-col>
+            <v-col cols="6" sm="2">
+      <v-btn color="primary" min-width="228" size="large" variant="flat" @click="exportToExcel">
+    Exportar a Excel
+  </v-btn>
+    </v-col>
           </v-row>
           <v-dialog v-model="dialog2" max-width="500px">
             <v-card>
@@ -43,7 +51,7 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.propietario.nombre" :items="nombresclientes"
                         label="Propietario" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
-                        nuevopropietario }}</v-autocomplete>
+                          nuevopropietario }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.cliente.nombre" :items="nombresclientes" label="Cliente"
@@ -108,7 +116,7 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.propietario.nombre" :items="nombresclientes"
                         label="Propietario" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
-                        nuevopropietariomodificado }}</v-autocomplete>
+                          nuevopropietariomodificado }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.cliente.nombre" :items="nombresclientes" label="Cliente"
@@ -189,24 +197,25 @@
             </v-card>
           </v-dialog>
           <v-dialog transition="dialog-top-transition" max-width="500" v-model="dialogo">
-            
-              <v-card>
-                <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
-                <v-card-text>
-                  <div class="text-h3 pa-1 ma-1 aviso">
-                    {{ $data.textodialogo }}
-                  </div>
-                </v-card-text>
-                <v-card-actions class="justify-center">
-                  <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
-                </v-card-actions>
-              </v-card>
-            
+
+            <v-card>
+              <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
+              <v-card-text>
+                <div class="text-h3 pa-1 ma-1 aviso">
+                  {{ $data.textodialogo }}
+                </div>
+              </v-card-text>
+              <v-card-actions class="justify-center">
+                <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
+              </v-card-actions>
+            </v-card>
+
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px">
             <v-col cols="12">
-              <v-card class="pa-5"><v-text-field v-model="etapaautorizada" :items="listadeetapas" label="Etapa de Ingreso"
-                  required :rules="[(v) => !!v || 'Campo Requerido']" disabled=""></v-text-field>
+              <v-card class="pa-5"><v-text-field v-model="etapaautorizada" :items="listadeetapas"
+                  label="Etapa de Ingreso" required :rules="[(v) => !!v || 'Campo Requerido']"
+                  disabled=""></v-text-field>
                 <!-- <v-textarea v-model="observaciones"></v-textarea> -->
                 <v-card-actions><v-btn class="primary darken-1" text @click="confirmarEtapa(0)">Confirmar
                     Etapa</v-btn></v-card-actions>
@@ -252,6 +261,8 @@
 </template>
 <script>
 import axios from "axios";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 export default {
   name: "ListarEquipos",
   data: () => ({
@@ -381,7 +392,7 @@ export default {
       placaDeInventario: "",
       tipoDeContrato: "",
       clienteId: null,
-      propietarioId:null,
+      propietarioId: null,
       propietario: {
         nombre: "",
         id: "",
@@ -769,7 +780,7 @@ export default {
       if (this.$store.state.user.rol === "administrador") {
         this.listadeetapas = [
           "Desinfección"
-                            ];
+        ];
       } else if (this.$store.state.user.rol === "soporte") {
         this.listadeetapas = [
           "Cotización solicitada",
@@ -823,7 +834,7 @@ export default {
         this.ordenes[m].ultimaetapa++;
 
         this.esperaguardar = true;
-        
+
         axios
           .post(
             this.$store.state.ruta + "api/ingreso/registrar",
@@ -853,13 +864,13 @@ export default {
           })
           .catch((error) => {
             this.esperaguardar = false;
-            console.log('Error',error.response.data.error);
+            console.log('Error', error.response.data.error);
             if (error.response.data.error === `El equipo ya tiene un ingreso en estado "Abierto".`) {
               this.textodialogo = error.response.data.error;
               this.dialogoetapa = false;
               this.dialog = false;
               this.dialogo = true;
-            } 
+            }
             return error;
           });
       }
@@ -991,11 +1002,40 @@ export default {
         ? this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0])
         : [];
     },
+    exportToExcel() {
+  // Campos que quieres exportar (orden y nombres personalizados si deseas)
+  const exportData = this.equipos.map(item => ({
+    Nombre: item.nombre,
+    Marca: item.marca,
+    Serie: item.serie,
+    Cliente: item.cliente.nombre,
+    Propietario: item.propietario.nombre,
+    'Ubicación': item.ubicacionNombre,
+    'Dirección Ubicación': item.ubicacionDireccion,
+    Estado: item.estado,
+    'Placa de Inventario': item.placaDeInventario,
+    'Tipo de Contrato': item.tipoDeContrato
+  }));
+
+  // Crear hoja y libro
+  const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
+
+  // Escribir y guardar
+  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(blob, 'equipos.xlsx');
+}
+  
+  
 
   },
   actualizarsede() {
     this.sedeactualizada = "funciona";
   },
+  
+
 };
 </script>
 <style scoped>

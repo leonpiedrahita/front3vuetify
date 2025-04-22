@@ -428,7 +428,7 @@ export default {
         .patch(
           this.$store.state.ruta +
           "api/cliente/actualizar/" +
-          this.editedItem._id,
+          this.editedItem.id,
           {
             nombre: this.editedItem.nombre,
             nit: this.editedItem.nit,

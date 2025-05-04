@@ -7,6 +7,7 @@
 // Components
 import App from './App.vue'
 import store from './store'
+import permission from '../src/directives/permissions.js';
 import axiosPlugin from './plugins/axios'
 import router from './router'
 import { VueSignaturePad } from "vue-signature-pad";
@@ -24,6 +25,7 @@ const app = createApp(App)
 
 registerPlugins(app)
 app.use(store);
+app.directive('permission', permission);
 app.use(router);
 
 app.use(axiosPlugin);

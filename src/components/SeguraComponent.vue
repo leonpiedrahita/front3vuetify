@@ -34,25 +34,25 @@
               <v-list-item v-bind="props" prepend-icon="mdi-amplifier" title="Equipos" />
 
             </template>
-              <v-list-item :to="{ name: 'ListarEquipos' }">
-                <v-list-item-subtitle>
-                  <v-list-item-title> Existentes </v-list-item-title>
-                </v-list-item-subtitle>
-              </v-list-item>
-               <v-list-item :to="{ name: 'ListarRefEquipos' }">
-                <v-list-item-subtitle>
-                  <v-list-item-title> Referencias </v-list-item-title>
-                </v-list-item-subtitle>
-              </v-list-item> 
-            
-          </v-list-group>
-               <v-list-item :to="{ name: 'ListarOrdenes' }">
-              <v-list-item prepend-icon="mdi-vector-circle" title="Ordenes" />
-              
-              
+            <v-list-item :to="{ name: 'ListarEquipos' }">
+              <v-list-item-subtitle>
+                <v-list-item-title> Existentes </v-list-item-title>
+              </v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item :to="{ name: 'ListarRefEquipos' }">
+              <v-list-item-subtitle>
+                <v-list-item-title> Referencias </v-list-item-title>
+              </v-list-item-subtitle>
             </v-list-item>
 
-         <!--  <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
+          </v-list-group>
+          <v-list-item :to="{ name: 'ListarOrdenes' }">
+            <v-list-item prepend-icon="mdi-vector-circle" title="Ingresos" />
+
+
+          </v-list-item>
+
+          <!--  <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
             <template v-slot:activator>
               <v-list-item>
                 <v-list-item-title> Permisos </v-list-item-title>
@@ -80,8 +80,8 @@ export default {
     return {
       drawer: null,
       selectedItem: 1,
-      desplegableequipos:[
-        [        ],
+      desplegableequipos: [
+        [],
         []
       ]
     };
@@ -103,6 +103,7 @@ export default {
 <style>
 .margen {
   padding: 0px !important;
+ margin-top: 4em;
 }
 
 .mostrar {

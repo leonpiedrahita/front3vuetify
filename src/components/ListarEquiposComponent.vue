@@ -1,28 +1,51 @@
 <template>
 
-  <v-card class="pa-2 mt-15 ">
-    
-
-    <v-data-table :headers="headers" :items="equipos" :search="search" class="elevation-1" :loading="cargando"
+  <v-card class="pa-2">
+    <!-- Fila de los campos de texto y botón -->
+    <v-container class="pa-5px">
+      <v-row justify="space-around" align="center" class="no-gutters"> <!-- Quitar padding entre columnas -->
+        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
+          <v-text-field v-model="buscar.nombreequipo" label="Nombre Equipo" variant="outlined"
+            persistent-hint></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
+          <v-text-field v-model="buscar.serie" label="Serie" variant="outlined" persistent-hint></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
+          <v-text-field v-model="buscar.propietario" label="Propietario" variant="outlined"
+            persistent-hint></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
+          <v-text-field v-model="buscar.contrato" label="Contrato" variant="outlined" persistent-hint></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" md="2" class="d-flex align-center justify-center pa-0"> <!-- Quitar padding interno -->
+          <v-btn class="mb-5" color="primary" min-width="228" size="large" variant="flat" @click="buscarEquipos">
+            Buscar Equipos
+          </v-btn>
+        </v-col>
+        <v-col  cols="12" sm="12" md="6" class="d-flex justify-center pa-0">
+          <v-btn v-permission="['administrador','calidad']" class="mt-2" color="c6" min-width="228" size="large" variant="flat" @click="nuevoEquipo()">
+            Nuevo Equipo
+          </v-btn>
+        </v-col>
+        <v-col cols="12" sm="12" md="6" class="d-flex justify-center pa-0">
+          <v-btn class="mt-2" color="primary" min-width="228" size="large" variant="flat" @click="exportToExcel">
+            Exportar a Excel
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+   
+    <v-data-table :headers="headersfiltrados" :items="equipos" :search="search" class="elevation-1" :loading="cargando"
       loading-text="Cargando ... por favor espere">
       <template v-slot:top>
         <v-toolbar flat>
           <v-row justify="space-around">
-            <v-col cols="6" sm="5">
+            <v-col cols="12" sm="6">
               <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Cliente / Nombre / Serie"
                 single-line hide-details></v-text-field>
             </v-col>
 
-            <v-col cols="6" sm="2">
-              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="nuevoEquipo()">
-                Nuevo Equipo
-              </v-btn>
-            </v-col>
-            <v-col cols="6" sm="2">
-      <v-btn color="primary" min-width="228" size="large" variant="flat" @click="exportToExcel">
-    Exportar a Excel
-  </v-btn>
-    </v-col>
           </v-row>
           <v-dialog v-model="dialog2" max-width="500px">
             <v-card>
@@ -191,7 +214,7 @@
                   Crear reporte
                 </v-btn>
                 <v-btn color="primary darken-1" text @click="guardarGenerarOrden" v-if="generarordenseleccionado">
-                  Generar Orden
+                  Nuevo ingreso
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -255,9 +278,9 @@
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-  <pre> {{ equipos }} </pre>
+<!--   <pre> {{ equipos }} </pre>
   <h1>Equipomodificado</h1>
-  <pre> {{ equipomodificado }} </pre>
+  <pre> {{ equipomodificado }} </pre> -->
 </template>
 <script>
 import axios from "axios";
@@ -275,7 +298,7 @@ export default {
     dialogoetapa: false,
     textodialogo: "",
     search: "",
-    cargando: true,
+    cargando: false,
     esperaguardar: false,
     etapaautorizada: "Desinfección",
     observaciones: "",
@@ -283,6 +306,12 @@ export default {
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
+    buscar: {
+      nombreequipo: "",
+      serie: "",
+      propietario: "",
+      contrato: "",
+    },
     ordenes: [
       {
         etapaactual: 1, // Paso actual
@@ -323,9 +352,10 @@ export default {
         value: "editar",
         sortable: false,
         align: "center",
+        roles: ["administrador","calidad"],
       },
       {
-        title: "Generar orden",
+        title: "Nuevo Ingreso",
         value: "generarorden",
         sortable: false,
         align: "center",
@@ -335,6 +365,7 @@ export default {
         value: "crear",
         sortable: false,
         align: "center",
+        roles: ["administrador","soporte","comercial"],
       },
     ],
     desserts: [],
@@ -429,6 +460,16 @@ export default {
   }),
 
   computed: {
+    headersfiltrados() {
+      // Filtra las columnas según los permisos
+      return this.headers.filter(column => {
+        // Si la columna no tiene roles, se muestra para todos
+        if (!column.roles) return true;
+
+        // Si tiene roles, verifica si el rol del usuario está permitido
+        return column.roles.includes(this.$store.state.user.rol);
+      });
+    },
     formTitle() {
       if (this.dialog2) {
         return "Nuevo equipo";
@@ -497,7 +538,7 @@ export default {
       this.$router.push({ name: "Login" });
     } else {
       this.asignarLista();
-      this.listar();
+
     }
   },
 
@@ -506,15 +547,44 @@ export default {
       //va a ir a mi backend y me traerá las peticiones de la base de datos
       axios
         .get(this.$store.state.ruta + "api/equipo/listar", {
-
+          
+            headers: {
+              token: this.$store.state.token,
+            },
+          
 
         })
         .then((response) => {
           this.equipos = response.data; //el this es porque no es propia de la funcion sino de l componente
-          this.cargando = false;
+
         })
         .catch((error) => {
           //console.log(error);
+          return error;
+        });
+    },
+    buscarEquipos() {
+      // Va a ir a mi backend y realizará una consulta con filtros dinámicos
+      this.cargando = true; // Muestra el spinner de carga
+      axios
+        .post(this.$store.state.ruta + "api/equipo/buscarequipos", {
+          // Aquí defines los filtros que deseas enviar al backend
+          nombre: this.buscar.nombreequipo, // Por ejemplo, un filtro basado en el nombre
+          serie: this.buscar.serie,   // Por ejemplo, un filtro basado en la serie
+          contrato: this.buscar.contrato, // Por ejemplo, un filtro basado en el estado
+          propietarioNombre: this.buscar.propietario // Por ejemplo, un filtro basado en el nombre del propietario
+          
+        },{
+            headers: {
+              token: this.$store.state.token,
+            },
+          })
+        .then((response) => {
+          this.equipos = response.data; // El `this` es porque `equipos` pertenece al componente
+          this.cargando = false;
+        })
+        .catch((error) => {
+          console.error("Error al buscar equipos:", error);
           return error;
         });
     },
@@ -579,13 +649,15 @@ export default {
       );
       const encontrarinventario = this.equipos.find(
         (registro) =>
-          registro.placaDeInventario === this.nuevoequipo.placaDeInventario
+          registro.placaDeInventario === this.nuevoequipo.placaDeInventario,
+          
       );
 
       if (encontrarserie) {
         this.textodialogo = "El número de serie ya se encuentra registrado";
         this.dialogo = true;
-      } else if (encontrarinventario) {
+      } else if (encontrarinventario.placaDeInventario!== "N/A") {
+        
         this.textodialogo =
           "El número de inventario ya se encuentra registrado";
         this.dialogo = true;
@@ -607,7 +679,7 @@ export default {
             this.$nextTick(() => {
               this.nuevoequipo = this.nuevoequipopordefecto;
             });
-            this.listar();
+            this.buscarEquipos();
           })
           .catch((error) => {
             console.log(error);
@@ -645,7 +717,7 @@ export default {
               this.nuevoequipo = this.nuevoequipopordefecto;
             });
             this.dialogomodificarequipocliente = false;
-            this.listar();
+            this.buscarEquipos();
           })
           .catch((error) => {
             console.log(error);
@@ -687,7 +759,7 @@ export default {
                 this.nuevoequipo = this.nuevoequipopordefecto;
               });
               this.dialogomodificarequipocliente = false;
-              this.listar();
+              this.buscarEquipos();
             })
             .catch((error) => {
               console.log(error);
@@ -723,7 +795,13 @@ export default {
             return error;
           });
         axios
-          .get(this.$store.state.ruta + "api/refequipo/listar")
+          .get(this.$store.state.ruta + "api/refequipo/listar",
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+          )
           .then((response) => {
             this.refequipos = response.data; //el this es porque no es propia de la funcion sino de l componente
             this.refequipos = this.refequipos.map((equipo) => ({
@@ -1003,42 +1081,43 @@ export default {
         : [];
     },
     exportToExcel() {
-  // Campos que quieres exportar (orden y nombres personalizados si deseas)
-  const exportData = this.equipos.map(item => ({
-    Nombre: item.nombre,
-    Marca: item.marca,
-    Serie: item.serie,
-    Cliente: item.cliente.nombre,
-    Propietario: item.propietario.nombre,
-    'Ubicación': item.ubicacionNombre,
-    'Dirección Ubicación': item.ubicacionDireccion,
-    Estado: item.estado,
-    'Placa de Inventario': item.placaDeInventario,
-    'Tipo de Contrato': item.tipoDeContrato
-  }));
+      // Campos que quieres exportar (orden y nombres personalizados si deseas)
+      const exportData = this.equipos.map(item => ({
+        Nombre: item.nombre,
+        Marca: item.marca,
+        Serie: item.serie,
+        Cliente: item.cliente.nombre,
+        Propietario: item.propietario.nombre,
+        'Ubicación': item.ubicacionNombre,
+        'Dirección Ubicación': item.ubicacionDireccion,
+        Estado: item.estado,
+        'Placa de Inventario': item.placaDeInventario,
+        'Tipo de Contrato': item.tipoDeContrato
+      }));
 
-  // Crear hoja y libro
-  const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
+      // Crear hoja y libro
+      const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
 
-  // Escribir y guardar
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  saveAs(blob, 'equipos.xlsx');
-}
-  
-  
+      // Escribir y guardar
+      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      saveAs(blob, 'equipos.xlsx');
+    }
+
+
 
   },
   actualizarsede() {
     this.sedeactualizada = "funciona";
   },
-  
+
 
 };
 </script>
 <style scoped>
+/* Estilos responsivos */
 .centered-input :deep(input) {
   text-align: center;
 }
@@ -1055,9 +1134,38 @@ export default {
   justify-content: center;
 }
 
-@media (max-width: 767px) {
-  .tamano {
-    display: none;
+.v-data-table {
+  overflow-x: auto;
+  /* Para manejar desbordes horizontales en pantallas pequeñas */
+}
+button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none; /* Evita cualquier interacción del usuario */
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 600px) {
+  .v-btn {
+    font-size: 12px;
+    /* Tamaño más pequeño para botones */
+  }
+
+  .v-text-field {
+    font-size: 14px;
+    /* Ajustar tamaño de fuente */
+  }
+
+  .mt-15 {
+    margin-top: 8px !important;
+    /* Reducir margen en dispositivos más pequeños */
+  }
+}
+
+@media (max-width: 960px) {
+  .v-toolbar {
+    flex-wrap: wrap;
+    /* Asegura que los elementos se ajusten en pantallas medianas */
   }
 }
 </style>

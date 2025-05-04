@@ -1,5 +1,5 @@
 <template>
-  <v-card id="vcard-imprimir" class="pa-2 mt-15 ">
+  <v-card id="vcard-imprimir" class="pa-2">
     <v-row justify="center">
       <v-col cols="4" class="d-flex justify-center">
         <v-btn color="primary" class="ma-3 tabla-normal" @click="imprimirVCard">
@@ -8,7 +8,7 @@
         </v-btn>
       </v-col>
       <v-col cols="4" class="d-flex justify-center">
-        <v-btn color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
+        <v-btn v-permission="['administrador','calidad','cotizaciones']" color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
           <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
           Guardar Documento
         </v-btn>
@@ -217,11 +217,11 @@
 
 
   </v-card>
-<pre>
+<!-- <pre>
       
        {{equipo}}
     
-      </pre>
+      </pre> -->
 
 </template>
 <script>
@@ -514,7 +514,12 @@ export default {
         this.nombredocumentoseleccionado = null;
         this.files = null;
         axios
-          .get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`)
+          .get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`,
+            {
+              headers: {
+                token: this.$store.state.token,
+              },
+            })
           /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
           .then((response) => {
             this.equipo = response.data;
@@ -556,7 +561,11 @@ export default {
   padding: 8px;
   text-align: center;
 }
-
+button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none; /* Evita cualquier interacción del usuario */
+}
 /* En modo impresión */
 @media print {
 

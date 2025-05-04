@@ -1,6 +1,6 @@
 <template>
   <form>
-    <v-row class="pa-2 mt-16">
+    <v-row class="pa-2">
 
       <v-spacer></v-spacer>
       <v-spacer></v-spacer>

@@ -1,14 +1,14 @@
 <template>
-  <v-card class="pa-2 mt-15 ">
+  <v-card class="pa-2 ">
     <!-- se crea la data table prinecipal para listar los clientes -->
-    <v-data-table :headers="headers" :items="equipos" :expanded.sync="expanded" show-expand single-expand
+    <v-data-table :headers="headersfiltrados" :items="equipos" :expanded.sync="expanded" show-expand single-expand
       :search="search" class="elevation-1" item-value="nit" :loading="cargando"
       loading-text="Cargando ... por favor espere"><!-- Se crea la data table secundaria para listar las sedes -->
       <template v-slot:expanded-row="{ columns, item }">
         <td :colspan="columns.length">
           <div class="sp-details" justify="center">
             <div class="col-xs-5 col-md-8 text-center">
-              <v-data-table :headers="encabezado" :items="item.sede">
+              <v-data-table :headers="encabezadofiltrado" :items="item.sede">
                 <template v-slot:[`item.eliminarsede`]="{ item }">
                   <!-- Botón de basura para eliminar la sede -->
                   <v-icon medium @click="deleteItem(item)">
@@ -31,7 +31,7 @@
             </v-col>
 
             <v-col cols="6" sm="2">
-              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="nuevoCliente()"> Nuevo Cliente
+              <v-btn v-permission="['administrador','cotizaciones']" color="c6" min-width="228" size="large" variant="flat" large @click="nuevoCliente()"> Nuevo Cliente
               </v-btn>
             </v-col>
 
@@ -184,7 +184,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <p>{{ this.equipos }}</p>
+    <!-- <p>{{ this.equipos }}</p> -->
   </v-card>
 </template>
 <script>
@@ -223,9 +223,9 @@ export default {
         title: "Eliminar sede",
         value: "eliminarsede",
         sortable: false,
-
         class: "titulo--text font-weight-bold ",
         width: "50%",
+        roles: ["administrador","cotizaciones"],
       },
     ],
     headers: [
@@ -260,6 +260,7 @@ export default {
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
+        roles: ["administrador","cotizaciones"],
       },
       {
         title: "Agregar Sede",
@@ -267,6 +268,7 @@ export default {
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
+        roles: ["administrador","cotizaciones"],
       },
     ],
 
@@ -305,6 +307,26 @@ export default {
     titulosede() {
       return "Agregar sede";
     },
+    headersfiltrados() {
+      // Filtra las columnas según los permisos
+      return this.headers.filter(column => {
+        // Si la columna no tiene roles, se muestra para todos
+        if (!column.roles) return true;
+
+        // Si tiene roles, verifica si el rol del usuario está permitido
+        return column.roles.includes(this.$store.state.user.rol);
+      });
+    },
+    encabezadofiltrado() {
+      // Filtra las columnas según los permisos
+      return this.encabezado.filter(column => {
+        // Si la columna no tiene roles, se muestra para todos
+        if (!column.roles) return true;
+
+        // Si tiene roles, verifica si el rol del usuario está permitido
+        return column.roles.includes(this.$store.state.user.rol);
+      });
+    }
 
   },
 
@@ -408,7 +430,7 @@ export default {
 
         this.editedIndex = -1;
       });
-      this.listar();
+      /* this.listar(); */
     },
     cerraragregarsede() {
       this.dialog2 = false;
@@ -417,7 +439,7 @@ export default {
         this.editedItem2 = Object.assign({}, this.defaultItem2);
         this.editedIndex = -1;
       });
-      this.listar();
+      /* this.listar(); */
     },
 
     editar() {
@@ -561,6 +583,11 @@ export default {
 
 .toolbar {
   flex-wrap: wrap;
+}
+button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none; /* Evita cualquier interacción del usuario */
 }
 
 @media (max-width: 767px) {

@@ -1,10 +1,10 @@
 <template>
-  <v-card id="vcard-imprimir" class="pa-2 mt-15 ">
+  <v-card id="vcard-imprimir" class="pa-2">
     <form>
       <v-container>
         <v-row justify="center">
           <v-col cols="4" class="d-flex justify-center">
-        <v-btn color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
+        <v-btn v-permission="['administrador','calidad']" color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
           <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
           Guardar Documento
         </v-btn>
@@ -262,7 +262,7 @@
               equipo.desague &&
               equipo.recomendaciones
             )
-              " class="c6" x-large @click="ActualizarFinalizar()">
+              " v-permission="['administrador','calidad']" class="c6" x-large @click="ActualizarFinalizar()">
             Actualizar referencia
           </v-btn>
           <v-spacer> </v-spacer>
@@ -292,10 +292,10 @@
         </v-dialog>
       </v-container>
 
-         <pre>
+<!--          <pre>
       
        {{ equipo }}
-      </pre>
+      </pre> -->
     </form>
   </v-card>
 </template>
@@ -654,7 +654,12 @@ this.documento = Object.assign({}, item);
         this.nombredocumentoseleccionado = null;
         this.files = null;
         axios
-          .get(this.$store.state.ruta + `api/refequipo/listaruno/${this.equipo.id}`)
+          .get(this.$store.state.ruta + `api/refequipo/listaruno/${this.equipo.id}`,
+            {
+              headers: {
+                token: this.$store.state.token,
+              },
+            })
           /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
           .then((response) => {
             this.equipo = response.data;
@@ -706,5 +711,11 @@ this.documento = Object.assign({}, item);
     radial-gradient(circle at top left, #000000, #000000);
   background-origin: border-box;
   background-clip: content-box, border-box;
+}
+button.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+  /* Evita cualquier interacción del usuario */
 }
 </style>

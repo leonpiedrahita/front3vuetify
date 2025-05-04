@@ -1,5 +1,5 @@
 <template>
-    <v-card class="pa-2 mt-15">
+    <v-card class="pa-2 ">
         <v-card-title class="text-center" id="tamanotitulo">Informacion del equipo</v-card-title>
         <v-row justify="center"><v-spacer></v-spacer>
             <v-card-title>
@@ -48,9 +48,9 @@
                             </template>
 
                             <template v-slot:subtitle>
-                                <div class="text-h6">Ubicación: {{ step.ubicacion }}</div>
-                                <div class="text-h6">Responsable: {{ step.responsable }}</div>
-                                <div class="text-h6">Comentarios: {{ step.comentario }}</div>
+                                <div class="text-h6" v-if="step.ubicacion">Ubicación: {{ step.ubicacion }}</div>
+                                <div class="text-h6" v-if="step.responsable">Responsable: {{ step.responsable }}</div>
+                                <div class="text-h6" v-if="step.comentario">Comentarios: {{ step.comentario }}</div>
                             </template>
                         </v-stepper-vertical-item>
 
@@ -65,13 +65,13 @@
                             <div class="font-weight-medium">
                                 Estado: {{ step.nombre }} {{ step.fecha }}
                             </div>
-                            <div class="font-weight-regular">
-                                Ubicacion: {{ step.comentario }}
+                            <div class="font-weight-regular" v-if="step.ubicacion">
+                                Ubicacion: {{ step.ubicacion }}
                             </div>
-                            <div class="font-weight-regular">
+                            <div class="font-weight-regular" v-if="step.responsable">
                                 Responsable: {{ step.responsable }}
                             </div>
-                            <div class="font-weight-regular">
+                            <div class="font-weight-regular"  v-if="step.comentario">
                                 Comentarios: {{ step.comentario }}
                             </div>
 
@@ -410,7 +410,13 @@ export default {
 
 
             axios
-                .get(this.$store.state.ruta + `api/ingreso/ingresoid/` + this.idorden) // La URL incluye el ID dinámico del ingreso
+                .get(this.$store.state.ruta + `api/ingreso/ingresoid/` + this.idorden,
+                    {
+                        headers: {
+                            token: this.$store.state.token,
+                        },
+                    }
+                ) // La URL incluye el ID dinámico del ingreso
                 .then((response) => {
                     // Manejar la respuesta exitosa
                     this.ordenes = response.data; // Guardar los datos del ingreso en una variable del componente

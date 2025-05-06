@@ -656,7 +656,7 @@ export default {
       if (encontrarserie) {
         this.textodialogo = "El número de serie ya se encuentra registrado";
         this.dialogo = true;
-      } else if (encontrarinventario.placaDeInventario!== "N/A") {
+      } else if (encontrarinventario) {
         
         this.textodialogo =
           "El número de inventario ya se encuentra registrado";

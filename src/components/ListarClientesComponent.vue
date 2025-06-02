@@ -105,7 +105,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem2.nombre" label="Sede" :rules="[(v) => !!v || 'Campo Requerido']"
+                      <v-text-field v-model="editedItem2.nombre" label="Ciudad" :rules="[(v) => !!v || 'Campo Requerido']"
                         required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
@@ -206,7 +206,7 @@ export default {
     esperarguardar: false,
     encabezado: [
       {
-        title: "Sede",
+        title: "Ciudad",
         value: "nombre",
         align: "center",
         class: "titulo--text font-weight-bold",

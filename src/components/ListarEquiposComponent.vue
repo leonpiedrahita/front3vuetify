@@ -23,8 +23,9 @@
             Buscar Equipos
           </v-btn>
         </v-col>
-        <v-col  cols="12" sm="12" md="6" class="d-flex justify-center pa-0">
-          <v-btn v-permission="['administrador','calidad']" class="mt-2" color="c6" min-width="228" size="large" variant="flat" @click="nuevoEquipo()">
+        <v-col cols="12" sm="12" md="6" class="d-flex justify-center pa-0">
+          <v-btn v-permission="['administrador', 'calidad']" class="mt-2" color="c6" min-width="228" size="large"
+            variant="flat" @click="nuevoEquipo()">
             Nuevo Equipo
           </v-btn>
         </v-col>
@@ -35,7 +36,7 @@
         </v-col>
       </v-row>
     </v-container>
-   
+
     <v-data-table :headers="headersfiltrados" :items="equipos" :search="search" class="elevation-1" :loading="cargando"
       loading-text="Cargando ... por favor espere">
       <template v-slot:top>
@@ -75,6 +76,11 @@
                       <v-autocomplete v-model="nuevoequipo.propietario.nombre" :items="nombresclientes"
                         label="Propietario" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
                           nuevopropietario }}</v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete v-model="nuevoequipo.proveedor.nombre" :items="nombresclientes" label="Proveedor"
+                        class="vs__search">{{
+                          nuevoproveedor }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.cliente.nombre" :items="nombresclientes" label="Cliente"
@@ -142,10 +148,16 @@
                           nuevopropietariomodificado }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete v-model="equipomodificado.proveedor.nombre" :items="nombresclientes"
+                        label="Proveedor" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
+                          nuevoproveedormodificado }}</v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.cliente.nombre" :items="nombresclientes" label="Cliente"
                         required :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevoclientemodificado
                         }}</v-autocomplete>
                     </v-col>
+
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.ubicacionNombre"
                         :items="nombreUbicacionesClienteModificado" item-text="nombre" label="Sede"
@@ -253,6 +265,66 @@
               </v-card-text>
             </v-card>
           </v-dialog>
+          <v-dialog
+  v-model="dialogoclientes"
+  transition="dialog-bottom-transition"
+  persistent
+  fullscreen
+>
+  <v-card>
+
+    <!-- TOOLBAR CON COLOR Y ESTILO -->
+    <v-toolbar
+      flat
+      style="background-color: #52B69A; color: white;"
+      
+    >
+    <v-spacer></v-spacer>
+        <!-- Botón cerrar flotando a la derecha -->
+ 
+  
+
+      <!-- Título centrado en negrilla -->
+      <v-toolbar-title class="text-center font-weight-bold">
+        Nombre: {{ historialclientes.nombre }} &nbsp; | &nbsp; Serie: {{ historialclientes.serie }}
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+       <!-- Botón cerrar a la derecha -->
+  <v-btn
+    icon="mdi-close"
+    @click="dialogoclientes = false"
+    variant="text"
+    color="white"
+    class="ml-auto"
+  />
+    </v-toolbar>
+
+    <!-- CUERPO DEL DIALOGO -->
+    <v-card-text>
+      <v-data-table
+        :headers="headersHistorialClientes"
+        :items="historialclientes.historialPropietarios || []"
+        :search="search"
+        class="elevation-1"
+      >
+        <!-- Formateo de la fecha -->
+        <template #item.fecha="{ item }">
+          {{
+            new Date(item.fecha).toLocaleDateString('es-CO', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            }).replace(/\//g, '-')
+          }}
+        </template>
+      </v-data-table>
+
+      <!-- DEBUG (puedes eliminar esto) -->
+      <!-- {{ this.historialclientes }} -->
+    </v-card-text>
+
+  </v-card>
+</v-dialog>
         </v-toolbar>
       </template>
       <template v-slot:[`item.detalles`]="{ item }">
@@ -275,10 +347,15 @@
           mdi-text-box-plus-outline
         </v-icon>
       </template>
+      <template v-slot:[`item.clientes`]="{ item }">
+        <v-icon medium @click="mostrarHistorialClientes(item)">
+          mdi-account-box-multiple-outline
+        </v-icon>
+      </template>
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-<!--   <pre> {{ equipos }} </pre>
+  <!--   <pre> {{ equipos }} </pre>
   <h1>Equipomodificado</h1>
   <pre> {{ equipomodificado }} </pre> -->
 </template>
@@ -289,6 +366,8 @@ import { saveAs } from 'file-saver';
 export default {
   name: "ListarEquipos",
   data: () => ({
+    dialogoclientes: false,
+    historialclientes: [],
     dialog: false,
     generarordenseleccionado: false,
     generarreporteseleccionado: false,
@@ -323,13 +402,18 @@ export default {
     ],
     headers: [
       { title: "Serie", value: "serie", align: "center" },
+      { title: "Nombre", value: "nombre", align: "center" },
       { title: "Inventario", value: "placaDeInventario", align: "center" },
       {
         title: "Propietario",
         align: "center",
         key: "propietario.nombre",
       },
-      { title: "Nombre", value: "nombre", align: "center" },
+      {
+        title: "Proveedor",
+        align: "center",
+        key: "proveedor.nombre",
+      },
       {
         title: "Cliente asignado",
         align: "center",
@@ -352,7 +436,7 @@ export default {
         value: "editar",
         sortable: false,
         align: "center",
-        roles: ["administrador","calidad"],
+        roles: ["administrador", "calidad"],
       },
       {
         title: "Nuevo Ingreso",
@@ -365,8 +449,30 @@ export default {
         value: "crear",
         sortable: false,
         align: "center",
-        roles: ["administrador","soporte","comercial"],
+        roles: ["administrador", "soporte", "comercial"],
       },
+      {
+        title: "Historial Clientes",
+        value: "clientes",
+        sortable: false,
+        align: "center",
+
+      },
+    ],
+    headersHistorialClientes: [
+      { title: "Fecha (dd-mm-aaaa)", key: "fecha", align: "center" },
+      { title: "Propietario", key: "propietario.nombre", align: "center" },
+      { title: "Proveedor", key: "proveedor.nombre", align: "center" },
+      {
+        title: "Cliente",
+        align: "center",
+        key: "cliente.nombre",
+      },
+      {
+        title: "Tipo de COntrato",
+        align: "center",
+        key: "tipoDeContrato",
+      }
     ],
     desserts: [],
     editedIndex: -1,
@@ -411,6 +517,10 @@ export default {
         nombre: "",
         id: "",
       },
+      proveedor: {
+        nombre: "",
+        id: "",
+      },
       ubicacion: {
         nombre: "",
         direccion: "",
@@ -424,11 +534,16 @@ export default {
       tipoDeContrato: "",
       clienteId: null,
       propietarioId: null,
+      proveedorId: null,
       propietario: {
         nombre: "",
         id: "",
       },
       cliente: {
+        nombre: "",
+        id: "",
+      },
+      proveedor: {
         nombre: "",
         id: "",
       },
@@ -449,6 +564,10 @@ export default {
         id: "",
       },
       cliente: {
+        nombre: "",
+        id: "",
+      },
+      proveedor: {
         nombre: "",
         id: "",
       },
@@ -510,14 +629,26 @@ export default {
       // Este watcher se ejecutará cuando nuevoequipo.cliente.nombre cambie
       this.nuevocliente();
     },
+    'nuevoequipo.proveedor.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando nuevoequipo.proveedor.nombre cambie
+      this.nuevoproveedor();
+    },
     'equipomodificado.cliente.nombre': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
       this.nuevopropietariomodificado();
       this.nuevoclientemodificado();
+      this.nuevoproveedormodificado();
     },
     'equipomodificado.propietario.nombre': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
       this.nuevoclientemodificado();
+      this.nuevopropietariomodificado();
+      this.nuevoproveedormodificado();
+    },
+    'equipomodificado.proveedor.nombre': function (newValue) {
+      // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
+      this.nuevoclientemodificado();
+      this.nuevoproveedormodificado();
       this.nuevopropietariomodificado();
     }
   },
@@ -547,11 +678,11 @@ export default {
       //va a ir a mi backend y me traerá las peticiones de la base de datos
       axios
         .get(this.$store.state.ruta + "api/equipo/listar", {
-          
-            headers: {
-              token: this.$store.state.token,
-            },
-          
+
+          headers: {
+            token: this.$store.state.token,
+          },
+
 
         })
         .then((response) => {
@@ -573,12 +704,12 @@ export default {
           serie: this.buscar.serie,   // Por ejemplo, un filtro basado en la serie
           contrato: this.buscar.contrato, // Por ejemplo, un filtro basado en el estado
           propietarioNombre: this.buscar.propietario // Por ejemplo, un filtro basado en el nombre del propietario
-          
-        },{
-            headers: {
-              token: this.$store.state.token,
-            },
-          })
+
+        }, {
+          headers: {
+            token: this.$store.state.token,
+          },
+        })
         .then((response) => {
           this.equipos = response.data; // El `this` es porque `equipos` pertenece al componente
           this.cargando = false;
@@ -650,14 +781,14 @@ export default {
       const encontrarinventario = this.equipos.find(
         (registro) =>
           registro.placaDeInventario === this.nuevoequipo.placaDeInventario,
-          
+
       );
 
       if (encontrarserie) {
         this.textodialogo = "El número de serie ya se encuentra registrado";
         this.dialogo = true;
       } else if (encontrarinventario) {
-        
+
         this.textodialogo =
           "El número de inventario ya se encuentra registrado";
         this.dialogo = true;
@@ -702,6 +833,7 @@ export default {
               ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
               cliente: this.equipomodificado.cliente,
               propietario: this.equipomodificado.propietario,
+              proveedor: this.equipomodificado.proveedor,
               placaDeInventario: this.equipomodificado.placaDeInventario,
               tipoDeContrato: this.equipomodificado.tipoDeContrato,
             },
@@ -796,11 +928,11 @@ export default {
           });
         axios
           .get(this.$store.state.ruta + "api/refequipo/listar",
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
+            {
+              headers: {
+                token: this.$store.state.token,
+              },
+            }
           )
           .then((response) => {
             this.refequipos = response.data; //el this es porque no es propia de la funcion sino de l componente
@@ -853,6 +985,12 @@ export default {
         detallesequipo: Object.assign({}, item),
       });
       this.$router.push({ name: "DetallesEquipo" });
+    },
+    mostrarHistorialClientes(item) {
+
+      this.historialclientes = Object.assign({}, item)
+
+      this.dialogoclientes = true;
     },
     asignarLista() {
       if (this.$store.state.user.rol === "administrador") {
@@ -1019,6 +1157,17 @@ export default {
       });
       this.nuevoequipo.propietario.id = filtered[0];
     },
+    nuevoproveedor: function () {
+      const proveedor = this.clientes.find(
+        (cliente) => cliente.nombre === this.nuevoequipo.proveedor.nombre
+      );
+
+      if (proveedor) {
+        this.nuevoequipo.proveedor.id = proveedor.id;
+      } else {
+        this.nuevoequipo.proveedor.id = null;
+      }
+    },
 
     nuevopropietariomodificado: function () {
       // `this` apunta a la instancia vm
@@ -1032,6 +1181,19 @@ export default {
       });
       this.equipomodificado.propietario.id = filtered[0];
     },
+    nuevoproveedormodificado: function () {
+      // `this` apunta a la instancia vm
+      this.equipomodificado.proveedor.id = this.clientes.map((cliente) => {
+        if (cliente.nombre === this.equipomodificado.proveedor.nombre) {
+          return cliente.id;
+        }
+      });
+      var filtered = this.equipomodificado.proveedor.id.filter(function (el) {
+        return el != null;
+      });
+      this.equipomodificado.proveedor.id = filtered[0];
+    },
+
     nuevocliente: function () {
       // `this` apunta a la instancia vm
       this.nuevoequipo.cliente.id = this.clientes.map((cliente) => {
@@ -1138,10 +1300,12 @@ export default {
   overflow-x: auto;
   /* Para manejar desbordes horizontales en pantallas pequeñas */
 }
+
 button.disabled {
   cursor: not-allowed;
   opacity: 0.5;
-  pointer-events: none; /* Evita cualquier interacción del usuario */
+  pointer-events: none;
+  /* Evita cualquier interacción del usuario */
 }
 
 /* Ajustes para pantallas pequeñas */

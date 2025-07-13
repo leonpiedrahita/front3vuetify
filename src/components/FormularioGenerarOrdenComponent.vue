@@ -196,7 +196,7 @@
           <p disabled class="centered-input">Responsable del soporte</p>
           <v-card-actions>
             <v-col cols="12" lg="12" align="center">
-              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="guardarReporte" :disabled="!(
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="seleccionGuardarReporteInterno" :disabled="!(
                 this.reporte.tipodeasistencia &&
                 this.reporte.duracion &&
                 this.reporte.fechadeinicio &&
@@ -221,7 +221,31 @@
           </v-card-actions>
         </v-col>
       </v-row>
+<v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronogramaInterno">
+        <v-card>
+          <!-- Encabezado con color y texto centrado -->
+          <v-toolbar color="secondary" dark>
+            <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
+          </v-toolbar>
 
+          <v-card-text>
+            <div class="text-h5 pa-5 text-center">
+              ¿Desea actualizar la fecha del Mantenimiento Preventivo?
+            </div>
+          </v-card-text>
+
+          <v-card-actions class="d-flex justify-space-evenly">
+            <!-- Botones con color de fondo y letra blanca -->
+            <v-btn color="c6" size="large" variant="flat" @click="guardarReporteInternoCronograma">
+              Actualizar
+            </v-btn>
+            <v-space></v-space>
+            <v-btn color="error" size="large" variant="flat" @click="guardarReporte">
+              No Actualizar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="esperaguardar" persistent width="500">
         <v-card color="c6" dark>
           <v-card-text>
@@ -290,13 +314,12 @@
       </v-row>
       <v-row>
         <v-spacer> </v-spacer>
-        <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="guardarReporteExterno" :disabled="!((
+        <v-btn color="c6" min-width="228" size="large" variant="flat" :disabled="!(
           reporte.tipodeasistencia &&
           reporte.fechadeinicio &&
           reporte.fechadefinalizacion &&
           files
-        ))
-          ">
+        )" @click="seleccionGuardarReporteExterno">
           Guardar y finalizar reporte externo
         </v-btn>
         <!--               <v-btn class="blue darken-1 ma-1" @click="save">
@@ -317,18 +340,44 @@
 
       <v-card-actions> </v-card-actions>
       <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionguardado">
-          <v-card>
-            <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
-            <v-card-text>
-              <div class="text-h5 pa-5">
-                El reporte externo ha sido guardado exitosamente.
-              </div>
-            </v-card-text>
-            <v-card-actions class="justify-center">
-              <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+        <v-card>
+          <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
+          <v-card-text>
+            <div class="text-h5 pa-5">
+              El reporte externo ha sido guardado exitosamente.
+            </div>
+          </v-card-text>
+          <v-card-actions class="justify-center">
+            <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronograma">
+        <v-card>
+          <!-- Encabezado con color y texto centrado -->
+          <v-toolbar color="secondary" dark>
+            <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
+          </v-toolbar>
+
+          <v-card-text>
+            <div class="text-h5 pa-5 text-center">
+              ¿Desea actualizar la fecha del Mantenimiento Preventivo?
+            </div>
+          </v-card-text>
+
+          <v-card-actions class="d-flex justify-space-evenly">
+            <!-- Botones con color de fondo y letra blanca -->
+            <v-btn color="c6" size="large" variant="flat" @click="guardarReporteExternoCronograma">
+              Actualizar
+            </v-btn>
+            <v-space></v-space>
+            <v-btn color="error" size="large" variant="flat" @click="guardarReporteExterno">
+              No Actualizar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      
     </v-container>
 
     <!-- <pre>
@@ -362,6 +411,9 @@ export default {
   },
 
   data: () => ({
+    dialogoPreguntarCronograma: false,
+    dialogoPreguntarCronogramaInterno: false,
+    fechacalendariodefinalizacion: null,
     files: null,
     slider: null,
     dialogofirma: false,
@@ -490,6 +542,7 @@ export default {
       !this.$v.email.required && errors.push("E-mail is required");
       return errors;
     },
+
   },
   created() {
     this.consultarequipo();
@@ -517,6 +570,7 @@ export default {
     },
     cambiarEstadoDeMenu2(fechaseleccionadafinalizacion) {
       this.reporte.fechadefinalizacion = fechaseleccionadafinalizacion.getDate() + '-' + (fechaseleccionadafinalizacion.getMonth() + 1) + '-' + fechaseleccionadafinalizacion.getFullYear(); // Los meses en JavaScript van de 0 a 11
+      this.fechacalendariodefinalizacion = fechaseleccionadafinalizacion;
       this.menu2 = !this.menu2;
     },
     submit() {
@@ -545,7 +599,7 @@ export default {
           },
         })
         .then((response) => {
-          
+
           this.reporte.firmaingeniero = response.data.firma; //el this es porque no es propia de la funcion sino de l componente
         })
         .catch((error) => {
@@ -600,6 +654,55 @@ export default {
           return error;
         });
     },
+    async guardarReporteInternoCronograma() {
+  this.save();
+  this.esperaguardar = true;
+
+  try {
+    const config = {
+      headers: { token: this.$store.state.token }
+    };
+
+    // PATCH primero
+    const responsePatch = await axios.patch(
+      `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+      {
+        fechaDePreventivo: this.fechacalendariodefinalizacion,
+        id_equipo: this.equipo.id
+      },
+      config
+    );
+
+    // POST después
+    const response = await axios.post(
+      this.$store.state.ruta + "api/reporte/registrar/",
+      {
+        reporte: this.reporte,
+        id_equipo: this.equipo.id
+      },
+      config
+    );
+
+    const identificacion = response.data.identificacion;
+    localStorage.setItem("idreporte", identificacion);
+    this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+
+    const nuevaVentanaURL = this.$router.resolve({
+      name: 'ImprimirReporte',
+      params: { idreporte: identificacion.toString() }
+    }).href;
+    
+    window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+    this.$router.push({ name: "ListarEquipos" });
+
+    this.confirmacionguardado = true;
+
+  } catch (error) {
+    console.error("Error al guardar el reporte:", error.response?.data || error.message);
+  } finally {
+    this.esperaguardar = false;
+  }
+},
     async guardarReporteExterno() {
       this.esperaguardar = true;
 
@@ -615,8 +718,8 @@ export default {
         console.log(typeof (this.equipo.id))
         const formData = new FormData();
         formData.append('file', this.files);
-         formData.append('id_equipo', JSON.stringify(this.equipo.id));
-        formData.append('reporte', JSON.stringify(this.reporte)); 
+        formData.append('id_equipo', JSON.stringify(this.equipo.id));
+        formData.append('reporte', JSON.stringify(this.reporte));
 
         const response = await axios.post(
           `${this.$store.state.ruta}api/s3/guardar`,
@@ -638,7 +741,7 @@ export default {
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
 
 
-        
+
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
@@ -646,18 +749,83 @@ export default {
         this.esperaguardar = false;
       }
     },
- 
+  
+    async guardarReporteExternoCronograma() {
+      this.esperaguardar = true;
+
+      try {
+        if (!this.files) throw new Error("Debe seleccionar un archivo antes de guardar.");
+        if (!this.reporte || !this.equipo?.id) throw new Error("Datos del reporte o equipo incompletos.");
+
+        const formData = new FormData();
+        formData.append('file', this.files);
+        formData.append('id_equipo', this.equipo.id.toString());
+        formData.append('reporte', JSON.stringify(this.reporte));
+        formData.append('fechaDePreventivo', this.fechacalendariodefinalizacion);
+
+        const config = {
+          headers: { token: this.$store.state.token }
+        };
+
+         const response = await axios.post(`${this.$store.state.ruta}api/s3/guardar`, formData, config);
+        const identificacion = response.data.id;
+    
+        localStorage.setItem("idreporte", identificacion);
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion }); 
+console.log('Equipo.id', this.equipo.id)
+console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
+        const responsePatch = await axios.patch(
+          `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+          {
+            fechaDePreventivo: this.fechacalendariodefinalizacion,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
+
+        console.log("Reporte creado:", response); 
+        console.log("Fecha actualizada:", responsePatch);
+        this.confirmacionguardado = true;
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
     AceptarConfirmacionGuardado() {
       this.confirmacionguardado = false;
       // Redirigir a la lista de equipos
       this.$router.push({ name: "ListarEquipos" });
-      
+
     },
     onFileChange(files) {
       // Si no hay archivos seleccionados, establecer 'files' como null
       this.files = files && files.length > 0 ? files[0] : null;
       console.log('Archivo seleccionado:', this.files);
     },
+    seleccionGuardarReporteExterno() {
+      if (
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
+        this.reporte.tipodeasistencia === 'Instalación' ||
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'
+      ) {
+        this.dialogoPreguntarCronograma = true;
+      } else {
+        this.guardarReporteExterno();
+      }
+    },
+    seleccionGuardarReporteInterno() {
+      if (
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
+        this.reporte.tipodeasistencia === 'Instalación' ||
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'
+      ) {
+        this.dialogoPreguntarCronogramaInterno = true;
+      } else {
+        this.guardarReporte();
+      }
+    }
   },
 };
 </script>

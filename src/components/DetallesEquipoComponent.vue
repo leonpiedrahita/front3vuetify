@@ -8,7 +8,8 @@
         </v-btn>
       </v-col>
       <v-col cols="4" class="d-flex justify-center">
-        <v-btn v-permission="['administrador','calidad','cotizaciones']" color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
+        <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" color="primary" class="ma-3 tabla-normal"
+          @click="nuevoDocumento">
           <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
           Guardar Documento
         </v-btn>
@@ -52,6 +53,49 @@
             nombredocumentoseleccionado
           )
             " color="primary darken-1" text @click="guardarDocumento">
+            Guardar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="ventanaGuardarSoporte" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ formTitle }}</span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="12" md="12">
+
+                <v-select v-model="nombresoporteseleccionado" :items="listaNombresSoportes" label="Nombre del documento"
+                  required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
+
+              </v-col>
+              <v-col cols="12" md="12">
+                <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
+                  multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
+                  show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+                  <template v-slot:selection="{ fileNames }">
+                    <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
+                      {{ file }}
+                    </v-chip>
+                  </template>
+                </v-file-input>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" text @click="cancelarGuardarSoporte"> Cancelar </v-btn>
+          <v-btn :disabled="!(
+            files &&
+            nombresoporteseleccionado
+          )
+            " color="primary darken-1" text @click="guardarSoporte">
             Guardar
           </v-btn>
         </v-card-actions>
@@ -145,6 +189,8 @@
       </v-card-title>
       <v-divider class="mb-5 mt-5"></v-divider>
     </v-row>
+    <v-card-title class="text-center" id="tamanotitulo">Documentos Legales</v-card-title>
+
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
       <v-data-table :headers="encabezadosDocumentosLegales" :items="documentosLegales" class="tabla-normal elevation-1"
@@ -153,7 +199,7 @@
           <div class="columna-imprimir">
             <div>
               <v-icon style="margin-left: 10px" medium @click="imprimirDocumento(item)">
-                mdi-printer
+                mdi-file-download-outline
               </v-icon>
             </div>
           </div>
@@ -183,10 +229,22 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-divider class="mb-5 mt-5"></v-divider>
+    <v-card-title class="text-center" id="tamanotitulo">Historial de Soportes</v-card-title>
+    <v-divider class="mb-5 mt-5"></v-divider>
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
       <v-data-table :headers="headers" :items="historial" class="tabla-normal elevation-1"
         loading-text="Cargando ... por favor espere">
+        <template v-slot:[`item.soportes`]="{ item }">
+          <div class="columna-imprimir">
+            <div>
+              <v-icon style="margin-left: 10px" medium @click="abrirSoportes(item)">
+                mdi-text-box-multiple-outline
+              </v-icon>
+            </div>
+          </div>
+        </template>
         <template v-slot:[`item.imprimir`]="{ item }">
           <div class="columna-imprimir">
             <div>
@@ -214,14 +272,66 @@
       </table>
 
     </v-row>
+    <v-dialog v-model="dialogosoportes" transition="dialog-bottom-transition" persistent fullscreen>
+      <v-card>
 
+        <!-- TOOLBAR CON COLOR Y ESTILO -->
+        <v-toolbar flat style="background-color: #52B69A; color: white;">
+          <v-spacer></v-spacer>
+
+          <!-- Título centrado en negrilla -->
+          <v-toolbar-title class="text-center font-weight-bold">
+            Equipo: {{ equipo.nombre }} &nbsp; | &nbsp; Serie: {{ equipo.serie }}
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+
+          {{ reporte.tipoDeAsistencia }} &nbsp; | &nbsp;{{ reporte.fechaDeFinalizacion }}
+
+
+          <v-spacer></v-spacer>
+          <!-- Botón cerrar a la derecha -->
+          <v-btn icon="mdi-close" @click="dialogosoportes = false" variant="text" color="white" class="ml-auto" />
+        </v-toolbar>
+
+        <!-- CUERPO DEL DIALOGO -->
+        <v-card-text>
+          <v-data-table :headers="encabezadosSoportes" :items="soportes || []" class="elevation-1">
+
+            <!-- Slot para botón superior -->
+            <template v-slot:top>
+              <div class="d-flex justify-center">
+                <v-btn color="primary" @click="ventanaGuardarSoporte = true" elevation="1" class="text-capitalize"
+                  min-width="auto" rounded>
+                  <v-icon left size="18">mdi-text-box-plus-outline</v-icon>
+                  Agregar documento
+                </v-btn>
+              </div>
+            </template>
+            <!-- Slot personalizado para imprimir -->
+            <template v-slot:[`item.imprimir`]="{ item }">
+              <div class="columna-imprimir">
+                <div>
+                  <v-icon style="margin-left: 10px" medium @click="imprimirSoporte(item)">
+                    mdi-file-download-outline
+                  </v-icon>
+                </div>
+              </div>
+            </template>
+          </v-data-table>
+
+          <!-- DEBUG (puedes eliminar esto) -->
+          <!-- {{ this.historialclientes }} -->
+        </v-card-text>
+
+      </v-card>
+    </v-dialog>
 
   </v-card>
-<!-- <pre>
-      
-       {{equipo}}
-    
-      </pre> -->
+  <pre>
+
+  {{ reporte }}
+
+</pre>
 
 </template>
 <script>
@@ -235,25 +345,34 @@ export default {
   name: "DetallesEquipoComponent",
 
   data: () => ({
+    dialogosoportes: false,
     esperaguardar: false,
     confirmacionguardado: false,
     ventanaGuardarDocumento: false,
+    ventanaGuardarSoporte: false,
     files: null,
     nombredocumentoseleccionado: null,
+    nombresoporteseleccionado: null,
     listaNombresDocumentos: [
       "Factura",
       "Certificado de conformidad",
       "Declaracion de Importación"
     ],
+    listaNombresSoportes: [
+      "Acta de entrega",
+      "Acta de retiro",
+      "Evidencia soporte"
+    ],
 
     equipo: [],
     historial: [],
+    soportes: [],
     url: '',
     error: '',
     reporte: {
 
     },
-    documento:{},
+    documento: {},
     encabezadosDocumentosLegales: [
       {
         title: "Documento",
@@ -261,8 +380,9 @@ export default {
         align: "center",
 
       },
+
       {
-        title: "Imprimir",
+        title: "Descargar",
         value: "imprimir",
         sortable: false,
         align: "center",
@@ -283,7 +403,14 @@ export default {
 
       },
       {
-        title: "Imprimir",
+        title: "Soportes",
+        value: "soportes",
+        sortable: false,
+        align: "center",
+        class: "columna-imprimir"
+      },
+      {
+        title: "Imprimir reporte",
         value: "imprimir",
         sortable: false,
         align: "center",
@@ -306,6 +433,22 @@ export default {
       },
 
 
+    ],
+    encabezadosSoportes: [
+      {
+        title: "Documento",
+        key: "nombreDocumento",
+        align: "center",
+
+      },
+
+      {
+        title: "Descargar",
+        value: "imprimir",
+        sortable: false,
+        align: "center",
+        class: "columna-imprimir"
+      },
     ],
     items: [
 
@@ -359,38 +502,81 @@ export default {
     imprimirDocumento(item) {
 
       this.documento = Object.assign({}, item);
-      
-        console.log('llavereporte', this.documento.llaveDocumento)
-        axios.post(
-          this.$store.state.ruta + 'api/s3/buscarurl',
-          {
-            fileKey: this.documento.llaveDocumento
 
+      console.log('llavereporte', this.documento.llaveDocumento)
+      axios.post(
+        this.$store.state.ruta + 'api/s3/buscarurl',
+        {
+          fileKey: this.documento.llaveDocumento
+
+        },
+        {
+          headers: {
+            token: this.$store.state.token,
           },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-          .then((response) => {
-            // Capturar la URL de la respuesta
-            this.url = response.data.url;
-            this.error = '';
-            console.log('URL', this.url)
-            // Abrir la URL en una nueva pestaña
-            window.open(this.url, '_blank');
-          })
-          .catch((error) => {
-            this.error = error.response ? error.response.data.error : 'Error al realizar la solicitud';
-            this.url = '';
-            console.log(error);
-          });
+        }
+      )
+        .then((response) => {
+          // Capturar la URL de la respuesta
+          this.url = response.data.url;
+          this.error = '';
+          console.log('URL', this.url)
+          // Abrir la URL en una nueva pestaña
+          window.open(this.url, '_blank');
+        })
+        .catch((error) => {
+          this.error = error.response ? error.response.data.error : 'Error al realizar la solicitud';
+          this.url = '';
+          console.log(error);
+        });
 
 
-      
 
 
+
+    },
+    imprimirSoporte(item) {
+
+      this.documento = Object.assign({}, item);
+
+      console.log('llavereporte', this.documento.llaveDocumento)
+      axios.post(
+        this.$store.state.ruta + 'api/s3/buscarurl',
+        {
+          fileKey: this.documento.llaveDocumento
+
+        },
+        {
+          headers: {
+            token: this.$store.state.token,
+          },
+        }
+      )
+        .then((response) => {
+          // Capturar la URL de la respuesta
+          this.url = response.data.url;
+          this.error = '';
+          console.log('URL', this.url)
+          // Abrir la URL en una nueva pestaña
+          window.open(this.url, '_blank');
+        })
+        .catch((error) => {
+          this.error = error.response ? error.response.data.error : 'Error al realizar la solicitud';
+          this.url = '';
+          console.log(error);
+        });
+
+
+
+
+
+    },
+    abrirSoportes(item) {
+      this.reporte = Object.assign({}, item);
+      this.soportes = this.reporte.documentosSoporte;
+      console.log("soportes", this.soportes)
+      console.log("reporte", this.reporte)
+      this.dialogosoportes = true;
     },
     imprimirReporte(item) {
 
@@ -475,8 +661,18 @@ export default {
         this.files = null;
       });
     },
+    cancelarGuardarSoporte() {
+      this.ventanaGuardarSoporte = false;
+      this.$nextTick(() => {
+        this.nombresoporteseleccionado = null;
+        this.files = null;
+      });
+    },
     AceptarConfirmacionGuardado() {
+      this.actualizarVentana();
       this.confirmacionguardado = false;
+      this.dialogosoportes = false;
+      this.ventanaGuardarSoporte = false;
 
     },
     async guardarDocumento() {
@@ -541,6 +737,88 @@ export default {
       } finally {
         this.esperaguardar = false;
       }
+    },
+
+    async actualizarVentana() {
+      axios.get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`,
+        {
+          headers: {
+            token: this.$store.state.token,
+          },
+        })
+        .then((response) => {
+          this.equipo = response.data;
+          this.historial = this.equipo.historialDeServicios;
+          this.documentosLegales = this.equipo.documentosLegales;
+        })
+        .catch((error) => {
+          console.error("Error al obtener el reporte:", error);
+        });
+
+
+    },
+    async guardarSoporte() {
+      this.esperaguardar = true;
+      console.log('equipo', this.equipo)
+      console.log('reporte', this.reporte.id)
+      try {
+        if (!this.files) {
+          throw new Error("Debe seleccionar un archivo antes de guardar.");
+        }
+
+        if (!this.nombresoporteseleccionado) {
+          throw new Error("Nombre del documento no seleccionado.");
+        }
+        const formData = new FormData();
+        formData.append('file', this.files);
+        formData.append('id_servicio', JSON.stringify(this.reporte.id));
+        formData.append('serie', JSON.stringify(this.equipo.serie));
+        formData.append('nombredocumento', JSON.stringify(this.nombresoporteseleccionado));
+
+        const response = await axios.post(
+          `${this.$store.state.ruta}api/s3/guardarsoporte`,
+          formData,
+          {
+            headers: {
+              token: this.$store.state.token
+            },
+          }
+        );
+
+
+
+        console.log("Documento guardado:", response);
+        this.ventanaGuardarDocumento = false;
+        this.nombredocumentoseleccionado = null;
+        this.files = null;
+        axios
+          .get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`,
+            {
+              headers: {
+                token: this.$store.state.token,
+              },
+            })
+          /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
+          .then((response) => {
+            this.equipo = response.data;
+            console.log("Equipo actualizado:", this.equipo);
+            this.historial = this.equipo.historialDeServicios;
+            this.documentosLegales = this.equipo.documentosLegales;
+          })
+          .catch((error) => {
+            console.error("Error al obtener el reporte:", error);
+          })
+          .finally(() => {
+            this.esperaguardar = false;
+            this.confirmacionguardado = true;
+          });;
+
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
     }
   },
 
@@ -561,11 +839,20 @@ export default {
   padding: 8px;
   text-align: center;
 }
+
 button.disabled {
   cursor: not-allowed;
   opacity: 0.5;
-  pointer-events: none; /* Evita cualquier interacción del usuario */
+  pointer-events: none;
+  /* Evita cualquier interacción del usuario */
 }
+
+.columna-imprimir {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* En modo impresión */
 @media print {
 

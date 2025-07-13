@@ -8,14 +8,16 @@
         <td :colspan="columns.length">
           <div class="sp-details" justify="center">
             <div class="col-xs-5 col-md-8 text-center">
-              <v-data-table :headers="encabezadofiltrado" :items="item.sede">
+              <v-data-table v-if="item.sede && item.sede.length" :headers="encabezadofiltrado" :items="item.sede">
                 <template v-slot:[`item.eliminarsede`]="{ item }">
-                  <!-- Botón de basura para eliminar la sede -->
                   <v-icon medium @click="deleteItem(item)">
                     mdi-delete-empty
                   </v-icon>
                 </template>
               </v-data-table>
+              <div v-else class="text-subtitle-1 pa-4 grey--text">
+                Este cliente no tiene sedes registradas.
+              </div>
             </div>
           </div>
         </td>
@@ -31,7 +33,8 @@
             </v-col>
 
             <v-col cols="6" sm="2">
-              <v-btn v-permission="['administrador','cotizaciones']" color="c6" min-width="228" size="large" variant="flat" large @click="nuevoCliente()"> Nuevo Cliente
+              <v-btn v-permission="['administrador', 'cotizaciones']" color="c6" min-width="228" size="large"
+                variant="flat" large @click="nuevoCliente()"> Nuevo Cliente
               </v-btn>
             </v-col>
 
@@ -74,21 +77,21 @@
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(
-        editedItem.contactoprincipal[0].telefono &&
-        editedItem.contactoprincipal[0].nombre &&
-        editedItem.nit &&
-        editedItem.nombre
-      )
-      " color="primary darken-1" text @click="editar" v-if="Editarcliente">
+                  editedItem.contactoprincipal[0].telefono &&
+                  editedItem.contactoprincipal[0].nombre &&
+                  editedItem.nit &&
+                  editedItem.nombre
+                )
+                  " color="primary darken-1" text @click="editar" v-if="Editarcliente">
                   Editar
                 </v-btn>
                 <v-btn :disabled="!(
-        editedItem.contactoprincipal[0].telefono &&
-        editedItem.contactoprincipal[0].nombre &&
-        editedItem.nit &&
-        editedItem.nombre
-      )
-      " color="primary darken-1" text @click="agregarCliente" v-if="Agregarcliente">
+                  editedItem.contactoprincipal[0].telefono &&
+                  editedItem.contactoprincipal[0].nombre &&
+                  editedItem.nit &&
+                  editedItem.nombre
+                )
+                  " color="primary darken-1" text @click="agregarCliente" v-if="Agregarcliente">
                   Agregar
                 </v-btn>
               </v-card-actions>
@@ -104,9 +107,10 @@
               <v-card-text>
                 <v-container>
                   <v-row>
+
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem2.nombre" label="Ciudad" :rules="[(v) => !!v || 'Campo Requerido']"
-                        required class="centered-input"></v-text-field>
+                      <v-autocomplete label="Ciudad" v-model="editedItem2.nombre" :items="municipios" clearable
+                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-text-field v-model="editedItem2.direccion" label="Direccion"
@@ -161,19 +165,19 @@
 
     <v-col cols="auto">
       <v-dialog transition="dialog-top-transition" max-width="500" v-model="dialogo">
-        
-          <v-card>
-            <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
-            <v-card-text>
-              <div class="text-h3 pa-1 ma-1 aviso">
-                {{ $data.textodialogo }}
-              </div>
-            </v-card-text>
-            <v-card-actions class="justify-center">
-              <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
-            </v-card-actions>
-          </v-card>
-       
+
+        <v-card>
+          <v-toolbar color="error" dark class="text-h3 d-flex justify-center">Aviso!!!</v-toolbar>
+          <v-card-text>
+            <div class="text-h3 pa-1 ma-1 aviso">
+              {{ $data.textodialogo }}
+            </div>
+          </v-card-text>
+          <v-card-actions class="justify-center">
+            <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card>
+
       </v-dialog>
     </v-col>
     <v-dialog v-model="esperarguardar" persistent width="500">
@@ -189,9 +193,12 @@
 </template>
 <script>
 import axios from "axios";
+import municipiosData from "@/data/municipios.json";
 export default {
   name: "ListarClientesComponent",
   data: () => ({
+    ciudadSeleccionada: null,
+    municipios: municipiosData.map(m => m.label), // ya viene como array de objetos con la clave "label"
     expanded: [],
     input1: "",
     Editarcliente: false,
@@ -225,7 +232,7 @@ export default {
         sortable: false,
         class: "titulo--text font-weight-bold ",
         width: "50%",
-        roles: ["administrador","cotizaciones"],
+        roles: ["administrador", "cotizaciones"],
       },
     ],
     headers: [
@@ -260,7 +267,7 @@ export default {
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
-        roles: ["administrador","cotizaciones"],
+        roles: ["administrador", "cotizaciones"],
       },
       {
         title: "Agregar Sede",
@@ -268,7 +275,7 @@ export default {
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
-        roles: ["administrador","cotizaciones"],
+        roles: ["administrador", "cotizaciones"],
       },
     ],
 
@@ -299,6 +306,7 @@ export default {
       direccion: "",
     },
   }),
+
 
   computed: {
     titulocliente() {
@@ -569,6 +577,10 @@ export default {
 
       this.cerrareliminarsede();
     },
+
+
+
+
   },
 };
 </script>
@@ -584,10 +596,12 @@ export default {
 .toolbar {
   flex-wrap: wrap;
 }
+
 button.disabled {
   cursor: not-allowed;
   opacity: 0.5;
-  pointer-events: none; /* Evita cualquier interacción del usuario */
+  pointer-events: none;
+  /* Evita cualquier interacción del usuario */
 }
 
 @media (max-width: 767px) {

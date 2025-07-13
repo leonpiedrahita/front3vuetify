@@ -23,13 +23,19 @@
             Buscar Equipos
           </v-btn>
         </v-col>
-        <v-col cols="12" sm="12" md="6" class="d-flex justify-center pa-0">
+        <v-col cols="12" sm="12" md="4" class="d-flex justify-center pa-0">
           <v-btn v-permission="['administrador', 'calidad']" class="mt-2" color="c6" min-width="228" size="large"
             variant="flat" @click="nuevoEquipo()">
             Nuevo Equipo
           </v-btn>
         </v-col>
-        <v-col cols="12" sm="12" md="6" class="d-flex justify-center pa-0">
+        <v-col cols="12" sm="12" md="4" class="d-flex justify-center pa-0">
+          <v-btn class="mt-2" color="primary" min-width="228" size="large" variant="flat"
+            @click="VentanaCronograma = true">
+            Cronograma
+          </v-btn>
+        </v-col>
+        <v-col cols="12" sm="12" md="4" class="d-flex justify-center pa-0">
           <v-btn class="mt-2" color="primary" min-width="228" size="large" variant="flat" @click="exportToExcel">
             Exportar a Excel
           </v-btn>
@@ -265,66 +271,106 @@
               </v-card-text>
             </v-card>
           </v-dialog>
-          <v-dialog
-  v-model="dialogoclientes"
-  transition="dialog-bottom-transition"
-  persistent
-  fullscreen
+          <v-dialog v-model="dialogoclientes" transition="dialog-bottom-transition" persistent fullscreen>
+            <v-card>
+
+              <!-- TOOLBAR CON COLOR Y ESTILO -->
+              <v-toolbar flat style="background-color: #52B69A; color: white;">
+                <v-spacer></v-spacer>
+                <!-- Botón cerrar flotando a la derecha -->
+
+
+
+                <!-- Título centrado en negrilla -->
+                <v-toolbar-title class="text-center font-weight-bold">
+                  Nombre: {{ historialclientes.nombre }} &nbsp; | &nbsp; Serie: {{ historialclientes.serie }}
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+                <!-- Botón cerrar a la derecha -->
+                <v-btn icon="mdi-close" @click="dialogoclientes = false" variant="text" color="white" class="ml-auto" />
+              </v-toolbar>
+
+              <!-- CUERPO DEL DIALOGO -->
+              <v-card-text>
+                <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios || []"
+                  :search="search" class="elevation-1">
+                  <!-- Formateo de la fecha -->
+                  <template #item.fecha="{ item }">
+                    {{
+                      new Date(item.fecha).toLocaleDateString('es-CO', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                      }).replace(/\//g, '-')
+                    }}
+                  </template>
+                </v-data-table>
+
+                <!-- DEBUG (puedes eliminar esto) -->
+                <!-- {{ this.historialclientes }} -->
+              </v-card-text>
+
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="VentanaCronograma" transition="dialog-bottom-transition" persistent fullscreen>
+            <v-card>
+
+              <!-- TOOLBAR CON COLOR Y ESTILO -->
+              <v-toolbar flat style="background-color: #52B69A; color: white;">
+                <v-spacer></v-spacer>
+                <!-- Botón cerrar flotando a la derecha -->
+
+
+
+                <!-- Título centrado en negrilla -->
+                <v-toolbar-title class="text-center font-weight-bold">
+                 Cronograma de Mantenimientos Preventivos
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+                <!-- Botón cerrar a la derecha -->
+                <v-btn icon="mdi-close" @click="VentanaCronograma = false" variant="text" color="white"
+                  class="ml-auto" />
+              </v-toolbar>
+
+              <!-- CUERPO DEL DIALOGO -->
+              <v-card-text>
+                <v-data-table :headers="headersCronograma" :items="equipos" :search="search" label class="elevation-1">
+
+                  <!-- PRÓXIMO MANTENIMIENTO -->
+                  <template #item.proximoMantenimiento="{ item }">
+                    <span v-if="calcularFechaVencimiento(item)">
+                      {{ calcularFechaVencimiento(item) }}
+                    </span>
+                    <span v-else>-</span>
+                  </template>
+                  <!-- Formateo de la fecha -->
+                  <template #item.fechaDePreventivo="{ item }">
+                    <v-chip v-if="calcularDiferencia(item) !== 'Libre'" :style="getChipStyle(item)" size="small"
+                      class="font-weight-bold" variant="outlined"  >
+                      <v-icon :icon="getChipStyle(item).icon" :color="getChipStyle(item).color" start />
+                      {{ calcularDiferencia(item) }}
+                    </v-chip>
+                    <v-chip
+  v-else
+  size="small"
+  class="font-weight-bold"
+  color="#2196F3"
+  variant="outlined"  
+  :style="{
+    border: '2px solid #2196F3'
+  }"
 >
-  <v-card>
+  Libre
+</v-chip>
+                  </template>
+                </v-data-table>
 
-    <!-- TOOLBAR CON COLOR Y ESTILO -->
-    <v-toolbar
-      flat
-      style="background-color: #52B69A; color: white;"
-      
-    >
-    <v-spacer></v-spacer>
-        <!-- Botón cerrar flotando a la derecha -->
- 
-  
+                <!-- DEBUG (puedes eliminar esto) -->
+                <!-- {{ this.historialclientes }} -->
+              </v-card-text>
 
-      <!-- Título centrado en negrilla -->
-      <v-toolbar-title class="text-center font-weight-bold">
-        Nombre: {{ historialclientes.nombre }} &nbsp; | &nbsp; Serie: {{ historialclientes.serie }}
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-       <!-- Botón cerrar a la derecha -->
-  <v-btn
-    icon="mdi-close"
-    @click="dialogoclientes = false"
-    variant="text"
-    color="white"
-    class="ml-auto"
-  />
-    </v-toolbar>
-
-    <!-- CUERPO DEL DIALOGO -->
-    <v-card-text>
-      <v-data-table
-        :headers="headersHistorialClientes"
-        :items="historialclientes.historialPropietarios || []"
-        :search="search"
-        class="elevation-1"
-      >
-        <!-- Formateo de la fecha -->
-        <template #item.fecha="{ item }">
-          {{
-            new Date(item.fecha).toLocaleDateString('es-CO', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
-            }).replace(/\//g, '-')
-          }}
-        </template>
-      </v-data-table>
-
-      <!-- DEBUG (puedes eliminar esto) -->
-      <!-- {{ this.historialclientes }} -->
-    </v-card-text>
-
-  </v-card>
-</v-dialog>
+            </v-card>
+          </v-dialog>
         </v-toolbar>
       </template>
       <template v-slot:[`item.detalles`]="{ item }">
@@ -355,8 +401,8 @@
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-  <!--   <pre> {{ equipos }} </pre>
-  <h1>Equipomodificado</h1>
+  <pre> {{ equipos }} </pre>
+  <!-- <h1>Equipomodificado</h1>
   <pre> {{ equipomodificado }} </pre> -->
 </template>
 <script>
@@ -366,6 +412,7 @@ import { saveAs } from 'file-saver';
 export default {
   name: "ListarEquipos",
   data: () => ({
+    VentanaCronograma: false,
     dialogoclientes: false,
     historialclientes: [],
     dialog: false,
@@ -458,6 +505,35 @@ export default {
         align: "center",
 
       },
+    ],
+    headersCronograma: [
+      { title: "Serie", value: "serie", align: "center" },
+      { title: "Nombre", value: "nombre", align: "center" },
+      {
+        title: "Propietario",
+        align: "center",
+        key: "propietario.nombre",
+      },
+      {
+        title: "Proveedor",
+        align: "center",
+        key: "proveedor.nombre",
+      },
+      {
+        title: "Cliente asignado",
+        align: "center",
+        key: "cliente.nombre",
+      },
+      {
+        title: "Ubicacion",
+        align: "center",
+        value: "ubicacionNombre",
+      },
+      { title: "Contrato", key: "tipoDeContrato", align: "center" },
+      { title: 'Próximo mantenimiento', value: 'proximoMantenimiento', align: "center" },
+      { title: "Días restates", key: "fechaDePreventivo", align: "center" },
+
+
     ],
     headersHistorialClientes: [
       { title: "Fecha (dd-mm-aaaa)", key: "fecha", align: "center" },
@@ -1266,8 +1342,114 @@ export default {
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
       saveAs(blob, 'equipos.xlsx');
-    }
+    },
 
+    calcularDiferencia(item) {
+      const periodicidad = item.referencia?.periodicidadmantenimiento;
+
+      if (periodicidad === 'Libre de mantenimiento') {
+        return 'Libre';
+      }
+
+      if (!item.fechaDePreventivo) return 'Sin fecha';
+
+      const fechaInicial = new Date(item.fechaDePreventivo);
+      const fechaLimite = new Date(fechaInicial);
+
+      switch (periodicidad) {
+        case 'Anual':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 12);
+          break;
+        case 'Semestral':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 6);
+          break;
+        case 'Trimestral':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 3);
+          break;
+        default:
+          return 'Desconocido';
+      }
+
+      const hoy = new Date();
+      const diferenciaMs = fechaLimite - hoy;
+      const diferenciaDias = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+
+      return `${diferenciaDias}`;
+    },
+
+
+    getChipStyle(item) {
+      const periodicidad = item.referencia?.periodicidadmantenimiento;
+      if (periodicidad === 'Libre de mantenimiento' || !item.fechaDePreventivo) {
+        return {};
+      }
+
+      const fechaInicial = new Date(item.fechaDePreventivo);
+      const fechaLimite = new Date(fechaInicial);
+
+      switch (periodicidad) {
+        case 'Anual':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 12);
+          break;
+        case 'Semestral':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 6);
+          break;
+        case 'Trimestral':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 3);
+          break;
+      }
+
+      const hoy = new Date();
+      const diferenciaMs = fechaLimite - hoy;
+      const diferenciaDias = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+
+
+      let color = '';
+      let borderColor = '';
+      let icon = '';
+
+      if (diferenciaDias > 30) {
+        color = '#4CAF50'; // verde
+        icon = 'mdi-check-circle';
+      } else if (diferenciaDias >= 0 && diferenciaDias <= 30) {
+        color = '#FF7043'; // naranja
+        icon = 'mdi-alert-circle';
+      } else {
+        color = '#F44336'; // rojo
+        icon = 'mdi-close-circle';
+      }
+
+      return {
+        color,
+        icon,
+        border: `2px solid ${borderColor}`,
+        'background-color': 'transparent'
+      };
+    },
+    calcularFechaVencimiento(item) {
+      const periodicidad = item.referencia?.periodicidadmantenimiento;
+      if (periodicidad === 'Libre de mantenimiento' || !item.fechaDePreventivo) return null;
+
+      const fecha = this.obtenerFechaVencimiento(item);
+      return fecha.toLocaleDateString('es-CO');
+    },
+
+    obtenerFechaVencimiento(item) {
+      const fechaInicial = new Date(item.fechaDePreventivo);
+      const fechaLimite = new Date(fechaInicial);
+      switch (item.referencia?.periodicidadmantenimiento) {
+        case 'Anual':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 12);
+          break;
+        case 'Semestral':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 6);
+          break;
+        case 'Trimestral':
+          fechaLimite.setMonth(fechaLimite.getMonth() + 3);
+          break;
+      }
+      return fechaLimite;
+    },
 
 
   },

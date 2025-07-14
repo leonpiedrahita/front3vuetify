@@ -143,7 +143,7 @@
  <style scoped>
 .fondo-logo {
   min-height: 100vh;
-  background-image: url('src/imagenes/logo/engrane medio sin fondo.png');
+  background-image: url('/engrane medio sin fondo.png');
   background-repeat: no-repeat;
   background-color: #f5f5f5; /* gris claro */
   background-size: contain; /* o 'cover' si quieres que rellene todo el espacio */

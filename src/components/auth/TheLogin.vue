@@ -4,7 +4,7 @@
 
       <v-col>
         <v-row align="center" style="height: 90vh">
-          <v-col cols="12" md="10" lg="8" class="mx-auto">
+          <v-col cols="12" md="10" lg="7" class="mx-auto">
             <v-card class="pa-10">
               <v-img src="/src/imagenes/logo/GoMaint.png" max-width="350" class="mx-auto mb-6"></v-img>
               <v-card-title title align="center"> Acceder a su cuenta </v-card-title>

@@ -1,11 +1,12 @@
 <template>
-    <v-layout>
+    <div class="fondo-logo"><v-layout>
       
   
       <v-col>
         <v-row align="center" class="justify-center" style="height: 100vh">
           <v-col cols="12" lg="6" align="center">
             <v-card class="pa-10">
+               <v-img src="/src/imagenes/logo/GoMaint.png" max-width="350" class="mx-auto mb-6"></v-img>
               <v-card-title title class="justify-center">  Acceder a su cuenta </v-card-title>
               <v-form ref="form" lazy-validation>
                 <v-text-field
@@ -72,8 +73,16 @@
           </v-card>
         </v-dialog>
     </v-layout>
-    
-    
+    <v-row justify="center" class="mt-10">
+  <div class="by-leolab">
+  <v-icon right size="18">mdi-copyright</v-icon>
+  LeoLab
+  <v-icon left size="18">mdi-paw</v-icon>
+  <span class="separator"></span>
+  Todos los derechos reservados.
+</div>
+</v-row>
+    </div>
   </template>
   <script>
   
@@ -131,3 +140,25 @@
     },
   };
   </script>
+ <style scoped>
+.fondo-logo {
+  min-height: 100vh;
+  background-image: url('src/imagenes/logo/engrane medio sin fondo.png');
+  background-repeat: no-repeat;
+  background-color: #f5f5f5; /* gris claro */
+  background-size: contain; /* o 'cover' si quieres que rellene todo el espacio */
+  background-attachment: fixed;
+  
+}
+.by-leolab {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.separator {
+  display: inline-block;
+  width: 12px; /* ajusta según tu preferencia */
+}
+</style>

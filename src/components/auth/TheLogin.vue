@@ -3,11 +3,11 @@
       
   
       <v-col>
-        <v-row align="center" class="justify-center" style="height: 100vh">
-          <v-col cols="12" lg="6" align="center">
+        <v-row align="center"  style="height: 100vh">
+          <v-col cols="12"  md="10" lg="8" class="mx-auto">
             <v-card class="pa-10">
                <v-img src="/src/imagenes/logo/GoMaint.png" max-width="350" class="mx-auto mb-6"></v-img>
-              <v-card-title title class="justify-center">  Acceder a su cuenta </v-card-title>
+              <v-card-title title align="center">  Acceder a su cuenta </v-card-title>
               <v-form ref="form" lazy-validation>
                 <v-text-field
                   v-model="login.email"

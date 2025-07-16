@@ -324,7 +324,7 @@
 
                 <!-- Título centrado en negrilla -->
                 <v-toolbar-title class="text-center font-weight-bold">
-                 Cronograma de Mantenimientos Preventivos
+                  Cronograma de Mantenimientos Preventivos
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <!-- Botón cerrar a la derecha -->
@@ -346,22 +346,15 @@
                   <!-- Formateo de la fecha -->
                   <template #item.fechaDePreventivo="{ item }">
                     <v-chip v-if="calcularDiferencia(item) !== 'Libre'" :style="getChipStyle(item)" size="small"
-                      class="font-weight-bold" variant="outlined"  >
+                      class="font-weight-bold" variant="outlined">
                       <v-icon :icon="getChipStyle(item).icon" :color="getChipStyle(item).color" start />
                       {{ calcularDiferencia(item) }}
                     </v-chip>
-                    <v-chip
-  v-else
-  size="small"
-  class="font-weight-bold"
-  color="#2196F3"
-  variant="outlined"  
-  :style="{
-    border: '2px solid #2196F3'
-  }"
->
-  Libre
-</v-chip>
+                    <v-chip v-else size="small" class="font-weight-bold" color="#2196F3" variant="outlined" :style="{
+                      border: '2px solid #2196F3'
+                    }">
+                      Libre
+                    </v-chip>
                   </template>
                 </v-data-table>
 
@@ -401,7 +394,7 @@
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-  <pre> {{ equipos }} </pre>
+  <!-- <pre> {{ equipos }} </pre> -->
   <!-- <h1>Equipomodificado</h1>
   <pre> {{ equipomodificado }} </pre> -->
 </template>
@@ -545,7 +538,7 @@ export default {
         key: "cliente.nombre",
       },
       {
-        title: "Tipo de COntrato",
+        title: "Tipo de Contrato",
         align: "center",
         key: "tipoDeContrato",
       }

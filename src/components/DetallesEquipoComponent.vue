@@ -327,11 +327,11 @@
     </v-dialog>
 
   </v-card>
-  <pre>
+<!--   <pre>
 
   {{ reporte }}
 
-</pre>
+</pre> -->
 
 </template>
 <script>

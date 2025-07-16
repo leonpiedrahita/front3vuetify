@@ -11,7 +11,7 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     ImprimirReporteComponent
 },
     mounted() {
-      setTimeout(() => {  this.imprimir(); }, 2000);
+      setTimeout(() => {  this.imprimir(); },2000);
          
     },
     methods: {

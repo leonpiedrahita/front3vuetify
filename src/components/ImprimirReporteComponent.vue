@@ -1,5 +1,6 @@
 <template>
-    <div id="body" class="margentotal">
+  <div v-if="cargando">Cargando reporte...</div>
+    <div v-else id="body" class="margentotal">
       <div class="paddingfilas">
         <div class="gridencabezado titulo principal negrita">
           <div><img class="miimagen" /></div>
@@ -199,6 +200,7 @@ export default {
         firmaingeniero: "",
         ingeniero: "",
       },
+      cargando: true, // Nueva variable para controlar la carga
     };
   },
 
@@ -215,15 +217,20 @@ export default {
       }
 
       console.log("Consultando reporte con ID:", id);
-      
+      console.log("Ruta de consulta:", this.$store.state.ruta + `api/reporte/listaruno/${id}`);
       axios
-        .get(`http://localhost:3001/api/reporte/listaruno/${id}`)
+      .get(this.$store.state.ruta + `api/reporte/listaruno/${id}`)
+        /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
         .then((response) => {
           this.reporte = response.data;
+          console.log("Reporte:", this.reporte);
         })
         .catch((error) => {
           console.error("Error al obtener el reporte:", error);
-        });
+        })
+        .finally(() => {
+          this.cargando = false; // Marcar como cargado cuando finalice
+        });;
     },
   },
 };

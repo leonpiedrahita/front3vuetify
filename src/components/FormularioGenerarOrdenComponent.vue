@@ -1,12 +1,12 @@
 <template>
-  <form >
-    <v-row class="pa-2 mt-16"  >
-      
+  <form>
+    <v-row class="pa-2">
+
       <v-spacer></v-spacer>
       <v-spacer></v-spacer>
       <v-switch v-model="archivo" color="primary" label="Reporte de servicio externo"></v-switch>
       <v-spacer></v-spacer>
-      
+
 
     </v-row>
 
@@ -47,10 +47,10 @@
           <v-text-field v-model="equipo.cliente.nit" label="NIT" disabled class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicacionnombre" label="Sede" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.ubicacionNombre" label="Sede" disabled class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicaciondireccion" label="Dirección" disabled
+          <v-text-field v-model="equipo.ubicacionDireccion" label="Dirección" disabled
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
@@ -75,63 +75,32 @@
         </v-col>
 
         <v-col cols="12" md="3" class="mt-5">
-          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15" min="0.5"
-            step="0.25"></v-slider>
+          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15"
+            min="0.5" step="0.25"></v-slider>
         </v-col>
         <v-col cols="12" md="3">
-          <v-menu
-            v-model="menu1"
-            :close-on-content-click="false"         
-            min-width="auto"
-          >
-            <template v-slot:activator="{props}">
-              <v-text-field
-                v-model="reporte.fechadeinicio"
-                label="Fecha de inicio"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="props"
-               
-              ></v-text-field>
+          <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
+            <template v-slot:activator="{ props }">
+              <v-text-field v-model="reporte.fechadeinicio" label="Fecha de inicio" prepend-icon="mdi-calendar" readonly
+                v-bind="props"></v-text-field>
             </template>
             <v-locale-provider locale="es">
-            <v-date-picker
-            locale="es"
-            @update:model-value="cambiarEstadoDeMenu1"
-              v-model="fechadeiniciocalendario"
-              
-              color="primary"
-              title="Fecha de inicio"
-        header="Seleccionar Fecha"
-            ></v-date-picker></v-locale-provider>
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu1" v-model="fechadeiniciocalendario"
+                color="primary" title="Fecha de inicio" header="Seleccionar Fecha">
+              </v-date-picker>
+            </v-locale-provider>
           </v-menu>
         </v-col>
-        <v-col cols="12" md="3" >
-          <v-menu
-            v-model="menu2"
-            :close-on-content-click="false"            
-            transition="scale-transition"            
-            min-width="auto"           
-          >
+        <v-col cols="12" md="3">
+          <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition" min-width="auto">
             <template v-slot:activator="{ props }">
-              <v-text-field
-                v-model="reporte.fechadefinalizacion"
-                label="Fecha de finalización"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="props"
-                
-              ></v-text-field>
+              <v-text-field v-model="reporte.fechadefinalizacion" label="Fecha de finalización"
+                prepend-icon="mdi-calendar" readonly v-bind="props"></v-text-field>
             </template>
             <v-locale-provider locale="es">
-            <v-date-picker
-            locale="es"
-            @update:model-value="cambiarEstadoDeMenu2"
-              v-model="fechadefinalizacioncalendario"
-              color="primary"
-              title="Fecha de finalización"
-        header="Seleccionar Fecha"
-            ></v-date-picker></v-locale-provider>
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu2"
+                v-model="fechadefinalizacioncalendario" color="primary" title="Fecha de finalización"
+                header="Seleccionar Fecha"></v-date-picker></v-locale-provider>
           </v-menu>
         </v-col>
       </v-row>
@@ -144,8 +113,8 @@
       <v-row>
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.hallazgos" counter clearable autocomplete
-            placeholder="Describa las fallas reportadas por el usuario y los hallazgos" rows="3" row-height="30" auto-grow
-            :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+            placeholder="Describa las fallas reportadas por el usuario y los hallazgos" rows="3" row-height="30"
+            auto-grow :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
 
@@ -212,14 +181,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
 
-              <v-btn color="c6" 
-          
-          min-width="228"
-          
-          size="large"
-          
-          variant="flat"
-        large @click="undo">
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="undo">
                 Deshacer Firma
               </v-btn>
               <v-spacer></v-spacer>
@@ -234,28 +196,21 @@
           <p disabled class="centered-input">Responsable del soporte</p>
           <v-card-actions>
             <v-col cols="12" lg="12" align="center">
-              <v-btn color="c6" 
-          
-          min-width="228"
-          
-          size="large"
-          
-          variant="flat"
-        large @click="guardarReporte" :disabled="!(
-                  this.reporte.tipodeasistencia &&
-                  this.reporte.duracion &&
-                  this.reporte.fechadeinicio &&
-                  this.reporte.fechadefinalizacion &&
-                  this.reporte.profesionalcliente &&
-                  this.reporte.telefonocliente &&
-                  this.reporte.hallazgos &&
-                  this.reporte.actividades &&
-                  this.reporte.pruebas &&
-                  this.reporte.repuestos &&
-                  this.reporte.observaciones &&
-                  this.reporte.firmaingeniero &&
-                  this.reporte.ingeniero
-                )
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="seleccionGuardarReporteInterno" :disabled="!(
+                this.reporte.tipodeasistencia &&
+                this.reporte.duracion &&
+                this.reporte.fechadeinicio &&
+                this.reporte.fechadefinalizacion &&
+                this.reporte.profesionalcliente &&
+                this.reporte.telefonocliente &&
+                this.reporte.hallazgos &&
+                this.reporte.actividades &&
+                this.reporte.pruebas &&
+                this.reporte.repuestos &&
+                this.reporte.observaciones &&
+                this.reporte.firmaingeniero &&
+                this.reporte.ingeniero
+              )
                 ">
                 Guardar y finalizar
               </v-btn>
@@ -266,7 +221,31 @@
           </v-card-actions>
         </v-col>
       </v-row>
+<v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronogramaInterno">
+        <v-card>
+          <!-- Encabezado con color y texto centrado -->
+          <v-toolbar color="secondary" dark>
+            <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
+          </v-toolbar>
 
+          <v-card-text>
+            <div class="text-h5 pa-5 text-center">
+              ¿Desea actualizar la fecha del Mantenimiento Preventivo?
+            </div>
+          </v-card-text>
+
+          <v-card-actions class="d-flex justify-space-evenly">
+            <!-- Botones con color de fondo y letra blanca -->
+            <v-btn color="c6" size="large" variant="flat" @click="guardarReporteInternoCronograma">
+              Actualizar
+            </v-btn>
+            <v-space></v-space>
+            <v-btn color="error" size="large" variant="flat" @click="guardarReporte">
+              No Actualizar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="esperaguardar" persistent width="500">
         <v-card color="c6" dark>
           <v-card-text>
@@ -294,63 +273,54 @@
 
 
         <v-col cols="12" md="4">
-          <v-menu v-model="menu1" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y
-            min-width="auto">
-            <template v-slot:activator="{ on, attrs }">
+          <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
+            <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadeinicio" label="Fecha de inicio" prepend-icon="mdi-calendar" readonly
-                v-bind="attrs" v-on="on"></v-text-field>
+                v-bind="props"></v-text-field>
             </template>
-            <v-date-picker v-model="reporte.fechadeinicio" @input="menu1 = false"></v-date-picker>
+            <v-locale-provider locale="es">
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu1" v-model="fechadeiniciocalendario"
+                color="primary" title="Fecha de inicio" header="Seleccionar Fecha">
+              </v-date-picker>
+            </v-locale-provider>
           </v-menu>
         </v-col>
         <v-col cols="12" md="4">
-          <v-menu v-model="menu2" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y
-            min-width="auto">
-            <template v-slot:activator="{ on, attrs }">
+          <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition" min-width="auto">
+            <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadefinalizacion" label="Fecha de finalización"
-                prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                prepend-icon="mdi-calendar" readonly v-bind="props"></v-text-field>
             </template>
-            <v-date-picker v-model="reporte.fechadefinalizacion" @input="menu2 = false"></v-date-picker>
+            <v-locale-provider locale="es">
+              <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu2"
+                v-model="fechadefinalizacioncalendario" color="primary" title="Fecha de finalización"
+                header="Seleccionar Fecha"></v-date-picker></v-locale-provider>
           </v-menu>
         </v-col>
       </v-row>
       <v-divider class="mb-5 mt-5"></v-divider>
       <v-row justify="space-around">
         <v-col cols="12" md="6">
-          <v-file-input v-model="files" placeholder="Seleccione el reporte" label="Reporte" multiple
-            prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp">
-            <template v-slot:selection="{ text }">
-              <v-chip small label color="primary">
-                {{ text }}
+          <v-file-input v-model="files" label="Reporte" placeholder="Seleccione el reporte" multiple
+            prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf" show-size counter
+            :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+            <template v-slot:selection="{ fileNames }">
+              <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
+                {{ file }}
               </v-chip>
             </template>
           </v-file-input>
         </v-col>
       </v-row>
       <v-row>
-
-
-
-
-
         <v-spacer> </v-spacer>
-        <v-btn class="blue darken-1 ma-1" @click="guardarReporte" :disabled="!(
-            this.reporte.tipodeasistencia &&
-            this.reporte.duracion &&
-            this.reporte.fechadeinicio &&
-            this.reporte.fechadefinalizacion &&
-            this.reporte.profesionalcliente &&
-            this.reporte.telefonocliente &&
-            this.reporte.hallazgos &&
-            this.reporte.actividades &&
-            this.reporte.pruebas &&
-            this.reporte.repuestos &&
-            this.reporte.observaciones &&
-            this.reporte.firmaingeniero &&
-            this.reporte.ingeniero
-          )
-          ">
-          Guardar y finalizar
+        <v-btn color="c6" min-width="228" size="large" variant="flat" :disabled="!(
+          reporte.tipodeasistencia &&
+          reporte.fechadeinicio &&
+          reporte.fechadefinalizacion &&
+          files
+        )" @click="seleccionGuardarReporteExterno">
+          Guardar y finalizar reporte externo
         </v-btn>
         <!--               <v-btn class="blue darken-1 ma-1" @click="save">
                   Guardar y Finalizar
@@ -369,6 +339,45 @@
       </v-dialog>
 
       <v-card-actions> </v-card-actions>
+      <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionguardado">
+        <v-card>
+          <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
+          <v-card-text>
+            <div class="text-h5 pa-5">
+              El reporte externo ha sido guardado exitosamente.
+            </div>
+          </v-card-text>
+          <v-card-actions class="justify-center">
+            <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronograma">
+        <v-card>
+          <!-- Encabezado con color y texto centrado -->
+          <v-toolbar color="secondary" dark>
+            <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
+          </v-toolbar>
+
+          <v-card-text>
+            <div class="text-h5 pa-5 text-center">
+              ¿Desea actualizar la fecha del Mantenimiento Preventivo?
+            </div>
+          </v-card-text>
+
+          <v-card-actions class="d-flex justify-space-evenly">
+            <!-- Botones con color de fondo y letra blanca -->
+            <v-btn color="c6" size="large" variant="flat" @click="guardarReporteExternoCronograma">
+              Actualizar
+            </v-btn>
+            <v-space></v-space>
+            <v-btn color="error" size="large" variant="flat" @click="guardarReporteExterno">
+              No Actualizar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      
     </v-container>
 
     <!-- <pre>
@@ -402,9 +411,13 @@ export default {
   },
 
   data: () => ({
-    files: [],
+    dialogoPreguntarCronograma: false,
+    dialogoPreguntarCronogramaInterno: false,
+    fechacalendariodefinalizacion: null,
+    files: null,
     slider: null,
     dialogofirma: false,
+    confirmacionguardado: false,
     options: {
       penColor: "black",
     },
@@ -466,7 +479,7 @@ export default {
       duracion: null,
       fechadeinicio: null,
       fechadefinalizacion: null,
-    infoequipo: {
+      infoequipo: {
         nombre: "",
         serie: "",
         marca: "",
@@ -490,10 +503,18 @@ export default {
     options: {
       firma: "",
     },
+    fileRules: [
+      value => !value || value.length <= 1 || 'Máximo 1 archivos permitidos.',
+      value =>
+        !value || value.every(file => file.size < 5 * 1024 * 1024) || 'Cada archivo debe ser menor a 5MB.',
+      value =>
+        !value || value.every(file => ['image/png', 'image/jpeg', 'image/bmp', 'application/pdf'].includes(file.type))
+        || 'Solo se permiten imágenes y archivos PDF.',
+    ],
   }),
 
   computed: {
-  
+
     checkboxErrors() {
       const errors = [];
       if (!this.$v.checkbox.$dirty) return errors;
@@ -521,6 +542,7 @@ export default {
       !this.$v.email.required && errors.push("E-mail is required");
       return errors;
     },
+
   },
   created() {
     this.consultarequipo();
@@ -541,13 +563,14 @@ export default {
   },
   methods: {
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
-      
-      this.reporte.fechadeinicio=fechaseleccionadaincio.getDate()+'-'+(fechaseleccionadaincio.getMonth() + 1 )+'-'+fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
-      
-    this.menu1 = !this.menu1;
+
+      this.reporte.fechadeinicio = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
+
+      this.menu1 = !this.menu1;
     },
     cambiarEstadoDeMenu2(fechaseleccionadafinalizacion) {
-      this.reporte.fechadefinalizacion=fechaseleccionadafinalizacion.getDate()+'-'+(fechaseleccionadafinalizacion.getMonth() + 1 )+'-'+fechaseleccionadafinalizacion.getFullYear(); // Los meses en JavaScript van de 0 a 11
+      this.reporte.fechadefinalizacion = fechaseleccionadafinalizacion.getDate() + '-' + (fechaseleccionadafinalizacion.getMonth() + 1) + '-' + fechaseleccionadafinalizacion.getFullYear(); // Los meses en JavaScript van de 0 a 11
+      this.fechacalendariodefinalizacion = fechaseleccionadafinalizacion;
       this.menu2 = !this.menu2;
     },
     submit() {
@@ -562,21 +585,22 @@ export default {
       this.reporte.propietario = this.equipo.propietario.nombre;
       this.reporte.nombrecliente = this.equipo.cliente.nombre;
       this.reporte.nitcliente = this.equipo.cliente.nit;
-      this.reporte.sedecliente = this.equipo.ubicacionnombre;
-      this.reporte.direccioncliente = this.equipo.ubicaciondireccion;
+      this.reporte.sedecliente = this.equipo.ubicacionNombre;
+      this.reporte.direccioncliente = this.equipo.ubicacionDireccion;
 
       //localStorage.removeItem('equipo')
     },
     buscarfirma() {
       //va a ir a mi backend y me traerá las peticiones de la base de datos
       axios
-        .get(this.$store.state.ruta + "api/firma/buscar", {
+        .get(this.$store.state.ruta + "api/usuario/buscarfirma", {
           headers: {
             token: this.$store.state.token,
           },
         })
         .then((response) => {
-          this.reporte.firmaingeniero = response.data[0].firma; //el this es porque no es propia de la funcion sino de l componente
+
+          this.reporte.firmaingeniero = response.data.firma; //el this es porque no es propia de la funcion sino de l componente
         })
         .catch((error) => {
           //console.log(error);
@@ -602,7 +626,7 @@ export default {
           this.$store.state.ruta + "api/reporte/registrar/",
           {
             reporte: this.reporte,
-            id_equipo: this.equipo._id
+            id_equipo: this.equipo.id
           },
           {
             headers: {
@@ -612,7 +636,7 @@ export default {
         )
         .then((response) => {
           localStorage.setItem("idreporte", response.data.identificacion);
-        
+
           this.esperaguardar = false;
           const identificacion = response.data.identificacion;
           console.log(response);
@@ -620,8 +644,8 @@ export default {
             id: identificacion
           });
           console.log(identificacion)
-          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params:{idreporte:identificacion.toString()} }).href;
-          window.open(nuevaVentanaURL, '_blank',"width=800,height=600");
+          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
           this.$router.push({ name: "ListarEquipos" });
         })
         .catch((error) => {
@@ -630,10 +654,182 @@ export default {
           return error;
         });
     },
+    async guardarReporteInternoCronograma() {
+  this.save();
+  this.esperaguardar = true;
+
+  try {
+    const config = {
+      headers: { token: this.$store.state.token }
+    };
+
+    // PATCH primero
+    const responsePatch = await axios.patch(
+      `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+      {
+        fechaDePreventivo: this.fechacalendariodefinalizacion,
+        id_equipo: this.equipo.id
+      },
+      config
+    );
+
+    // POST después
+    const response = await axios.post(
+      this.$store.state.ruta + "api/reporte/registrar/",
+      {
+        reporte: this.reporte,
+        id_equipo: this.equipo.id
+      },
+      config
+    );
+
+    const identificacion = response.data.identificacion;
+    localStorage.setItem("idreporte", identificacion);
+    this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+
+    const nuevaVentanaURL = this.$router.resolve({
+      name: 'ImprimirReporte',
+      params: { idreporte: identificacion.toString() }
+    }).href;
+    
+    window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+    this.$router.push({ name: "ListarEquipos" });
+
+    this.confirmacionguardado = true;
+
+  } catch (error) {
+    console.error("Error al guardar el reporte:", error.response?.data || error.message);
+  } finally {
+    this.esperaguardar = false;
+  }
+},
+    async guardarReporteExterno() {
+      this.esperaguardar = true;
+
+      try {
+        if (!this.files) {
+          throw new Error("Debe seleccionar un archivo antes de guardar.");
+        }
+
+        if (!this.reporte || !this.equipo || !this.equipo.id) {
+          throw new Error("Datos del reporte o equipo incompletos.");
+        }
+        console.log('Equipo.id', this.equipo.id)
+        console.log(typeof (this.equipo.id))
+        const formData = new FormData();
+        formData.append('file', this.files);
+        formData.append('id_equipo', JSON.stringify(this.equipo.id));
+        formData.append('reporte', JSON.stringify(this.reporte));
+
+        const response = await axios.post(
+          `${this.$store.state.ruta}api/s3/guardar`,
+          formData,
+          {
+            headers: {
+              token: this.$store.state.token
+            },
+          }
+        );
+
+        const identificacion = response.data.id;
+        localStorage.setItem("idreporte", identificacion);
+
+        console.log("Reporte creado:", response);
+        this.esperaguardar = false;
+        this.confirmacionguardado = true;
+        // Despachar acción al store
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+
+
+
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
+  
+    async guardarReporteExternoCronograma() {
+      this.esperaguardar = true;
+
+      try {
+        if (!this.files) throw new Error("Debe seleccionar un archivo antes de guardar.");
+        if (!this.reporte || !this.equipo?.id) throw new Error("Datos del reporte o equipo incompletos.");
+
+        const formData = new FormData();
+        formData.append('file', this.files);
+        formData.append('id_equipo', this.equipo.id.toString());
+        formData.append('reporte', JSON.stringify(this.reporte));
+        formData.append('fechaDePreventivo', this.fechacalendariodefinalizacion);
+
+        const config = {
+          headers: { token: this.$store.state.token }
+        };
+
+         const response = await axios.post(`${this.$store.state.ruta}api/s3/guardar`, formData, config);
+        const identificacion = response.data.id;
+    
+        localStorage.setItem("idreporte", identificacion);
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion }); 
+console.log('Equipo.id', this.equipo.id)
+console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
+        const responsePatch = await axios.patch(
+          `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+          {
+            fechaDePreventivo: this.fechacalendariodefinalizacion,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
+
+        console.log("Reporte creado:", response); 
+        console.log("Fecha actualizada:", responsePatch);
+        this.confirmacionguardado = true;
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
+    AceptarConfirmacionGuardado() {
+      this.confirmacionguardado = false;
+      // Redirigir a la lista de equipos
+      this.$router.push({ name: "ListarEquipos" });
+
+    },
+    onFileChange(files) {
+      // Si no hay archivos seleccionados, establecer 'files' como null
+      this.files = files && files.length > 0 ? files[0] : null;
+      console.log('Archivo seleccionado:', this.files);
+    },
+    seleccionGuardarReporteExterno() {
+      if (
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
+        this.reporte.tipodeasistencia === 'Instalación' ||
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'
+      ) {
+        this.dialogoPreguntarCronograma = true;
+      } else {
+        this.guardarReporteExterno();
+      }
+    },
+    seleccionGuardarReporteInterno() {
+      if (
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
+        this.reporte.tipodeasistencia === 'Instalación' ||
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'
+      ) {
+        this.dialogoPreguntarCronogramaInterno = true;
+      } else {
+        this.guardarReporte();
+      }
+    }
   },
 };
 </script>
-  
+
 <style scoped>
 .centered-input :deep(input) {
   text-align: center;

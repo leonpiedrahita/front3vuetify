@@ -2,41 +2,39 @@
 
   <v-card class="pa-2">
     <!-- Fila de los campos de texto y botón -->
-    <v-container class="pa-5px">
-      <v-row justify="space-around" align="center" class="no-gutters"> <!-- Quitar padding entre columnas -->
-        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
-          <v-text-field v-model="buscar.nombreequipo" label="Nombre Equipo" variant="outlined"
-            persistent-hint></v-text-field>
+    <v-container fluid>
+      <v-row justify="space-around" align="center" dense>
+        <v-col cols="12" sm="6" md="2" class="pa-0">
+          <v-text-field v-model="buscar.nombreequipo" label="Nombre Equipo" variant="outlined" persistent-hint />
         </v-col>
-        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
-          <v-text-field v-model="buscar.serie" label="Serie" variant="outlined" persistent-hint></v-text-field>
+        <v-col cols="12" sm="6" md="2" class="pa-0">
+          <v-text-field v-model="buscar.serie" label="Serie" variant="outlined" persistent-hint />
         </v-col>
-        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
-          <v-text-field v-model="buscar.propietario" label="Propietario" variant="outlined"
-            persistent-hint></v-text-field>
+        <v-col cols="12" sm="6" md="2" class="pa-0">
+          <v-text-field v-model="buscar.propietario" label="Propietario" variant="outlined" persistent-hint />
         </v-col>
-        <v-col cols="12" sm="6" md="2" class="pa-0"> <!-- Quitar padding interno -->
-          <v-text-field v-model="buscar.contrato" label="Contrato" variant="outlined" persistent-hint></v-text-field>
-        </v-col>
-        <v-col cols="12" sm="6" md="2" class="d-flex align-center justify-center pa-0"> <!-- Quitar padding interno -->
+        <v-col cols="12" sm="6" md="2" class="pa-0 d-flex justify-center justify-sm-center justify-md-start">
           <v-btn class="mb-5" color="primary" min-width="228" size="large" variant="flat" @click="buscarEquipos">
             Buscar Equipos
           </v-btn>
         </v-col>
-        <v-col cols="12" sm="12" md="4" class="d-flex justify-center pa-0">
-          <v-btn v-permission="['administrador', 'calidad']" class="mt-2" color="c6" min-width="228" size="large"
-            variant="flat" @click="nuevoEquipo()">
+      </v-row>
+
+      <v-row class="mt-2 flex-nowrap" justify="space-around">
+        <v-col class="px-1" cols="auto">
+          <v-btn v-permission="['administrador', 'calidad']" class="my-1" color="c6" size="large">
             Nuevo Equipo
           </v-btn>
         </v-col>
-        <v-col cols="12" sm="12" md="4" class="d-flex justify-center pa-0">
-          <v-btn class="mt-2" color="primary" min-width="228" size="large" variant="flat"
-            @click="VentanaCronograma = true">
+
+        <v-col class="px-1" cols="auto">
+          <v-btn class="my-1" color="primary" size="large" @click="VentanaCronograma = true">
             Cronograma
           </v-btn>
         </v-col>
-        <v-col cols="12" sm="12" md="4" class="d-flex justify-center pa-0">
-          <v-btn class="mt-2" color="primary" min-width="228" size="large" variant="flat" @click="exportToExcel">
+
+        <v-col class="px-1" cols="auto">
+          <v-btn class="my-1" color="primary" size="large" @click="exportToExcel">
             Exportar a Excel
           </v-btn>
         </v-col>
@@ -323,8 +321,11 @@
 
 
                 <!-- Título centrado en negrilla -->
-                <v-toolbar-title class="text-center font-weight-bold">
-                  Cronograma de Mantenimientos Preventivos
+                <v-toolbar-title class="pa-0" style="flex: 1;">
+                  <div class="text-center font-weight-bold text-body-1 text-md-h6"
+                    style="white-space: normal; word-break: break-word; line-height: 1.2;">
+                    Cronograma de Mantenimientos Preventivos
+                  </div>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <!-- Botón cerrar a la derecha -->
@@ -334,8 +335,39 @@
 
               <!-- CUERPO DEL DIALOGO -->
               <v-card-text>
-                <v-data-table :headers="headersCronograma" :items="equipos" :search="search" label class="elevation-1">
 
+
+
+                <!-- Buscador -->
+                <v-row class="mb-4" align="center" justify="center">
+  <!-- Campo de búsqueda -->
+  <v-col cols="12" md="6">
+    <v-text-field
+      v-model="search"
+      append-icon="mdi-magnify"
+      label="Buscar:"
+      single-line
+      hide-details
+    ></v-text-field>
+  </v-col>
+
+  <!-- Botón exportar -->
+  <v-col cols="12" md="4" class="d-flex justify-center">
+    <v-btn
+      color="primary"
+      min-width="228"
+      size="large"
+      @click="exportarAExcel"
+    >
+      <v-icon start>mdi-file-excel</v-icon>
+      Exportar a Excel
+    </v-btn>
+  </v-col>
+</v-row>
+
+
+                <!-- Tabla -->
+                <v-data-table :headers="headersCronograma" :items="equipos" :search="search" class="elevation-1">
                   <!-- PRÓXIMO MANTENIMIENTO -->
                   <template #item.proximoMantenimiento="{ item }">
                     <span v-if="calcularFechaVencimiento(item)">
@@ -343,26 +375,42 @@
                     </span>
                     <span v-else>-</span>
                   </template>
-                  <!-- Formateo de la fecha -->
+
+                  <!-- FECHA DE PREVENTIVO -->
                   <template #item.fechaDePreventivo="{ item }">
                     <v-chip v-if="calcularDiferencia(item) !== 'Libre'" :style="getChipStyle(item)" size="small"
                       class="font-weight-bold" variant="outlined">
                       <v-icon :icon="getChipStyle(item).icon" :color="getChipStyle(item).color" start />
                       {{ calcularDiferencia(item) }}
                     </v-chip>
-                    <v-chip v-else size="small" class="font-weight-bold" color="#2196F3" variant="outlined" :style="{
-                      border: '2px solid #2196F3'
-                    }">
+
+                    <v-chip v-else size="small" class="font-weight-bold" color="#2196F3" variant="outlined"
+                      :style="{ border: '2px solid #2196F3' }">
                       Libre
                     </v-chip>
                   </template>
                 </v-data-table>
-
-                <!-- DEBUG (puedes eliminar esto) -->
-                <!-- {{ this.historialclientes }} -->
               </v-card-text>
 
             </v-card>
+          </v-dialog>
+          <v-dialog v-model="ventanaDetallesEquipo" transition="dialog-bottom-transition" persistent>
+            <v-toolbar flat style="background-color: #52B69A; color: white;">
+              <v-spacer></v-spacer>
+              <!-- Botón cerrar flotando a la derecha -->
+
+
+
+              <!-- Título centrado en negrilla -->
+              <v-toolbar-title class="text-center font-weight-bold">
+                Detalles del Equipo
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+              <!-- Botón cerrar a la derecha -->
+              <v-btn icon="mdi-close" @click="ventanaDetallesEquipo = false" variant="text" color="white"
+                class="ml-auto" />
+            </v-toolbar>
+            <DetallesEquipoComponent />
           </v-dialog>
         </v-toolbar>
       </template>
@@ -402,9 +450,15 @@
 import axios from "axios";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import DetallesEquipoComponent from "./DetallesEquipoComponent.vue";
 export default {
+  components: {
+
+    DetallesEquipoComponent
+  },
   name: "ListarEquipos",
   data: () => ({
+    ventanaDetallesEquipo: false,
     VentanaCronograma: false,
     dialogoclientes: false,
     historialclientes: [],
@@ -1053,7 +1107,8 @@ export default {
       this.$store.dispatch("guardarDetallesEquipo", {
         detallesequipo: Object.assign({}, item),
       });
-      this.$router.push({ name: "DetallesEquipo" });
+      /* this.$router.push({ name: "DetallesEquipo" }); */
+      this.ventanaDetallesEquipo = true;
     },
     mostrarHistorialClientes(item) {
 
@@ -1334,7 +1389,32 @@ export default {
       // Escribir y guardar
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-      saveAs(blob, 'equipos.xlsx');
+      saveAs(blob, 'Equipos.xlsx');
+    },
+    exportarAExcel() {
+      const encabezados = this.equipos.map(h => h.text);
+
+      const exportData = this.equipos.map(item => ({
+        Serie: item.serie,
+        Nombre: item.nombre,
+        Propietario: item.propietario.nombre,
+        Proveedor: item.proveedor.nombre,
+        Cliente: item.cliente.nombre,
+        Ubicacion: item.ubicacionNombre,
+        Contrato: item.tipoDeContrato,
+        ProximoMantenimiento: this.calcularFechaVencimiento(item),
+        DiasRestantes: this.calcularDiferencia(item),
+      }));
+      // Crear hoja y libro
+      const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
+
+      // Escribir y guardar
+      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+      saveAs(blob, 'Cronograma MP.xlsx');
     },
 
     calcularDiferencia(item) {

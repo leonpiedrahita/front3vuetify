@@ -5,6 +5,7 @@ import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 // Utilities
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,6 +17,21 @@ export default defineConfig({
     vuetify({
       autoImport: true,
     }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'TuApp',
+        short_name: 'App',
+        start_url: '/',
+        display: 'standalone',
+        theme_color: 'primary',
+        icons: [
+          { src: '/engrane completo', sizes: '192x192', type: 'image/png' },
+          { src: '/engrane completo', sizes: '512x512', type: 'image/png' },
+          { src: '/engrane completo', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }  
+        ]
+      }
+    })
   ],
   define: { 'process.env': {},
   __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true' },//puse esta linea para que dejara de salir el erro que traia ese nombre pero no se mas
@@ -36,4 +52,5 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  
 })

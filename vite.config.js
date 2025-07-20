@@ -25,10 +25,9 @@ export default defineConfig({
         start_url: '/',
         display: 'standalone',
         theme_color: 'primary',
-        icons: [
-          { src: '/engrane completo', sizes: '192x192', type: 'image/png' },
-          { src: '/engrane completo', sizes: '512x512', type: 'image/png' },
-          { src: '/engrane completo', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }  
+       icons: [
+          { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
         ]
       }
     })

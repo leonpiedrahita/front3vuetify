@@ -105,6 +105,16 @@ const routes = [
 
         props: true,
       },
+      {
+        path: '/adminusuarios',
+        name: 'AdministracionUsuarios',
+        component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/AdministracionUsuarios.vue'),
+        meta: {
+          auth: true
+        },
+
+        props: true,
+      }
 
     ]
   },

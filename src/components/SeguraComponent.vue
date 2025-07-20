@@ -52,19 +52,17 @@
 
           </v-list-item>
 
-          <!--  <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
-            <template v-slot:activator>
-              <v-list-item>
-                <v-list-item-title> Permisos </v-list-item-title>
-              </v-list-item>
+          <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" prepend-icon="mdi-badge-account-outline" title="Usuarios" />
             </template>
 
-                          <v-list-item :to="{ name: 'Usuario' }">
-                <v-list-item-subtitle>
-                  <v-list-item-title> Usuario </v-list-item-title>
-                </v-list-item-subtitle>
-              </v-list-item> 
-          </v-list-group>-->
+            <v-list-item :to="{ name: 'AdministracionUsuarios' }">
+              <v-list-item-subtitle>
+                <v-list-item-title> Usuarios </v-list-item-title>
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-list-group>
         </v-list></v-card>
     </v-navigation-drawer>
 
@@ -80,10 +78,7 @@ export default {
     return {
       drawer: null,
       selectedItem: 1,
-      desplegableequipos: [
-        [],
-        []
-      ]
+     
     };
   },
   beforeCreate() {
@@ -103,7 +98,7 @@ export default {
 <style>
 .margen {
   padding: 0px !important;
- margin-top: 4em;
+  margin-top: 4em;
 }
 
 .mostrar {

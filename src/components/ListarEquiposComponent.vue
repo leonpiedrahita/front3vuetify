@@ -22,7 +22,8 @@
 
       <v-row class="mt-2 flex-nowrap" justify="space-around">
         <v-col class="px-1" cols="auto">
-          <v-btn v-permission="['administrador', 'calidad']" class="my-1" color="c6" size="large">
+          <v-btn v-permission="['administrador', 'calidad']" class="my-1" color="c6" size="large"
+           variant="flat" @click="nuevoEquipo()">
             Nuevo Equipo
           </v-btn>
         </v-col>

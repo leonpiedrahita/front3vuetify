@@ -10,7 +10,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue({ 
+    vue({
       template: { transformAssetUrls }
     }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
@@ -25,17 +25,19 @@ export default defineConfig({
         start_url: '/',
         display: 'standalone',
         theme_color: 'primary',
-       icons: [
+        icons: [
           { src: '/icon-192x192.jpg', sizes: '192x192', type: 'image/jpg' },
           { src: '/icon-512x512.jpg', sizes: '512x512', type: 'image/jpg' },
-                { src: '/icon-180x180.jpg', sizes: '512x512', type: 'image/jpg' }
+          { src: '/icon-180x180.jpg', sizes: '512x512', type: 'image/jpg' }
 
         ]
       }
     })
   ],
-  define: { 'process.env': {},
-  __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true' },//puse esta linea para que dejara de salir el erro que traia ese nombre pero no se mas
+  define: {
+    'process.env': {},
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true'
+  },//puse esta linea para que dejara de salir el erro que traia ese nombre pero no se mas
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -53,5 +55,5 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  
+
 })

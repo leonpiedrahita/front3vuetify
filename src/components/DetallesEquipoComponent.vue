@@ -159,7 +159,7 @@
         <v-card title="Dirección" variant="flat">
           <v-card-text>
             <v-toolbar-title>
-              {{ equipo.ubicacionDireccion }}
+              {{ equipo.propietario.ubicacionDireccion }}
             </v-toolbar-title>
           </v-card-text>
         </v-card>

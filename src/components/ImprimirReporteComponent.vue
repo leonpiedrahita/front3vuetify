@@ -85,18 +85,33 @@
           <div class="dato">{{ reporte.propietario }}</div>
         </div>
       </div>
+      <div class="gridtitulo titulo principal negrita">
+        <div>Hallazgos</div>
+      </div>
+      <div class="gridcontenido titulo principal">
+        <div v-html="reporte.hallazgos.replace(/\n/g, '<br>')"></div>
+      </div>
+      <div class="gridtitulo titulo principal negrita">
+        <div>Actividades realizadas</div>
+      </div>
       <div class="gridcontenido titulo principal">
         <div v-html="reporte.actividades.replace(/\n/g, '<br>')"></div>
       </div>
-
+      <div class="gridtitulo titulo principal negrita">
+        <div>Pruebas de aceptación</div>
+      </div>
       <div class="gridcontenido titulo principal">
         <div v-html="reporte.pruebas.replace(/\n/g, '<br>')"></div>
       </div>
-
+      <div class="gridtitulo titulo principal negrita">
+        <div>Repuestos utilizados</div>
+      </div>
       <div class="gridcontenido titulo principal">
         <div v-html="reporte.repuestos.replace(/\n/g, '<br>')"></div>
       </div>
-
+      <div class="gridtitulo titulo principal negrita">
+        <div>Observaciones</div>
+      </div>
       <div class="gridcontenido titulo principal">
         <div v-html="reporte.observaciones.replace(/\n/g, '<br>')"></div>
       </div>

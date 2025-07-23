@@ -144,7 +144,7 @@
                 estado: 1,
                 password: ''
             },
-            rolesDisponibles: ["aministrador", "calidad", "cotizaciones", "soporte", "comercial"],
+            rolesDisponibles: ["administrador", "calidad", "cotizaciones", "soporte", "comercial"],
             estadoOpciones: [
                 { text: 'Activo', value: 1 },
                 { text: 'Bloqueado', value: 0 }

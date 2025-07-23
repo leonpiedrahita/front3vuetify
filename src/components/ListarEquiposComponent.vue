@@ -22,8 +22,8 @@
 
       <v-row class="mt-2 flex-nowrap" justify="space-around">
         <v-col class="px-1" cols="auto">
-          <v-btn v-permission="['administrador', 'calidad']" class="my-1" color="c6" size="large"
-           variant="flat" @click="nuevoEquipo()">
+          <v-btn v-permission="['administrador', 'calidad']" class="my-1" color="c6" size="large" variant="flat"
+            @click="nuevoEquipo()">
             Nuevo Equipo
           </v-btn>
         </v-col>
@@ -341,30 +341,20 @@
 
                 <!-- Buscador -->
                 <v-row class="mb-4" align="center" justify="center">
-  <!-- Campo de búsqueda -->
-  <v-col cols="12" md="6">
-    <v-text-field
-      v-model="search"
-      append-icon="mdi-magnify"
-      label="Buscar:"
-      single-line
-      hide-details
-    ></v-text-field>
-  </v-col>
+                  <!-- Campo de búsqueda -->
+                  <v-col cols="12" md="6">
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar:" single-line
+                      hide-details></v-text-field>
+                  </v-col>
 
-  <!-- Botón exportar -->
-  <v-col cols="12" md="4" class="d-flex justify-center">
-    <v-btn
-      color="primary"
-      min-width="228"
-      size="large"
-      @click="exportarAExcel"
-    >
-      <v-icon start>mdi-file-excel</v-icon>
-      Exportar a Excel
-    </v-btn>
-  </v-col>
-</v-row>
+                  <!-- Botón exportar -->
+                  <v-col cols="12" md="4" class="d-flex justify-center">
+                    <v-btn color="primary" min-width="228" size="large" @click="exportarAExcel">
+                      <v-icon start>mdi-file-excel</v-icon>
+                      Exportar a Excel
+                    </v-btn>
+                  </v-col>
+                </v-row>
 
 
                 <!-- Tabla -->
@@ -902,21 +892,25 @@ export default {
       const encontrarserie = this.equipos.find(
         (registro) => registro.serie === this.nuevoequipo.serie
       );
-      const encontrarinventario = this.equipos.find(
-        (registro) =>
-          registro.placaDeInventario === this.nuevoequipo.placaDeInventario,
 
-      );
+      // Validar placaDeInventario solo si no es "N/A"
+      const encontrarinventario =
+        this.nuevoequipo.placaDeInventario !== "N/A"
+          ? this.equipos.find(
+            (registro) =>
+              registro.placaDeInventario === this.nuevoequipo.placaDeInventario
+          )
+          : null;
 
       if (encontrarserie) {
         this.textodialogo = "El número de serie ya se encuentra registrado";
         this.dialogo = true;
       } else if (encontrarinventario) {
-
         this.textodialogo =
           "El número de inventario ya se encuentra registrado";
         this.dialogo = true;
       } else {
+        // Lógica para guardar
         axios
           .post(
             this.$store.state.ruta + "api/equipo/registrar/",
@@ -941,6 +935,7 @@ export default {
             return error;
           });
       }
+
       this.dialog2 = false;
       this.close();
     },
@@ -980,11 +975,15 @@ export default {
             return error;
           });
       } else {
-        const encontrarinventario = this.equipos.find(
-          (registro) =>
-            registro.placaDeInventario ===
-            this.equipomodificado.placaDeInventario
-        );
+        const encontrarinventario =
+          this.equipomodificado.placaDeInventario !== "N/A"
+            ? this.equipos.find(
+              (registro) =>
+                registro.placaDeInventario ===
+                this.equipomodificado.placaDeInventario
+            )
+            : null;
+
         if (encontrarinventario) {
           this.textodialogo =
             "El número de inventario ya se encuentra registrado";
@@ -997,11 +996,12 @@ export default {
               this.equipomodificado.id,
               {
                 ubicacionNombre: this.equipomodificado.ubicacionNombre,
-                ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
-                cliente: this.equipomodificado.clienteId,
-                propietario: this.equipomodificado.propietarioId,
-                placaDeInventario: this.equipomodificado.placaDeInventario,
-                tipoDeContrato: this.equipomodificado.tipoDeContrato,
+              ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
+              cliente: this.equipomodificado.cliente,
+              propietario: this.equipomodificado.propietario,
+              proveedor: this.equipomodificado.proveedor,
+              placaDeInventario: this.equipomodificado.placaDeInventario,
+              tipoDeContrato: this.equipomodificado.tipoDeContrato,
               },
               {
                 headers: {

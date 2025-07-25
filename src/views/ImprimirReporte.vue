@@ -77,12 +77,13 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     font-size: 150%;
   }
   .gridcontenido {
-    display: grid;
-    grid-template-columns: repeat(1, auto);
-    grid-template-rows: repeat(1, auto);
-    gap: 1px;
-    background-color: #424242;
-  }
+  display: grid;
+  grid-template-columns: repeat(1, auto);
+  gap: 1px;
+  background-color: #424242;
+
+ /* 1.2em es un valor típico de line-height */
+}
   .gridcontenido :deep(div)  {
     background-color: #ffffff;
     padding: 5px;
@@ -241,12 +242,14 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
       font-size: 100%;
     }
     .gridcontenido {
-      display: grid;
-      grid-template-columns: repeat(1, auto);
-      grid-template-rows: repeat(1, auto);
-      gap: 1px;
-      background-color: #424242;
-    }
+  display: grid;
+  grid-template-columns: repeat(1, auto);
+  gap: 1px;
+  background-color: #424242;
+
+  /* clave */
+  min-height: calc(1.2em * 6); /* 1.2em es un valor típico de line-height */
+}
     .gridcontenido :deep(div)  {
       background-color: #ffffff;
       padding: 2px;

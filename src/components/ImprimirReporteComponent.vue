@@ -46,7 +46,7 @@
           <div class="dato">{{ reporte.nitcliente }}</div>
         </div>
         <div class="gridparejas">
-          <div class="subtitulonegrita">Sede :</div>
+          <div class="subtitulonegrita">Ciudad :</div>
           <div class="dato">{{ reporte.sedecliente }}</div>
         </div>
 

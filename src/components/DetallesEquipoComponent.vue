@@ -155,15 +155,7 @@
           </v-card-text>
         </v-card>
       </v-card-title>
-      <v-card-title>
-        <v-card title="Dirección" variant="flat">
-          <v-card-text>
-            <v-toolbar-title>
-              {{ equipo.propietario.ubicacionDireccion }}
-            </v-toolbar-title>
-          </v-card-text>
-        </v-card>
-      </v-card-title>
+      
 
     </v-row>
     <v-divider class="mb-5 mt-5"></v-divider>
@@ -187,6 +179,19 @@
           </v-card-text>
         </v-card>
       </v-card-title>
+      <v-card-title>
+        <v-card title="Dirección/Ciudad" variant="flat">
+          <v-card-text>
+            <v-toolbar-title>
+              {{ equipo.ubicacionDireccion }}
+            </v-toolbar-title>
+            <v-toolbar-title>
+              {{ equipo.ubicacionNombre }}
+            </v-toolbar-title>
+          </v-card-text>
+        </v-card>
+      </v-card-title>
+     
       <v-divider class="mb-5 mt-5"></v-divider>
     </v-row>
     <v-card-title class="text-center" id="tamanotitulo">Documentos Legales</v-card-title>
@@ -327,11 +332,11 @@
     </v-dialog>
 
   </v-card>
-<!--   <pre>
+  <!-- <pre>
 
-  {{ reporte }}
+  {{ equipo }}
 
-</pre> -->
+</pre>  -->
 
 </template>
 <script>

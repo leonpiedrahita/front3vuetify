@@ -57,7 +57,7 @@
                       <v-text-field v-model="editedItem.nit" label="NIT" :rules="[(v) => !!v || 'Campo Requerido']"
                         required class="centered-input"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="12" md="12">
+                  <!-- <v-col cols="12" sm="12" md="12">
                       <v-text-field v-model="editedItem.contactoprincipal[0].nombre"
                         label="Nombre de contacto principal" :rules="[(v) => !!v || 'Campo Requerido']" required
                         class="centered-input"></v-text-field>
@@ -66,7 +66,7 @@
                       <v-text-field v-model="editedItem.contactoprincipal[0].telefono"
                         label="Teléfono de contacto principal" :rules="[(v) => !!v || 'Campo Requerido']" required
                         class="centered-input"></v-text-field>
-                    </v-col>
+                    </v-col> -->
                   </v-row>
                 </v-container>
               </v-card-text>
@@ -77,8 +77,8 @@
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(
-                  editedItem.contactoprincipal[0].telefono &&
-                  editedItem.contactoprincipal[0].nombre &&
+                  /* editedItem.contactoprincipal[0].telefono &&
+                  editedItem.contactoprincipal[0].nombre && */
                   editedItem.nit &&
                   editedItem.nombre
                 )
@@ -86,8 +86,8 @@
                   Editar
                 </v-btn>
                 <v-btn :disabled="!(
-                  editedItem.contactoprincipal[0].telefono &&
-                  editedItem.contactoprincipal[0].nombre &&
+                  /* editedItem.contactoprincipal[0].telefono &&
+                  editedItem.contactoprincipal[0].nombre && */
                   editedItem.nit &&
                   editedItem.nombre
                 )
@@ -248,7 +248,7 @@ export default {
         align: "center",
         class: "titulo--text font-weight-bold",
       },
-      {
+      /* {
         title: "Nombre de contacto principal",
         value: "contactoprincipal[0].nombre",
         align: "center",
@@ -260,7 +260,7 @@ export default {
         align: "center",
         divider: true,
         class: "titulo--text font-weight-bold",
-      },
+      }, */
       {
         title: "Editar cliente",
         value: "editarsede",
@@ -285,7 +285,7 @@ export default {
     editedItem: {
       nit: "",
       nombre: "",
-      contactoprincipal: [{}],
+      /* contactoprincipal: [{}], */
     },
     editedItem2: {
       nombre: "",
@@ -294,12 +294,12 @@ export default {
     defaultItem: {
       nit: "",
       nombre: "",
-      contactoprincipal: [
+      /* contactoprincipal: [
         {
           nombre: "",
           telefono: "",
         },
-      ],
+      ], */
     },
     defaultItem2: {
       nombre: "",
@@ -429,8 +429,8 @@ export default {
     cerrareditar() {
       this.dialog = false;
       this.$nextTick(() => {
-        this.editedItem.contactoprincipal[0].telefono = "";
-        this.editedItem.contactoprincipal[0].nombre = "";
+        /* this.editedItem.contactoprincipal[0].telefono = "";
+        this.editedItem.contactoprincipal[0].nombre = ""; */
         this.editedItem.nit = "";
         this.editedItem.nombre = "";
         this.Editarcliente = false;
@@ -462,7 +462,7 @@ export default {
           {
             nombre: this.editedItem.nombre,
             nit: this.editedItem.nit,
-            contactoprincipal: this.editedItem.contactoprincipal,
+            
           },
           {
             headers: {
@@ -503,7 +503,7 @@ export default {
             {
               nombre: this.editedItem.nombre,
               nit: this.editedItem.nit,
-              contactoprincipal: this.editedItem.contactoprincipal,
+              /* contactoprincipal: this.editedItem.contactoprincipal, */
             },
             {
               headers: {

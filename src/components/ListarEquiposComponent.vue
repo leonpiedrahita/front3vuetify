@@ -101,6 +101,20 @@
                         label="Tipo de contrato" class="vs__search" required
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
+                        <template v-slot:activator="{ props }">
+                          <v-text-field v-model="fechaDeMovimiento" label="Fecha de movimiento"
+                            prepend-icon="mdi-calendar" readonly v-bind="props"></v-text-field>
+                        </template>
+                        <v-locale-provider locale="es">
+                          <v-date-picker locale="es" @update:model-value="cambiarEstadoDeMenu1"
+                            v-model="fechadecalendario" color="primary" title="Fecha de inicio"
+                            header="Seleccionar Fecha">
+                          </v-date-picker>
+                        </v-locale-provider>
+                      </v-menu>
+                    </v-col>
                   </v-row>
                 </v-container>
               </v-card-text>
@@ -115,7 +129,8 @@
                   nuevoequipo.tipoDeContrato &&
                   nuevoequipo.propietario &&
                   nuevoequipo.cliente &&
-                  nuevoequipo.ubicacion.nombre
+                  nuevoequipo.ubicacion.nombre&&
+                  fechaDeMovimiento
                 )
                   " color="primary darken-1" text @click="save2">
                   Crear
@@ -449,6 +464,9 @@ export default {
   },
   name: "ListarEquipos",
   data: () => ({
+    menu1: false,
+    fechadecalendario: null,
+    fechaDeMovimiento: null,
     ventanaDetallesEquipo: false,
     VentanaCronograma: false,
     dialogoclientes: false,
@@ -639,6 +657,7 @@ export default {
         nombre: "",
         direccion: "",
       },
+      fechaDeMovimiento: null,
     },
     equipomodificado: {
       nombre: "",
@@ -788,6 +807,19 @@ export default {
   },
 
   methods: {
+    cambiarEstadoDeMenu1(fechaseleccionadaincio) {
+
+      this.fechaDeMovimiento = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
+      this.nuevoequipo.fechaDeMovimiento = this.formatearSinZona(fechaseleccionadaincio);
+
+      this.menu1 = !this.menu1;
+    },
+    formatearSinZona(date) {
+      const pad = (n, z = 2) => n.toString().padStart(z, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+         ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.` +
+         `${pad(date.getMilliseconds(), 3)}`;
+    },
     listar() {
       //va a ir a mi backend y me traerá las peticiones de la base de datos
       axios
@@ -996,12 +1028,12 @@ export default {
               this.equipomodificado.id,
               {
                 ubicacionNombre: this.equipomodificado.ubicacionNombre,
-              ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
-              cliente: this.equipomodificado.cliente,
-              propietario: this.equipomodificado.propietario,
-              proveedor: this.equipomodificado.proveedor,
-              placaDeInventario: this.equipomodificado.placaDeInventario,
-              tipoDeContrato: this.equipomodificado.tipoDeContrato,
+                ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
+                cliente: this.equipomodificado.cliente,
+                propietario: this.equipomodificado.propietario,
+                proveedor: this.equipomodificado.proveedor,
+                placaDeInventario: this.equipomodificado.placaDeInventario,
+                tipoDeContrato: this.equipomodificado.tipoDeContrato,
               },
               {
                 headers: {

@@ -8,7 +8,7 @@
         <td :colspan="columns.length">
           <div class="sp-details" justify="center">
             <div class="col-xs-5 col-md-8 text-center">
-              <v-data-table v-if="item.sede && item.sede.length" :headers="encabezadofiltrado" :items="item.sede">
+              <v-data-table v-if="item.sede && item.sede.length" :headers="encabezadofiltrado" :items="item.sede" hide-default-footer>
                 <template v-slot:[`item.eliminarsede`]="{ item }">
                   <v-icon medium @click="deleteItem(item)">
                     mdi-delete-empty

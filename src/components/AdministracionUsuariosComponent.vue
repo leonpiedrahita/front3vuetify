@@ -4,7 +4,7 @@
             <v-btn color="primary" @click="abrirCrearUsuario">Crear Usuario</v-btn>
         </div>
         <v-data-table :headers="headers" :items="usuarios" :loading="cargando" class="elevation-1"
-            loading-text="Cargando ... por favor espere">
+            loading-text="Cargando ... por favor espere" hide-default-footer>
             <template v-slot:item.actions="{ item }">
                 <v-icon small @click="editarUsuario(item)">mdi-pencil</v-icon>
             </template>

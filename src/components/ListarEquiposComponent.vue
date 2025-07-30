@@ -307,7 +307,7 @@
               <!-- CUERPO DEL DIALOGO -->
               <v-card-text>
                 <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios || []"
-                  :search="search" class="elevation-1">
+                  :search="search" class="elevation-1" hide-default-footer>
                   <!-- Formateo de la fecha -->
                   <template #item.fecha="{ item }">
                     {{

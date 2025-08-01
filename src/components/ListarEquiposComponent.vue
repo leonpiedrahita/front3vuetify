@@ -448,7 +448,7 @@
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-  <pre> {{ clientes }} </pre>
+  <!-- <pre> {{ clientes }} </pre> -->
   <!-- <h1>Equipomodificado</h1>
   <pre> {{ equipomodificado }} </pre> -->
 </template>

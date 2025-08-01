@@ -546,6 +546,7 @@ export default {
         value: "generarorden",
         sortable: false,
         align: "center",
+        roles: ["administrador"],
       },
       {
         title: "Crear Reporte",

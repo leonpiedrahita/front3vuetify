@@ -8,7 +8,8 @@
         <td :colspan="columns.length">
           <div class="sp-details" justify="center">
             <div class="col-xs-5 col-md-8 text-center">
-              <v-data-table v-if="item.sede && item.sede.length" :headers="encabezadofiltrado" :items="item.sede" hide-default-footer>
+              <v-data-table v-if="item.sedes && item.sedes.length" :headers="encabezadofiltrado" :items="item.sedes"
+                hide-default-footer>
                 <template v-slot:[`item.eliminarsede`]="{ item }">
                   <v-icon medium @click="deleteItem(item)">
                     mdi-delete-empty
@@ -28,7 +29,7 @@
           <v-row justify="space-around">
 
             <v-col cols="6" sm="5">
-              <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Cliente / NIT / Nombre / Teléfono"
+              <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Cliente / NIT / Ciudad Ppal / Dirección Ppal"
                 single-line hide-details></v-text-field>
             </v-col>
 
@@ -57,16 +58,15 @@
                       <v-text-field v-model="editedItem.nit" label="NIT" :rules="[(v) => !!v || 'Campo Requerido']"
                         required class="centered-input"></v-text-field>
                     </v-col>
-                  <!-- <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.contactoprincipal[0].nombre"
-                        label="Nombre de contacto principal" :rules="[(v) => !!v || 'Campo Requerido']" required
-                        class="centered-input"></v-text-field>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete label="Ciudad" v-model="editedItem.sedePrincipal.ciudad" :items="municipios" clearable
+                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.contactoprincipal[0].telefono"
-                        label="Teléfono de contacto principal" :rules="[(v) => !!v || 'Campo Requerido']" required
-                        class="centered-input"></v-text-field>
-                    </v-col> -->
+                      <v-text-field v-model="editedItem.sedePrincipal.direccion" label="Direccion"
+                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input"></v-text-field>
+                    </v-col>
+
                   </v-row>
                 </v-container>
               </v-card-text>
@@ -80,7 +80,8 @@
                   /* editedItem.contactoprincipal[0].telefono &&
                   editedItem.contactoprincipal[0].nombre && */
                   editedItem.nit &&
-                  editedItem.nombre
+                  editedItem.nombre && editedItem.sedePrincipal.ciudad &&
+                  editedItem.sedePrincipal.direccion
                 )
                   " color="primary darken-1" text @click="editar" v-if="Editarcliente">
                   Editar
@@ -89,7 +90,9 @@
                   /* editedItem.contactoprincipal[0].telefono &&
                   editedItem.contactoprincipal[0].nombre && */
                   editedItem.nit &&
-                  editedItem.nombre
+                  editedItem.nombre && editedItem.sedePrincipal.ciudad &&
+                  editedItem.sedePrincipal.direccion
+                
                 )
                   " color="primary darken-1" text @click="agregarCliente" v-if="Agregarcliente">
                   Agregar
@@ -109,11 +112,11 @@
                   <v-row>
 
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete label="Ciudad" v-model="editedItem2.nombre" :items="municipios" clearable
+                      <v-autocomplete label="Ciudad" v-model="editedItem2.sedePrincipal.ciudad" :items="municipios" clearable
                         :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem2.direccion" label="Direccion"
+                      <v-text-field v-model="editedItem2.sedePrincipal.direccion" label="Direccion"
                         :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input"></v-text-field>
                     </v-col>
                   </v-row>
@@ -125,7 +128,7 @@
                 <v-btn color="error darken-1" text @click="cerraragregarsede">
                   Cancelar
                 </v-btn>
-                <v-btn :disabled="!(editedItem2.nombre && editedItem2.direccion)" color="primary darken-1" text
+                <v-btn :disabled="!(editedItem2.sedePrincipal.ciudad && editedItem2.sedePrincipal.direccion)" color="primary darken-1" text
                   @click="agregarnuevasede">
                   Agregar
                 </v-btn>
@@ -188,7 +191,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <!-- <p>{{ this.equipos }}</p> -->
+    <p>{{ this.equipos }}</p>
   </v-card>
 </template>
 <script>
@@ -214,7 +217,7 @@ export default {
     encabezado: [
       {
         title: "Ciudad",
-        value: "nombre",
+        value: "ciudad",
         align: "center",
         class: "titulo--text font-weight-bold",
         width: "50%",
@@ -248,19 +251,19 @@ export default {
         align: "center",
         class: "titulo--text font-weight-bold",
       },
-      /* {
-        title: "Nombre de contacto principal",
-        value: "contactoprincipal[0].nombre",
+      {
+        title: "Ciudad Ppal",
+        value: "sedePrincipal.ciudad",
         align: "center",
         class: "titulo--text font-weight-bold",
       },
       {
-        title: "Teléfono de contacto principal",
-        value: "contactoprincipal[0].telefono",
+        title: "Dirección Ppal",
+        value: "sedePrincipal.direccion",
         align: "center",
         divider: true,
         class: "titulo--text font-weight-bold",
-      }, */
+      },
       {
         title: "Editar cliente",
         value: "editarsede",
@@ -285,15 +288,30 @@ export default {
     editedItem: {
       nit: "",
       nombre: "",
+      sedePrincipal: {
+        ciudad: "",
+        direccion: "",
+         // Puedes hacerlo dinámico si es necesario
+      },
       /* contactoprincipal: [{}], */
     },
     editedItem2: {
-      nombre: "",
+     ciudad: "",
       direccion: "",
+      sedePrincipal: {
+        ciudad: "",
+        direccion: "",
+         // Puedes hacerlo dinámico si es necesario
+      },
     },
     defaultItem: {
       nit: "",
       nombre: "",
+      sedePrincipal: {
+        ciudad: "",
+        direccion: "",
+         // Puedes hacerlo dinámico si es necesario
+      },
       /* contactoprincipal: [
         {
           nombre: "",
@@ -304,6 +322,11 @@ export default {
     defaultItem2: {
       nombre: "",
       direccion: "",
+      sedePrincipal: {
+        ciudad: "",
+        direccion: "",
+         // Puedes hacerlo dinámico si es necesario
+      },
     },
   }),
 
@@ -433,6 +456,8 @@ export default {
         this.editedItem.contactoprincipal[0].nombre = ""; */
         this.editedItem.nit = "";
         this.editedItem.nombre = "";
+        this.editedItem.sedePrincipal.ciudad = "";
+        this.editedItem.sedePrincipal.direccion = "";
         this.Editarcliente = false;
         this.Agregarcliente = false;
 
@@ -450,35 +475,36 @@ export default {
       /* this.listar(); */
     },
 
-    editar() {
-      //Editar categoria
-      this.Editarcliente = false;
+ editar() {
+  this.Editarcliente = false;
 
-      axios
-        .patch(
-          this.$store.state.ruta +
-          "api/cliente/actualizar/" +
-          this.editedItem.id,
-          {
-            nombre: this.editedItem.nombre,
-            nit: this.editedItem.nit,
-            
-          },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-          this.cerrareditar();
-          this.listar();
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
+  axios
+    .patch(
+      this.$store.state.ruta + "api/cliente/actualizar/" + this.editedItem.id,
+      {
+        nombre: this.editedItem.nombre,
+        nit: this.editedItem.nit,
+        sedePrincipal: {
+          ciudad: this.editedItem.sedePrincipal.ciudad,
+          direccion: this.editedItem.sedePrincipal.direccion,
+          activa: true, // Puedes hacerlo dinámico si es necesario
+        },
+      },
+      {
+        headers: {
+          token: this.$store.state.token,
+        },
+      }
+    )
+    .then((response) => {
+      console.log(response);
+      this.cerrareditar();
+      this.listar();
+    })
+    .catch((error) => {
+      console.log(error);
+      return error;
+    });
 
 
     },
@@ -503,7 +529,11 @@ export default {
             {
               nombre: this.editedItem.nombre,
               nit: this.editedItem.nit,
-              /* contactoprincipal: this.editedItem.contactoprincipal, */
+              sedePrincipal: {
+                ciudad: this.editedItem.sedePrincipal.ciudad,
+                direccion: this.editedItem.sedePrincipal.direccion,
+                activa: true, // O puedes usar: this.editedItem.activa ?? true
+              },
             },
             {
               headers: {
@@ -523,60 +553,57 @@ export default {
           });
       }
     },
-    agregarnuevasede() {
-      //Editar categoria
-      axios
-        .patch(
-          this.$store.state.ruta +
-          "api/cliente/agregarsede/" +
-          this.editedItem.id,
-          {
-            nombre: this.editedItem2.nombre,
-            direccion: this.editedItem2.direccion,
-          },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-          this.listar();
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
+  agregarnuevasede() {
+  axios
+    .post(
+      this.$store.state.ruta +
+        "api/cliente/agregarsede/" +
+        this.editedItem.id,
+      {
+        ciudad: this.editedItem2.sedePrincipal.ciudad,
+        direccion: this.editedItem2.sedePrincipal.direccion,
+      },
+      {
+        headers: {
+          token: this.$store.state.token,
+        },
+      }
+    )
+    .then((response) => {
+      console.log(response);
+      this.listar();
+    })
+    .catch((error) => {
+      console.log(error);
+      return error;
+    });
 
-      this.cerraragregarsede();
-    },
-    save3() {
-      axios
-        .patch(
-          this.$store.state.ruta + "api/cliente/eliminarsede/",
-          {
-            nombre: this.editedItem2.nombre,
-            direccion: this.editedItem2.direccion,
-            idcliente: this.editedItem2.idcliente,
-          },
-          {
-            headers: {
-              token: this.$store.state.token,
-            },
-          }
-        )
-        .then((response) => {
-          console.log(response);
-          this.listar();
-        })
-        .catch((error) => {
-          console.log(error);
-          return error;
-        });
+  this.cerraragregarsede();
+},
+save3() {
+  axios
+    .patch(
+      this.$store.state.ruta + "api/cliente/eliminarsede/",
+      {
+        sedeId: this.editedItem2.id,  // <-- Aquí está el id de la sede a desactivar
+      },
+      {
+        headers: {
+          token: this.$store.state.token,
+        },
+      }
+    )
+    .then((response) => {
+      console.log(response);
+      this.listar();
+    })
+    .catch((error) => {
+      console.log(error);
+      return error;
+    });
 
-      this.cerrareliminarsede();
-    },
+  this.cerrareliminarsede();
+},
 
 
 

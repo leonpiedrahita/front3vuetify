@@ -22,7 +22,7 @@
 
       <v-row class="mt-2 flex-nowrap" justify="space-around">
         <v-col class="px-1" cols="auto">
-          <v-btn v-permission="['administrador', 'calidad']" class="my-1" color="c6" size="large" variant="flat"
+          <v-btn v-permission="['administrador', 'calidad','cotizaciones']" class="my-1" color="c6" size="large" variant="flat"
             @click="nuevoEquipo()">
             Nuevo Equipo
           </v-btn>
@@ -448,7 +448,7 @@
     </v-data-table>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
  --> </v-card>
-  <!-- <pre> {{ equipos }} </pre> -->
+  <pre> {{ clientes }} </pre>
   <!-- <h1>Equipomodificado</h1>
   <pre> {{ equipomodificado }} </pre> -->
 </template>
@@ -539,7 +539,7 @@ export default {
         value: "editar",
         sortable: false,
         align: "center",
-        roles: ["administrador", "calidad"],
+        roles: ["administrador","cotizaciones","calidad"],
       },
       {
         title: "Nuevo Ingreso",
@@ -661,33 +661,7 @@ export default {
     },
     equipomodificado: {
       nombre: "",
-      marca: "",
-      serie: "",
-      placaDeInventario: "",
-      tipoDeContrato: "",
-      clienteId: null,
-      propietarioId: null,
-      proveedorId: null,
-      propietario: {
-        nombre: "",
-        id: "",
-      },
-      cliente: {
-        nombre: "",
-        id: "",
-      },
-      proveedor: {
-        nombre: "",
-        id: "",
-      },
-      ubicacion: {
-        nombre: "",
-        direccion: "",
-      },
-    },
-    nuevoequipopordefecto: {
-      nombre: "",
-      marca: {},
+      marca: null,
       id: "",
       serie: "",
       placaDeInventario: "",
@@ -708,6 +682,32 @@ export default {
         nombre: "",
         direccion: "",
       },
+      fechaDeMovimiento: null,
+    },
+    nuevoequipopordefecto: {
+      nombre: "",
+      marca: null,
+      id: "",
+      serie: "",
+      placaDeInventario: "",
+      tipoDeContrato: "",
+      propietario: {
+        nombre: "",
+        id: "",
+      },
+      cliente: {
+        nombre: "",
+        id: "",
+      },
+      proveedor: {
+        nombre: "",
+        id: "",
+      },
+      ubicacion: {
+        nombre: "",
+        direccion: "",
+      },
+      fechaDeMovimiento: null,
     },
   }),
 
@@ -891,9 +891,12 @@ export default {
     close2() {
       this.dialog2 = false;
       this.dialogomodificarequipocliente = false;
+      this.buscarEquipos()
       this.$nextTick(() => {
         this.nuevoequipo = this.nuevoequipopordefecto;
       });
+
+
     },
 
     save() {
@@ -907,70 +910,77 @@ export default {
       this.generarordenseleccionado = false;
     },
 
-    save2() {
-      console.log("nuevoequipo", this.nuevoequipo);
-      this.nuevoequipo.ubicacion.direccion = this.ubicacionclientes.map(
-        (equipo) => {
-          if (equipo.nombre === this.nuevoequipo.ubicacion.nombre) {
-            return equipo.direccion;
-          }
+   save2() {
+  console.log("nuevoequipo", this.nuevoequipo);
+
+  const clienteEncontrado = this.clientes.find(
+  (cliente) => cliente.id === this.nuevoequipo.cliente.id
+);
+
+if (clienteEncontrado) {
+  const sedeEncontrada = clienteEncontrado.sedes?.find(
+    (sede) => sede.ciudad === this.nuevoequipo.ubicacion.nombre
+  );
+
+  if (sedeEncontrada) {
+    this.nuevoequipo.ubicacion.direccion = sedeEncontrada.direccion;
+  } else {
+    console.warn("No se encontró la sede con ciudad:", this.nuevoequipo.ubicacion.nombre);
+    this.nuevoequipo.ubicacion.direccion = "";
+  }
+} else {
+  console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
+  this.nuevoequipo.ubicacion.direccion = "";
+}
+
+  const encontrarserie = this.equipos.find(
+    (registro) => registro.serie === this.nuevoequipo.serie
+  );
+
+  const encontrarinventario =
+    this.nuevoequipo.placaDeInventario !== "N/A"
+      ? this.equipos.find(
+          (registro) =>
+            registro.placaDeInventario === this.nuevoequipo.placaDeInventario
+        )
+      : null;
+
+  if (encontrarserie) {
+    this.textodialogo = "El número de serie ya se encuentra registrado";
+    this.dialogo = true;
+  } else if (encontrarinventario) {
+    this.textodialogo =
+      "El número de inventario ya se encuentra registrado";
+    this.dialogo = true;
+  } else {
+    axios
+      .post(
+        this.$store.state.ruta + "api/equipo/registrar/",
+        {
+          nuevoequipo: this.nuevoequipo,
+        },
+        {
+          headers: {
+            token: this.$store.state.token,
+          },
         }
-      );
-      var filtered = this.nuevoequipo.ubicacion.direccion.filter(function (el) {
-        return el != null;
+      )
+      .then((response) => {
+        console.log(response);
+        this.$nextTick(() => {
+          this.nuevoequipo = this.nuevoequipopordefecto;
+        });
+        this.buscarEquipos();
+      })
+      .catch((error) => {
+        console.log(error);
+        return error;
       });
-      this.nuevoequipo.ubicacion.direccion = filtered[0];
+  }
 
-      const encontrarserie = this.equipos.find(
-        (registro) => registro.serie === this.nuevoequipo.serie
-      );
-
-      // Validar placaDeInventario solo si no es "N/A"
-      const encontrarinventario =
-        this.nuevoequipo.placaDeInventario !== "N/A"
-          ? this.equipos.find(
-            (registro) =>
-              registro.placaDeInventario === this.nuevoequipo.placaDeInventario
-          )
-          : null;
-
-      if (encontrarserie) {
-        this.textodialogo = "El número de serie ya se encuentra registrado";
-        this.dialogo = true;
-      } else if (encontrarinventario) {
-        this.textodialogo =
-          "El número de inventario ya se encuentra registrado";
-        this.dialogo = true;
-      } else {
-        // Lógica para guardar
-        axios
-          .post(
-            this.$store.state.ruta + "api/equipo/registrar/",
-            {
-              nuevoequipo: this.nuevoequipo,
-            },
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response);
-            this.$nextTick(() => {
-              this.nuevoequipo = this.nuevoequipopordefecto;
-            });
-            this.buscarEquipos();
-          })
-          .catch((error) => {
-            console.log(error);
-            return error;
-          });
-      }
-
-      this.dialog2 = false;
-      this.close();
-    },
+  this.dialog2 = false;
+  this.close();
+},
     actualizarequipo() {
       if (this.inventarioactual === this.equipomodificado.placaDeInventario) {
         console.log("equipoenviado", this.equipomodificado);
@@ -997,7 +1007,7 @@ export default {
           .then((response) => {
             console.log(response);
             this.$nextTick(() => {
-              this.nuevoequipo = this.nuevoequipopordefecto;
+              this.equipomodificado.nuevoequipopordefecto;
             });
             this.dialogomodificarequipocliente = false;
             this.buscarEquipos();
@@ -1066,22 +1076,22 @@ export default {
       } else {
         this.dialog2 = true;
         axios
-          .get(this.$store.state.ruta + "api/cliente/listar", {
-            headers: {
-              token: this.$store.state.token,
-            },
-          })
-          .then((response) => {
-            this.clientes = response.data; //el this es porque no es propia de la funcion sino de l componente
-              /*           this.nombresclientes = this.clientes.map((cliente)=>({nombre:cliente.nombre,id:cliente._id,sede:cliente.sede}));
-               */ this.nombresclientes = this.clientes.map(
-              (cliente) => cliente.nombre
-            );
-          })
-          .catch((error) => {
-            //console.log(error);
-            return error;
-          });
+  .get(this.$store.state.ruta + "api/cliente/listar", {
+    headers: {
+      token: this.$store.state.token,
+    },
+  })
+  .then((response) => {
+    this.clientes = response.data.map((cliente) => {
+      cliente.nombre = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
+      return cliente;
+    });
+
+    this.nombresclientes = this.clientes.map((cliente) => cliente.nombre);
+  })
+  .catch((error) => {
+    console.error("Error al obtener clientes:", error);
+  });
         axios
           .get(this.$store.state.ruta + "api/refequipo/listar",
             {
@@ -1351,54 +1361,51 @@ export default {
       this.equipomodificado.proveedor.id = filtered[0];
     },
 
-    nuevocliente: function () {
-      // `this` apunta a la instancia vm
-      this.nuevoequipo.cliente.id = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
-          return cliente.id;
-        }
-      });
-      var filtered = this.nuevoequipo.cliente.id.filter(function (el) {
-        return el != null;
-      });
-      this.nuevoequipo.cliente.id = filtered[0];
-      this.ubicacionclientes = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.nuevoequipo.cliente.nombre) {
-          return cliente.sede;
-        }
-      });
-      var filtered = this.ubicacionclientes.filter(function (el) {
-        return el != null;
-      });
-      this.ubicacionclientes = filtered[0];
-      //NombreUbicacionesCliente es un array con nombres de las sedes de los clientes para que pueda ser mostrado en la lista desplegable
-      this.nombreUbicacionesCliente = this.ubicacionclientes.map(objeto => Object.values(objeto)[0]);
+    nuevocliente() {
+  // Buscar cliente por nombre
+  const clienteSeleccionado = this.clientes.find(
+    (cliente) => cliente.nombre === this.nuevoequipo.cliente.nombre
+  );
 
-    },
-    nuevoclientemodificado: function () {
-      // `this` apunta a la instancia vm
-      this.equipomodificado.cliente.id = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.equipomodificado.cliente.nombre) {
-          return cliente.id;
-        }
-      });
-      var filtered = this.equipomodificado.cliente.id.filter(function (el) {
-        return el != null;
-      });
-      this.equipomodificado.cliente.id = filtered[0];
-      this.ubicacionclientesmodificado = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.equipomodificado.cliente.nombre) {
-          return cliente.sede;
-        }
-      });
-      var filtered = this.ubicacionclientesmodificado.filter(function (el) {
-        return el != null;
-      });
-      this.ubicacionclientesmodificado = filtered[0];
-      this.nombreUbicacionesClienteModificado = Array.isArray(this.ubicacionclientesmodificado)
-        ? this.ubicacionclientesmodificado.map(objeto => Object.values(objeto)[0])
-        : [];
-    },
+  if (clienteSeleccionado) {
+    // Asignar ID
+    this.nuevoequipo.cliente.id = clienteSeleccionado.id;
+
+    // Asignar sedes activas
+    this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
+
+    // Extraer nombres de las ubicaciones
+    this.nombreUbicacionesCliente = this.ubicacionclientes.map((sedes) => sedes.ciudad);
+  } else {
+    // Si no se encuentra el cliente, limpia
+    this.nuevoequipo.cliente.id = null;
+    this.ubicacionclientes = [];
+    this.nombreUbicacionesCliente = [];
+  }
+},
+    nuevoclientemodificado() {
+  // Buscar cliente por nombre
+  const clienteSeleccionado = this.clientes.find(
+    (cliente) => cliente.nombre === this.equipomodificado.cliente.nombre
+  );
+
+  if (clienteSeleccionado) {
+    // Asignar ID
+    this.equipomodificado.cliente.id = clienteSeleccionado.id;
+
+    // Filtrar sedes activas
+    this.ubicacionclientesmodificado = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
+
+    // Extraer nombres de las ubicaciones
+    this.nombreUbicacionesClienteModificado = this.ubicacionclientesmodificado.map(
+      (sede) => sede.ciudad
+    );
+  } else {
+    this.equipomodificado.cliente.id = null;
+    this.ubicacionclientesmodificado = [];
+    this.nombreUbicacionesClienteModificado = [];
+  }
+},
     exportToExcel() {
       // Campos que quieres exportar (orden y nombres personalizados si deseas)
       const exportData = this.equipos.map(item => ({

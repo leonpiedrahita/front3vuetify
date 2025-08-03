@@ -194,28 +194,34 @@ export default {
 
   methods: {
     listar() {
-      const id = localStorage.getItem("idreporte");
-      if (!id) {
-        console.error("No se encontró un ID de reporte.");
-        return;
-      }
+  const id = localStorage.getItem("idreporte");
+  const token = localStorage.getItem("token"); // asegúrate que existe
 
-      console.log("Consultando reporte con ID:", id);
-      console.log("Ruta de consulta:", this.$store.state.ruta + `api/reporte/listaruno/${id}`);
-      axios
-        .get(this.$store.state.ruta + `api/reporte/listaruno/${id}`)
-        /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
-        .then((response) => {
-          this.reporte = response.data;
-          console.log("Reporte:", this.reporte);
-        })
-        .catch((error) => {
-          console.error("Error al obtener el reporte:", error);
-        })
-        .finally(() => {
-          this.cargando = false; // Marcar como cargado cuando finalice
-        });;
-    },
+  if (!id || !token) {
+    console.error("Falta ID de reporte o token.");
+    return;
+  }
+
+  console.log("Consultando reporte con ID:", id);
+  console.log("Ruta de consulta:", this.$store.state.ruta + `api/reporte/listaruno/${id}`);
+
+  axios
+    .get(this.$store.state.ruta + `api/reporte/listaruno/${id}`, {
+      headers: {
+        token: token, // aquí envías el token
+      },
+    })
+    .then((response) => {
+      this.reporte = response.data;
+      console.log("Reporte:", this.reporte);
+    })
+    .catch((error) => {
+      console.error("Error al obtener el reporte:", error);
+    })
+    .finally(() => {
+      this.cargando = false;
+    });
+},
   },
 };
 </script>

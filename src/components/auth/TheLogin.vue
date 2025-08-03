@@ -8,27 +8,26 @@
             <v-card class="pa-10">
               <v-img src="/src/imagenes/logo/GoMaint.png" max-width="350" class="mx-auto mb-6"></v-img>
               <v-card-title title align="center"> Acceder a su cuenta </v-card-title>
-              <v-form ref="form" lazy-validation>
+              <v-form ref="form" lazy-validation @submit.prevent="loginUser">
                 <v-text-field v-model="login.email" label="E-mail" required></v-text-field>
                 <v-text-field v-model="login.password" label="Contraseña" type="password" required></v-text-field>
 
-                <v-btn :disabled="!(this.login.email && this.login.password)" color="primary" class="mr-4" block
-                  @click="loginUser">
+                <v-btn :disabled="!(login.email && login.password)" color="primary" class="mr-4" block type="submit">
                   Ingresar
                 </v-btn>
               </v-form>
             </v-card>
           </v-col>
         </v-row>
-         <v-row justify="center" class="mt-10">
-      <div class="by-leolab">
-        <v-icon right size="18">mdi-copyright</v-icon>
-        LeoLab
-        <v-icon left size="18">mdi-paw</v-icon>
-        <span class="separator"></span>
-        Todos los derechos reservados 2025.
-      </div>
-    </v-row>
+        <v-row justify="center" class="mt-10">
+          <div class="by-leolab">
+            <v-icon right size="18">mdi-copyright</v-icon>
+            LeoLab
+            <v-icon left size="18">mdi-paw</v-icon>
+            <span class="separator"></span>
+            Todos los derechos reservados 2025.
+          </div>
+        </v-row>
       </v-col>
       <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionlogin">
         <v-card>

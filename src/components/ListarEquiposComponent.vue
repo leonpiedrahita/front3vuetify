@@ -22,8 +22,8 @@
 
       <v-row class="mt-2 flex-nowrap" justify="space-around">
         <v-col class="px-1" cols="auto">
-          <v-btn v-permission="['administrador', 'calidad','cotizaciones']" class="my-1" color="c6" size="large" variant="flat"
-            @click="nuevoEquipo()">
+          <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" class="my-1" color="c6" size="large"
+            variant="flat" @click="nuevoEquipo()">
             Nuevo Equipo
           </v-btn>
         </v-col>
@@ -129,7 +129,7 @@
                   nuevoequipo.tipoDeContrato &&
                   nuevoequipo.propietario &&
                   nuevoequipo.cliente &&
-                  nuevoequipo.ubicacion.nombre&&
+                  nuevoequipo.ubicacion.nombre &&
                   fechaDeMovimiento
                 )
                   " color="primary darken-1" text @click="save2">
@@ -446,7 +446,22 @@
         </v-icon>
       </template>
     </v-data-table>
+
+    <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionguardado">
+      <v-card>
+        <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
+        <v-card-text>
+          <div class="text-h5 pa-5">
+            {{ mensajeDialogo }}
+          </div>
+        </v-card-text>
+        <v-card-actions class="justify-center">
+          <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <!--     <pre> {{ this.nombreUbicacionesClienteModificado}} </pre>
+         
  --> </v-card>
   <!-- <pre> {{ clientes }} </pre> -->
   <!-- <h1>Equipomodificado</h1>
@@ -464,6 +479,8 @@ export default {
   },
   name: "ListarEquipos",
   data: () => ({
+    confirmacionguardado: false,
+    mensajeDialogo: "",
     menu1: false,
     fechadecalendario: null,
     fechaDeMovimiento: null,
@@ -485,7 +502,7 @@ export default {
     etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
-    listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler"],
+    listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler","Dado de Baja"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
@@ -539,7 +556,7 @@ export default {
         value: "editar",
         sortable: false,
         align: "center",
-        roles: ["administrador","cotizaciones","calidad"],
+        roles: ["administrador", "cotizaciones", "calidad"],
       },
       {
         title: "Nuevo Ingreso",
@@ -817,9 +834,9 @@ export default {
     },
     formatearSinZona(date) {
       const pad = (n, z = 2) => n.toString().padStart(z, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-         ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.` +
-         `${pad(date.getMilliseconds(), 3)}`;
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+        ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.` +
+        `${pad(date.getMilliseconds(), 3)}`;
     },
     listar() {
       //va a ir a mi backend y me traerá las peticiones de la base de datos
@@ -911,77 +928,80 @@ export default {
       this.generarordenseleccionado = false;
     },
 
-   save2() {
-  console.log("nuevoequipo", this.nuevoequipo);
+    save2() {
+      console.log("nuevoequipo", this.nuevoequipo);
 
-  const clienteEncontrado = this.clientes.find(
-  (cliente) => cliente.id === this.nuevoequipo.cliente.id
-);
+      const clienteEncontrado = this.clientes.find(
+        (cliente) => cliente.id === this.nuevoequipo.cliente.id
+      );
 
-if (clienteEncontrado) {
-  const sedeEncontrada = clienteEncontrado.sedes?.find(
-    (sede) => sede.ciudad === this.nuevoequipo.ubicacion.nombre
-  );
+      if (clienteEncontrado) {
+        const sedeEncontrada = clienteEncontrado.sedes?.find(
+          (sede) => sede.ciudad === this.nuevoequipo.ubicacion.nombre
+        );
 
-  if (sedeEncontrada) {
-    this.nuevoequipo.ubicacion.direccion = sedeEncontrada.direccion;
-  } else {
-    console.warn("No se encontró la sede con ciudad:", this.nuevoequipo.ubicacion.nombre);
-    this.nuevoequipo.ubicacion.direccion = "";
-  }
-} else {
-  console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
-  this.nuevoequipo.ubicacion.direccion = "";
-}
-
-  const encontrarserie = this.equipos.find(
-    (registro) => registro.serie === this.nuevoequipo.serie
-  );
-
-  const encontrarinventario =
-    this.nuevoequipo.placaDeInventario !== "N/A"
-      ? this.equipos.find(
-          (registro) =>
-            registro.placaDeInventario === this.nuevoequipo.placaDeInventario
-        )
-      : null;
-
-  if (encontrarserie) {
-    this.textodialogo = "El número de serie ya se encuentra registrado";
-    this.dialogo = true;
-  } else if (encontrarinventario) {
-    this.textodialogo =
-      "El número de inventario ya se encuentra registrado";
-    this.dialogo = true;
-  } else {
-    axios
-      .post(
-        this.$store.state.ruta + "api/equipo/registrar/",
-        {
-          nuevoequipo: this.nuevoequipo,
-        },
-        {
-          headers: {
-            token: this.$store.state.token,
-          },
+        if (sedeEncontrada) {
+          this.nuevoequipo.ubicacion.direccion = sedeEncontrada.direccion;
+        } else {
+          console.warn("No se encontró la sede con ciudad:", this.nuevoequipo.ubicacion.nombre);
+          this.nuevoequipo.ubicacion.direccion = "";
         }
-      )
-      .then((response) => {
-        console.log(response);
-        this.$nextTick(() => {
-          this.nuevoequipo = this.nuevoequipopordefecto;
-        });
-        this.buscarEquipos();
-      })
-      .catch((error) => {
-        console.log(error);
-        return error;
-      });
-  }
+      } else {
+        console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
+        this.nuevoequipo.ubicacion.direccion = "";
+      }
 
-  this.dialog2 = false;
-  this.close();
-},
+      const encontrarserie = this.equipos.find(
+        (registro) => registro.serie === this.nuevoequipo.serie
+      );
+
+      const encontrarinventario =
+        this.nuevoequipo.placaDeInventario !== "N/A"
+          ? this.equipos.find(
+            (registro) =>
+              registro.placaDeInventario === this.nuevoequipo.placaDeInventario
+          )
+          : null;
+
+      if (encontrarserie) {
+        this.textodialogo = "El número de serie ya se encuentra registrado";
+        this.dialogo = true;
+      } else if (encontrarinventario) {
+        this.textodialogo =
+          "El número de inventario ya se encuentra registrado";
+        this.dialogo = true;
+      } else {
+        axios
+          .post(
+            this.$store.state.ruta + "api/equipo/registrar/",
+            {
+              nuevoequipo: this.nuevoequipo,
+            },
+            {
+              headers: {
+                token: this.$store.state.token,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response);
+            this.$nextTick(() => {
+              this.nuevoequipo = this.nuevoequipopordefecto;
+            });
+            this.mensajeDialogo = "Equipo registrado correctamente";
+            this.confirmacionguardado = true;
+            this.buscarEquipos();
+          })
+          .catch((error) => {
+            console.log(error);
+            return error;
+          });
+      }
+
+      this.dialog2 = false;
+      this.close();
+
+    },
     actualizarequipo() {
       if (this.inventarioactual === this.equipomodificado.placaDeInventario) {
         console.log("equipoenviado", this.equipomodificado);
@@ -1011,6 +1031,8 @@ if (clienteEncontrado) {
               this.equipomodificado.nuevoequipopordefecto;
             });
             this.dialogomodificarequipocliente = false;
+            this.mensajeDialogo = "Equipo actualizado correctamente";
+            this.confirmacionguardado = true;
             this.buscarEquipos();
           })
           .catch((error) => {
@@ -1058,6 +1080,8 @@ if (clienteEncontrado) {
                 this.nuevoequipo = this.nuevoequipopordefecto;
               });
               this.dialogomodificarequipocliente = false;
+              this.mensajeDialogo = "Equipo actualizado correctamente";
+            this.confirmacionguardado = true;
               this.buscarEquipos();
             })
             .catch((error) => {
@@ -1077,22 +1101,22 @@ if (clienteEncontrado) {
       } else {
         this.dialog2 = true;
         axios
-  .get(this.$store.state.ruta + "api/cliente/listar", {
-    headers: {
-      token: this.$store.state.token,
-    },
-  })
-  .then((response) => {
-    this.clientes = response.data.map((cliente) => {
-      cliente.nombre = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
-      return cliente;
-    });
+          .get(this.$store.state.ruta + "api/cliente/listar", {
+            headers: {
+              token: this.$store.state.token,
+            },
+          })
+          .then((response) => {
+            this.clientes = response.data.map((cliente) => {
+              cliente.nombre = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
+              return cliente;
+            });
 
-    this.nombresclientes = this.clientes.map((cliente) => cliente.nombre);
-  })
-  .catch((error) => {
-    console.error("Error al obtener clientes:", error);
-  });
+            this.nombresclientes = this.clientes.map((cliente) => cliente.nombre);
+          })
+          .catch((error) => {
+            console.error("Error al obtener clientes:", error);
+          });
         axios
           .get(this.$store.state.ruta + "api/refequipo/listar",
             {
@@ -1363,50 +1387,50 @@ if (clienteEncontrado) {
     },
 
     nuevocliente() {
-  // Buscar cliente por nombre
-  const clienteSeleccionado = this.clientes.find(
-    (cliente) => cliente.nombre === this.nuevoequipo.cliente.nombre
-  );
+      // Buscar cliente por nombre
+      const clienteSeleccionado = this.clientes.find(
+        (cliente) => cliente.nombre === this.nuevoequipo.cliente.nombre
+      );
 
-  if (clienteSeleccionado) {
-    // Asignar ID
-    this.nuevoequipo.cliente.id = clienteSeleccionado.id;
+      if (clienteSeleccionado) {
+        // Asignar ID
+        this.nuevoequipo.cliente.id = clienteSeleccionado.id;
 
-    // Asignar sedes activas
-    this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
+        // Asignar sedes activas
+        this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
 
-    // Extraer nombres de las ubicaciones
-    this.nombreUbicacionesCliente = this.ubicacionclientes.map((sedes) => sedes.ciudad);
-  } else {
-    // Si no se encuentra el cliente, limpia
-    this.nuevoequipo.cliente.id = null;
-    this.ubicacionclientes = [];
-    this.nombreUbicacionesCliente = [];
-  }
-},
+        // Extraer nombres de las ubicaciones
+        this.nombreUbicacionesCliente = this.ubicacionclientes.map((sedes) => sedes.ciudad);
+      } else {
+        // Si no se encuentra el cliente, limpia
+        this.nuevoequipo.cliente.id = null;
+        this.ubicacionclientes = [];
+        this.nombreUbicacionesCliente = [];
+      }
+    },
     nuevoclientemodificado() {
-  // Buscar cliente por nombre
-  const clienteSeleccionado = this.clientes.find(
-    (cliente) => cliente.nombre === this.equipomodificado.cliente.nombre
-  );
+      // Buscar cliente por nombre
+      const clienteSeleccionado = this.clientes.find(
+        (cliente) => cliente.nombre === this.equipomodificado.cliente.nombre
+      );
 
-  if (clienteSeleccionado) {
-    // Asignar ID
-    this.equipomodificado.cliente.id = clienteSeleccionado.id;
+      if (clienteSeleccionado) {
+        // Asignar ID
+        this.equipomodificado.cliente.id = clienteSeleccionado.id;
 
-    // Filtrar sedes activas
-    this.ubicacionclientesmodificado = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
+        // Filtrar sedes activas
+        this.ubicacionclientesmodificado = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
 
-    // Extraer nombres de las ubicaciones
-    this.nombreUbicacionesClienteModificado = this.ubicacionclientesmodificado.map(
-      (sede) => sede.ciudad
-    );
-  } else {
-    this.equipomodificado.cliente.id = null;
-    this.ubicacionclientesmodificado = [];
-    this.nombreUbicacionesClienteModificado = [];
-  }
-},
+        // Extraer nombres de las ubicaciones
+        this.nombreUbicacionesClienteModificado = this.ubicacionclientesmodificado.map(
+          (sede) => sede.ciudad
+        );
+      } else {
+        this.equipomodificado.cliente.id = null;
+        this.ubicacionclientesmodificado = [];
+        this.nombreUbicacionesClienteModificado = [];
+      }
+    },
     exportToExcel() {
       // Campos que quieres exportar (orden y nombres personalizados si deseas)
       const exportData = this.equipos.map(item => ({
@@ -1563,6 +1587,10 @@ if (clienteEncontrado) {
           break;
       }
       return fechaLimite;
+    },
+    AceptarConfirmacionGuardado() {
+      this.confirmacionguardado = false;
+
     },
 
 

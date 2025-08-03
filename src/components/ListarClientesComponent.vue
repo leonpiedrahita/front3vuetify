@@ -29,8 +29,8 @@
           <v-row justify="space-around">
 
             <v-col cols="6" sm="5">
-              <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Cliente / NIT / Ciudad Ppal / Dirección Ppal"
-                single-line hide-details></v-text-field>
+              <v-text-field v-model="search" append-icon="mdi-magnify"
+                label="Buscar: Cliente / NIT / Ciudad Ppal / Dirección Ppal" single-line hide-details></v-text-field>
             </v-col>
 
             <v-col cols="6" sm="2">
@@ -59,8 +59,8 @@
                         required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete label="Ciudad" v-model="editedItem.sedePrincipal.ciudad" :items="municipios" clearable
-                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
+                      <v-autocomplete label="Ciudad" v-model="editedItem.sedePrincipal.ciudad" :items="municipios"
+                        clearable :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-text-field v-model="editedItem.sedePrincipal.direccion" label="Direccion"
@@ -92,7 +92,7 @@
                   editedItem.nit &&
                   editedItem.nombre && editedItem.sedePrincipal.ciudad &&
                   editedItem.sedePrincipal.direccion
-                
+
                 )
                   " color="primary darken-1" text @click="agregarCliente" v-if="Agregarcliente">
                   Agregar
@@ -112,8 +112,8 @@
                   <v-row>
 
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete label="Ciudad" v-model="editedItem2.sedePrincipal.ciudad" :items="municipios" clearable
-                        :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
+                      <v-autocomplete label="Ciudad" v-model="editedItem2.sedePrincipal.ciudad" :items="municipios"
+                        clearable :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input" />
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-text-field v-model="editedItem2.sedePrincipal.direccion" label="Direccion"
@@ -128,8 +128,8 @@
                 <v-btn color="error darken-1" text @click="cerraragregarsede">
                   Cancelar
                 </v-btn>
-                <v-btn :disabled="!(editedItem2.sedePrincipal.ciudad && editedItem2.sedePrincipal.direccion)" color="primary darken-1" text
-                  @click="agregarnuevasede">
+                <v-btn :disabled="!(editedItem2.sedePrincipal.ciudad && editedItem2.sedePrincipal.direccion)"
+                  color="primary darken-1" text @click="agregarnuevasede">
                   Agregar
                 </v-btn>
               </v-card-actions>
@@ -191,6 +191,19 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionguardado">
+      <v-card>
+        <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
+        <v-card-text>
+          <div class="text-h5 pa-5">
+            {{ mensajeDialogo }}
+          </div>
+        </v-card-text>
+        <v-card-actions class="justify-center">
+          <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <!-- <p>{{ this.equipos }}</p> -->
   </v-card>
 </template>
@@ -200,6 +213,8 @@ import municipiosData from "@/data/municipios.json";
 export default {
   name: "ListarClientesComponent",
   data: () => ({
+    confirmacionguardado: false,
+    mensajeDialogo: "",
     ciudadSeleccionada: null,
     municipios: municipiosData.map(m => m.label), // ya viene como array de objetos con la clave "label"
     expanded: [],
@@ -291,17 +306,17 @@ export default {
       sedePrincipal: {
         ciudad: "",
         direccion: "",
-         // Puedes hacerlo dinámico si es necesario
+        // Puedes hacerlo dinámico si es necesario
       },
       /* contactoprincipal: [{}], */
     },
     editedItem2: {
-     ciudad: "",
+      ciudad: "",
       direccion: "",
       sedePrincipal: {
         ciudad: "",
         direccion: "",
-         // Puedes hacerlo dinámico si es necesario
+        // Puedes hacerlo dinámico si es necesario
       },
     },
     defaultItem: {
@@ -310,7 +325,7 @@ export default {
       sedePrincipal: {
         ciudad: "",
         direccion: "",
-         // Puedes hacerlo dinámico si es necesario
+        // Puedes hacerlo dinámico si es necesario
       },
       /* contactoprincipal: [
         {
@@ -325,7 +340,7 @@ export default {
       sedePrincipal: {
         ciudad: "",
         direccion: "",
-         // Puedes hacerlo dinámico si es necesario
+        // Puedes hacerlo dinámico si es necesario
       },
     },
   }),
@@ -475,37 +490,49 @@ export default {
       /* this.listar(); */
     },
 
- editar() {
-  this.Editarcliente = false;
+    editar() {
 
-  axios
-    .patch(
-      this.$store.state.ruta + "api/cliente/actualizar/" + this.editedItem.id,
-      {
-        nombre: this.editedItem.nombre,
-        nit: this.editedItem.nit,
-        sedePrincipal: {
-          ciudad: this.editedItem.sedePrincipal.ciudad,
-          direccion: this.editedItem.sedePrincipal.direccion,
-          activa: true, // Puedes hacerlo dinámico si es necesario
-        },
-      },
-      {
-        headers: {
-          token: this.$store.state.token,
-        },
+      this.esperarguardar = true;
+      const encontrarnit = this.equipos.find(
+        (registro) => registro.nit === this.editedItem.nit
+      );
+      if (encontrarnit) {
+        this.textodialogo = "El NIT ya se encuentra registrado";
+        this.cerrareditar();
+        this.esperarguardar = false;
+        this.dialogo = true;
+      } else {
+        this.Editarcliente = false;
+        axios
+          .patch(
+            this.$store.state.ruta + "api/cliente/actualizar/" + this.editedItem.id,
+            {
+              nombre: this.editedItem.nombre,
+              nit: this.editedItem.nit,
+              sedePrincipal: {
+                ciudad: this.editedItem.sedePrincipal.ciudad,
+                direccion: this.editedItem.sedePrincipal.direccion,
+                activa: true, // Puedes hacerlo dinámico si es necesario
+              },
+            },
+            {
+              headers: {
+                token: this.$store.state.token,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response);
+            this.cerrareditar();
+            this.mensajeDialogo = "Cliente editado correctamente";
+            this.confirmacionguardado = true;
+            this.listar();
+          })
+          .catch((error) => {
+            console.log(error);
+            return error;
+          });
       }
-    )
-    .then((response) => {
-      console.log(response);
-      this.cerrareditar();
-      this.listar();
-    })
-    .catch((error) => {
-      console.log(error);
-      return error;
-    });
-
 
     },
     agregarCliente() {
@@ -545,6 +572,8 @@ export default {
             console.log(response);
             this.cerrareditar();
             this.esperarguardar = false;
+            this.mensajeDialogo = "Cliente registrado correctamente";
+            this.confirmacionguardado = true;
             this.listar();
           })
           .catch((error) => {
@@ -553,57 +582,65 @@ export default {
           });
       }
     },
-  agregarnuevasede() {
-  axios
-    .post(
-      this.$store.state.ruta +
-        "api/cliente/agregarsede/" +
-        this.editedItem.id,
-      {
-        ciudad: this.editedItem2.sedePrincipal.ciudad,
-        direccion: this.editedItem2.sedePrincipal.direccion,
-      },
-      {
-        headers: {
-          token: this.$store.state.token,
-        },
-      }
-    )
-    .then((response) => {
-      console.log(response);
-      this.listar();
-    })
-    .catch((error) => {
-      console.log(error);
-      return error;
-    });
+    agregarnuevasede() {
+      axios
+        .post(
+          this.$store.state.ruta +
+          "api/cliente/agregarsede/" +
+          this.editedItem.id,
+          {
+            ciudad: this.editedItem2.sedePrincipal.ciudad,
+            direccion: this.editedItem2.sedePrincipal.direccion,
+          },
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+          this.mensajeDialogo = "Sede registrada correctamente";
+          this.confirmacionguardado = true;
+          this.listar();
+        })
+        .catch((error) => {
+          console.log(error);
+          return error;
+        });
 
-  this.cerraragregarsede();
-},
-save3() {
-  axios
-    .patch(
-      this.$store.state.ruta + "api/cliente/eliminarsede/",
-      {
-        sedeId: this.editedItem2.id,  // <-- Aquí está el id de la sede a desactivar
-      },
-      {
-        headers: {
-          token: this.$store.state.token,
-        },
-      }
-    )
-    .then((response) => {
-      console.log(response);
-      this.listar();
-    })
-    .catch((error) => {
-      console.log(error);
-      return error;
-    });
+      this.cerraragregarsede();
+    },
+    save3() {
+      axios
+        .patch(
+          this.$store.state.ruta + "api/cliente/eliminarsede/",
+          {
+            sedeId: this.editedItem2.id,  // <-- Aquí está el id de la sede a desactivar
+          },
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+          this.mensajeDialogo = "Sede eliminada correctamente";
+          this.confirmacionguardado = true;
+          this.listar();
+        })
+        .catch((error) => {
+          console.log(error);
+          return error;
+        });
 
-  this.cerrareliminarsede();
-},
+      this.cerrareliminarsede();
+    },
+    AceptarConfirmacionGuardado() {
+      this.confirmacionguardado = false;
+
+    },
 
 
 

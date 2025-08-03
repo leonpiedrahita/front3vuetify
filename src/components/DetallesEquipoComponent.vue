@@ -192,9 +192,9 @@
         </v-card>
       </v-card-title>
      
-      <v-divider class="mb-5 mt-5"></v-divider>
+      <v-divider class="mb-5 mt-5 ocultar-en-impresion"></v-divider>
     </v-row>
-    <v-card-title class="text-center" id="tamanotitulo">Documentos Legales</v-card-title>
+    <v-card-title class="text-center ocultar-en-impresion" id="tamanotitulo">Documentos Legales</v-card-title>
 
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
@@ -359,14 +359,16 @@ export default {
     nombredocumentoseleccionado: null,
     nombresoporteseleccionado: null,
     listaNombresDocumentos: [
-      "Factura",
+      "Factura de Compra",
+      "Factura de Venta",
       "Certificado de conformidad",
       "Declaracion de Importación"
     ],
     listaNombresSoportes: [
       "Acta de entrega",
       "Acta de retiro",
-      "Evidencia soporte"
+      "Contrato",
+      "Evidencia del soporte",
     ],
 
     equipo: [],
@@ -627,32 +629,61 @@ export default {
 
     },
 
-    imprimirVCard() {
-      const contenido = document.getElementById("vcard-imprimir").innerHTML;
-      const estilo = document.head.innerHTML; // Obtiene los estilos actuales
+imprimirVCard() {
+  const contenido = document.getElementById("vcard-imprimir").innerHTML;
+  const estilo = document.head.innerHTML;
 
-      const ventana = window.open("", "_blank", "width=800,height=600");
-      ventana.document.write(`
+  const ventana = window.open("", "_blank", "width=800,height=600");
+  ventana.document.write(`
     <html>
       <head>
         <title>Imprimir Información</title>
-        ${estilo}  <!-- Inserta los estilos actuales -->
+        ${estilo}
         <style>
-          body { font-family: Arial, sans-serif; padding: 20px; }
-          .v-card { box-shadow: none; }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0mm;
+          }
+             #tamanotitulo {
+    font-size: 3px !important;
+
+  }
+          .v-card {
+            box-shadow: none;
+            font-size: 15px !important;
+          }
+          .imagen-superior-centrada {
+            display: block;
+            margin: 0 auto 10px auto;
+            width: 200px;
+            height: auto;
+          }
+          .marco-delgado {
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px;
+            font-size: 15px;
+          }
         </style>
       </head>
-      <body>${contenido}</body>
+      <body>
+        <div class="marco-delgado">
+          <img src="/biosystems.jpg" class="imagen-superior-centrada" />
+          ${contenido}
+        </div>
+      </body>
     </html>
   `);
-      ventana.document.close();
+  ventana.document.close();
 
-      // Espera un poco para asegurarse de que los estilos se apliquen antes de imprimir
-      setTimeout(() => {
-        ventana.print();
-        ventana.close();
-      }, 500);
-    },
+  setTimeout(() => {
+    ventana.print();
+    ventana.close();
+  }, 500);
+}
+,
+
     onFileChange(files) {
       // Si no hay archivos seleccionados, establecer 'files' como null
       this.files = files && files.length > 0 ? files[0] : null;
@@ -871,20 +902,23 @@ button.disabled {
   }
 
   #tamanotitulo {
-    font-size: 20px !important;
+    font-size: 15px !important;
 
+  }
+  .ocultar-en-impresion {
+    display: none !important;
   }
 
   /* Reducir y unificar el tamaño de fuente en toda la impresión */
-  body,
-  table,
-  th,
-  td,
-  .v-card,
-  .v-card-title,
-  .v-card-text,
-  .v-toolbar-title,
-  .v-card-subtitle {
+  body *,
+  table *,
+  th *,
+  td *,
+  .v-card *,
+  .v-card-title *,
+  .v-card-text *,
+  .v-toolbar-title *,
+  .v-card-subtitle * {
     font-size: 15px !important;
     /* Tamaño uniforme */
     line-height: 1.2 !important;

@@ -313,6 +313,7 @@ export default {
     listaNombresDocumentos: [
       "Registro INVIMA",
       "Manual de usuario",
+      "Brochure",
     ],
     encabezadosDocumentosLegales: [
       {
@@ -555,10 +556,9 @@ this.documento = Object.assign({}, item);
       
     },
     imprimirVCard() {
-      const equipo = this.equipo;
+  const equipo = this.equipo;
 
-      const contenidoCompacto = `
-      
+  const contenidoCompacto = `
     <h3 style="text-align:center;">Ficha técnica</h3>
     <table border="1" cellspacing="0" cellpadding="8" style="width:100%; border-collapse: collapse; text-align:left;">
       <tr><th colspan="2" style="background:#f0f0f0; font-size:15px; text-align:center;">Información General</th></tr>
@@ -568,7 +568,7 @@ this.documento = Object.assign({}, item);
       <tr><td><strong>Servicio:</strong></td><td>${equipo.servicio}</td></tr>
       <tr><td><strong>Clasificación de Riesgo:</strong></td><td>${equipo.clasificacionriesgo}</td></tr>
       <tr><td><strong>Periodicidad Mantenimiento:</strong></td><td>${equipo.periodicidadmantenimiento}</td></tr>
-      
+
       <tr><th colspan="2" style="background:#f0f0f0; font-size:15px; text-align:center;">Dimensiones</th></tr>
       <tr><td><strong>Alto (cm):</strong></td><td>${equipo.alto}</td></tr>
       <tr><td><strong>Ancho (cm):</strong></td><td>${equipo.ancho}</td></tr>
@@ -589,36 +589,53 @@ this.documento = Object.assign({}, item);
       <tr><td><strong>Requiere Desagüe:</strong></td><td>${equipo.desague}</td></tr>
 
       <tr><th colspan="2" style="background:#f0f0f0; font-size:15px; text-align:center;">Recomendaciones del Fabricante</th></tr>
-<tr><td colspan="2" style="white-space: pre-wrap;">${equipo.recomendaciones}</td></tr>
+      <tr><td colspan="2" style="white-space: pre-wrap;">${equipo.recomendaciones}</td></tr>
     </table>
   `;
 
   const estilo = `
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px; border: 1px solid #ddd; }
-    th { background: #f0f0f0; text-align: left; }
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 5px; border: 1px solid #ddd; }
+      th { background: #f0f0f0; text-align: left; }
 
-    @media print {
-      body { font-size: 12px; }
-      table { font-size: 12px; }
-      th, td { font-size: 12px; padding: 6px; }
-      h2 { font-size: 16px; }
-    }
-  </style>
-`;
+      .logo-centrado {
+        display: block;
+        margin: 0 auto 5px auto;
+        width: 200px;
+        height: auto;
+      }
 
-      const ventana = window.open("", "_blank", "width=800,height=600");
-      ventana.document.write(`<html><head><title>Imprimir Información</title>${estilo}</head><body>${contenidoCompacto}</body></html>`);
-      ventana.document.close();
+      @media print {
+        body { font-size: 12px; }
+        table { font-size: 12px; }
+        th, td { font-size: 12px; padding: 6px; }
+        h2 { font-size: 16px; }
+      }
+    </style>
+  `;
 
-      setTimeout(() => {
-        ventana.print();
-        ventana.close();
-      }, 500);
-    },
+  const ventana = window.open("", "_blank", "width=800,height=600");
+  ventana.document.write(`
+    <html>
+      <head>
+        <title>Imprimir Información</title>
+        ${estilo}
+      </head>
+      <body>
+        <img src="/biosystems.jpg" class="logo-centrado" />
+        ${contenidoCompacto}
+      </body>
+    </html>
+  `);
+  ventana.document.close();
+
+  setTimeout(() => {
+    ventana.print();
+    ventana.close();
+  }, 500);
+},
     async guardarDocumento() {
       this.esperaguardar = true;
       try {

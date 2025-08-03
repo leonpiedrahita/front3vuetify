@@ -632,10 +632,10 @@ export default {
 imprimirVCard() {
   const contenido = document.getElementById("vcard-imprimir").innerHTML;
   const estilo = document.head.innerHTML;
+  const imagenUrl = `${location.origin}/biosystems.jpg`; // Ruta absoluta
 
   const ventana = window.open("", "_blank", "width=800,height=600");
 
-  // Escribimos la estructura del documento
   ventana.document.write(`
     <html>
       <head>
@@ -667,7 +667,7 @@ imprimirVCard() {
       </head>
       <body>
         <div class="marco-delgado">
-          <img id="imagen-biosystems" src="/biosystems.jpg" class="imagen-superior-centrada" />
+          <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
           ${contenido}
         </div>
       </body>
@@ -676,7 +676,6 @@ imprimirVCard() {
 
   ventana.document.close();
 
-  // Esperar a que el contenido y la imagen se carguen completamente
   ventana.onload = () => {
     const imagen = ventana.document.getElementById("imagen-biosystems");
 

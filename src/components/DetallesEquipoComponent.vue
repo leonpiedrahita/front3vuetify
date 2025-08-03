@@ -634,6 +634,8 @@ imprimirVCard() {
   const estilo = document.head.innerHTML;
 
   const ventana = window.open("", "_blank", "width=800,height=600");
+
+  // Escribimos la estructura del documento
   ventana.document.write(`
     <html>
       <head>
@@ -644,10 +646,6 @@ imprimirVCard() {
             font-family: Arial, sans-serif;
             margin: 0mm;
           }
-             #tamanotitulo {
-    font-size: 3px !important;
-
-  }
           .v-card {
             box-shadow: none;
             font-size: 15px !important;
@@ -669,18 +667,31 @@ imprimirVCard() {
       </head>
       <body>
         <div class="marco-delgado">
-          <img src="/biosystems.jpg" class="imagen-superior-centrada" />
+          <img id="imagen-biosystems" src="/biosystems.jpg" class="imagen-superior-centrada" />
           ${contenido}
         </div>
       </body>
     </html>
   `);
+
   ventana.document.close();
 
-  setTimeout(() => {
-    ventana.print();
-    ventana.close();
-  }, 500);
+  // Esperar a que el contenido y la imagen se carguen completamente
+  ventana.onload = () => {
+    const imagen = ventana.document.getElementById("imagen-biosystems");
+
+    if (!imagen.complete) {
+      imagen.onload = () => {
+        ventana.focus();
+        ventana.print();
+        ventana.close();
+      };
+    } else {
+      ventana.focus();
+      ventana.print();
+      ventana.close();
+    }
+  };
 }
 ,
 

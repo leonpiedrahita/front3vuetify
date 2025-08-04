@@ -267,9 +267,14 @@
       </v-row>
       <v-row justify="space-around">
         <v-col cols="12" md="4">
-          <v-select v-model="reporte.tipodeasistencia" :items="tipodeasistencia" label="Tipo de asistencia" required
-            :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
-        </v-col>
+  <v-select
+    v-model="reporte.tipodeasistencia"
+    :items="tipodeasistenciaExtendida"
+    label="Tipo de asistencia"
+    required
+    :rules="[(v) => !!v || 'Campo Requerido']"
+  ></v-select>
+</v-col>
 
 
         <v-col cols="12" md="4">
@@ -542,6 +547,9 @@ export default {
       !this.$v.email.required && errors.push("E-mail is required");
       return errors;
     },
+    tipodeasistenciaExtendida() {
+    return [...this.tipodeasistencia, "Soportes previos"];
+  },
 
   },
   created() {
@@ -808,7 +816,8 @@ console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
       if (
         this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
         this.reporte.tipodeasistencia === 'Instalación' ||
-        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'||
+        this.reporte.tipodeasistencia === 'Soportes previos'
       ) {
         this.dialogoPreguntarCronograma = true;
       } else {

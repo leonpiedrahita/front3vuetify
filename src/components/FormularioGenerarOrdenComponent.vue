@@ -439,6 +439,7 @@ export default {
       "Mantenimiento correctivo",
       "Mantenimiento preventivo y correctivo",
       "Desinstalación",
+      "Alistamiento"
     ],
     fechadeiniciocalendario: null,
     menu1: false,
@@ -817,7 +818,8 @@ console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
         this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
         this.reporte.tipodeasistencia === 'Instalación' ||
         this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'||
-        this.reporte.tipodeasistencia === 'Soportes previos'
+        this.reporte.tipodeasistencia === 'Soportes previos'||
+        this.reporte.tipodeasistencia === 'Alistamiento'
       ) {
         this.dialogoPreguntarCronograma = true;
       } else {
@@ -828,7 +830,8 @@ console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
       if (
         this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
         this.reporte.tipodeasistencia === 'Instalación' ||
-        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'
+        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'||
+        this.reporte.tipodeasistencia === 'Alistamiento'
       ) {
         this.dialogoPreguntarCronogramaInterno = true;
       } else {

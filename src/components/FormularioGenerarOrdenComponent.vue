@@ -127,7 +127,7 @@
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.actividades" counter clearable autocomplete
             placeholder="Describa las actividades relacionadas con el soporte" rows="3" row-height="30" auto-grow
-            :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+            :maxlength="3000" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
 
@@ -152,7 +152,7 @@
       <v-row>
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.repuestos" counter clearable autocomplete
-            placeholder="Código - Descripción - Cantidad" rows="3" row-height="30" auto-grow :maxlength="250"
+            placeholder="Código - Descripción - Cantidad" rows="3" row-height="30" auto-grow :maxlength="750"
             :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
@@ -166,7 +166,7 @@
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.observaciones" counter clearable autocomplete
             placeholder="Describa las observaciones referentes a la asistencia realizada y/o recomendaciones que se dieron al usuario"
-            rows="3" row-height="30" auto-grow :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+            rows="3" row-height="30" auto-grow :maxlength="500" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
 

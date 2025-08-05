@@ -114,6 +114,16 @@ const routes = [
         },
 
         props: true,
+      },
+      {
+        path: '/seguimientoingresos',
+        name: 'SeguimientoIngresos',
+        component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/SeguimientoIngresos.vue'),
+        meta: {
+          auth: true
+        },
+
+        props: true,
       }
 
     ]

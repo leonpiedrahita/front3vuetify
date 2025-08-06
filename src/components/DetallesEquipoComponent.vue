@@ -464,7 +464,7 @@ export default {
     fileRules: [
       value => !value || value.length <= 1 || 'Máximo 1 archivos permitidos.',
       value =>
-        !value || value.every(file => file.size < 5 * 1024 * 1024) || 'Cada archivo debe ser menor a 5MB.',
+        !value || value.every(file => file.size < 10 * 1024 * 1024) || 'Cada archivo debe ser menor a 10MB.',
       value =>
         !value || value.every(file => ['image/png', 'image/jpeg', 'image/bmp', 'application/pdf'].includes(file.type))
         || 'Solo se permiten imágenes y archivos PDF.',

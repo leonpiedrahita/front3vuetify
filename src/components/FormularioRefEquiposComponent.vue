@@ -313,6 +313,7 @@ export default {
     listaNombresDocumentos: [
       "Registro INVIMA",
       "Manual de usuario",
+      "Guía rápida",
       "Brochure",
     ],
     encabezadosDocumentosLegales: [

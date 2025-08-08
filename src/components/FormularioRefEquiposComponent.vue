@@ -4,7 +4,7 @@
       <v-container>
         <v-row justify="center">
           <v-col cols="4" class="d-flex justify-center">
-        <v-btn v-permission="['administrador','calidad']" color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
+        <v-btn v-permission="['administrador','calidad','cotizaciones']" color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
           <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
           Guardar Documento
         </v-btn>

@@ -362,7 +362,9 @@ export default {
       "Factura de Compra",
       "Factura de Venta",
       "Certificado de conformidad",
-      "Declaracion de Importación"
+      "Declaracion de Importación",
+      "Sin Declaración de Importación (Soporte)",
+      "Sin Certificado de Conformidad (Soporte) ",
     ],
     listaNombresSoportes: [
       "Acta de entrega",

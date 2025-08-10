@@ -290,7 +290,7 @@
 
           <!-- Título centrado en negrilla -->
           <v-toolbar-title class="text-center font-weight-bold">
-            Equipo: {{ equipo.nombre }} &nbsp; | &nbsp; Serie: {{ equipo.serie }}
+           {{ equipo.nombre }} &nbsp; | &nbsp; {{ equipo.serie }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
 
@@ -419,7 +419,7 @@ export default {
 
       },
       {
-        title: "Soportes",
+        title: "Documentos soporte",
         value: "soportes",
         sortable: false,
         align: "center",

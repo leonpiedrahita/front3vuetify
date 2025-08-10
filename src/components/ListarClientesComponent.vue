@@ -262,13 +262,13 @@ export default {
       },
       {
         title: "NIT",
-        value: "nit",
+        key: "nit",
         align: "center",
         class: "titulo--text font-weight-bold",
       },
       {
         title: "Ciudad Ppal",
-        value: "sedePrincipal.ciudad",
+        key: "sedePrincipal.ciudad",
         align: "center",
         class: "titulo--text font-weight-bold",
       },

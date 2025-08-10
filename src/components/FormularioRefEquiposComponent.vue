@@ -4,11 +4,12 @@
       <v-container>
         <v-row justify="center">
           <v-col cols="4" class="d-flex justify-center">
-        <v-btn v-permission="['administrador','calidad','cotizaciones']" color="primary" class="ma-3 tabla-normal" @click="nuevoDocumento">
-          <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
-          Guardar Documento
-        </v-btn>
-      </v-col>
+            <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" color="primary" class="ma-3 tabla-normal"
+              @click="nuevoDocumento">
+              <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
+              Guardar Documento
+            </v-btn>
+          </v-col>
           <v-col cols="4" class="d-flex justify-end">
             <v-btn color="primary" class="ma-3 tabla-normal" @click="imprimirVCard">
               <v-icon left class="mr-2">mdi-printer</v-icon>
@@ -17,79 +18,81 @@
           </v-col>
         </v-row>
         <v-dialog v-model="esperaguardar" persistent width="500">
-      <v-card color="c6" dark>
-        <v-card-text>
-          Por favor espere...
-          <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
+          <v-card color="c6" dark>
+            <v-card-text>
+              Por favor espere...
+              <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
         <v-dialog v-model="ventanaGuardarDocumento" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">{{ formTitle }}</span>
-        </v-card-title>
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ formTitle }}</span>
+            </v-card-title>
 
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="12" md="12">
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" sm="12" md="12">
 
-                <v-select v-model="nombredocumentoseleccionado" :items="listaNombresDocumentos"
-                  label="Nombre del documento" required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
+                    <v-select v-model="nombredocumentoseleccionado" :items="listaNombresDocumentos"
+                      label="Nombre del documento" required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
 
-              </v-col>
-              <v-col cols="12" md="12">
-                <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
-                  multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
-                  show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange">
-                  <template v-slot:selection="{ fileNames }">
-                    <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
-                      {{ file }}
-                    </v-chip>
-                  </template>
-                </v-file-input>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
+                  </v-col>
+                  <v-col cols="12" md="12">
+                    <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
+                      multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
+                      show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+                      <template v-slot:selection="{ fileNames }">
+                        <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary"
+                          class="ma-1">
+                          {{ file }}
+                        </v-chip>
+                      </template>
+                    </v-file-input>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" text @click="cancelarGuardarDocumento"> Cancelar </v-btn>
-          <v-btn :disabled="!(
-            files &&
-            nombredocumentoseleccionado
-          )
-            " color="primary darken-1" text @click="guardarDocumento">
-            Guardar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-row>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="error" text @click="cancelarGuardarDocumento"> Cancelar </v-btn>
+              <v-btn :disabled="!(
+                files &&
+                nombredocumentoseleccionado
+              )
+                " color="primary darken-1" text @click="guardarDocumento">
+                Guardar
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-row>
           <v-col cols="12" align-self="center">
             <div class="gridtitulo">Documentacion :</div>
           </v-col>
         </v-row>
         <v-divider class="mb-5 mt-5"></v-divider>
         <v-row>
-      <!-- se crea la data table prinecipal para listar los clientes -->
-      <v-data-table :headers="encabezadosDocumentosLegales" :items="documentosLegales" class="tabla-normal elevation-1"
-        loading-text="Cargando ... por favor espere" hide-default-footer  disable-pagination>
-        <template v-slot:[`item.imprimir`]="{ item }">
-          <div class="columna-imprimir">
-            <div>
-              <v-icon style="margin-left: 10px" medium @click="imprimirDocumento(item)">
-                mdi-printer
-              </v-icon>
-            </div>
-          </div>
-        </template>
-      </v-data-table>
+          <!-- se crea la data table prinecipal para listar los clientes -->
+          <v-data-table :headers="encabezadosDocumentosLegales" :items="documentosLegales"
+            class="tabla-normal elevation-1" loading-text="Cargando ... por favor espere" hide-default-footer
+            disable-pagination>
+            <template v-slot:[`item.imprimir`]="{ item }">
+              <div class="columna-imprimir">
+                <div>
+                  <v-icon style="margin-left: 10px" medium @click="imprimirDocumento(item)">
+                    mdi-printer
+                  </v-icon>
+                </div>
+              </div>
+            </template>
+          </v-data-table>
 
 
-    </v-row>
+        </v-row>
         <v-divider class="mb-5 mt-5"></v-divider>
         <v-row>
           <v-col cols="12" align-self="center">
@@ -216,53 +219,53 @@
         <v-row>
           <v-spacer> </v-spacer>
           <v-btn v-if="nuevareferencia" :disabled="!(
-              equipo.nombre &&
-              equipo.marca &&
-              equipo.fabricante &&
-              equipo.servicio &&
-              equipo.clasificacionriesgo &&
-              equipo.periodicidadmantenimiento &&
-              equipo.alto &&
-              equipo.ancho &&
-              equipo.profundo &&
-              equipo.peso &&
-              equipo.voltaje &&
-              equipo.corriente &&
-              equipo.potencia &&
-              equipo.principiodemedicion &&
-              equipo.pruebasporhora &&
-              equipo.temperatura &&
-              equipo.humedad &&
-              equipo.agua &&
-              equipo.desague &&
-              equipo.recomendaciones
-            )
-              " class="c6" x-large @click="GuardarFinalizar()">
+            equipo.nombre &&
+            equipo.marca &&
+            equipo.fabricante &&
+            equipo.servicio &&
+            equipo.clasificacionriesgo &&
+            equipo.periodicidadmantenimiento &&
+            equipo.alto &&
+            equipo.ancho &&
+            equipo.profundo &&
+            equipo.peso &&
+            equipo.voltaje &&
+            equipo.corriente &&
+            equipo.potencia &&
+            equipo.principiodemedicion &&
+            equipo.pruebasporhora &&
+            equipo.temperatura &&
+            equipo.humedad &&
+            equipo.agua &&
+            equipo.desague &&
+            equipo.recomendaciones
+          )
+            " class="c6" x-large @click="GuardarFinalizar()">
             Guardar nueva referencia
           </v-btn>
           <v-btn v-else :disabled="!(
-              equipo.nombre &&
-              equipo.marca &&
-              equipo.fabricante &&
-              equipo.servicio &&
-              equipo.clasificacionriesgo &&
-              equipo.periodicidadmantenimiento &&
-              equipo.alto &&
-              equipo.ancho &&
-              equipo.profundo &&
-              equipo.peso &&
-              equipo.voltaje &&
-              equipo.corriente &&
-              equipo.potencia &&
-              equipo.principiodemedicion &&
-              equipo.pruebasporhora &&
-              equipo.temperatura &&
-              equipo.humedad &&
-              equipo.agua &&
-              equipo.desague &&
-              equipo.recomendaciones
-            )
-              " v-permission="['administrador','calidad']" class="c6" x-large @click="ActualizarFinalizar()">
+            equipo.nombre &&
+            equipo.marca &&
+            equipo.fabricante &&
+            equipo.servicio &&
+            equipo.clasificacionriesgo &&
+            equipo.periodicidadmantenimiento &&
+            equipo.alto &&
+            equipo.ancho &&
+            equipo.profundo &&
+            equipo.peso &&
+            equipo.voltaje &&
+            equipo.corriente &&
+            equipo.potencia &&
+            equipo.principiodemedicion &&
+            equipo.pruebasporhora &&
+            equipo.temperatura &&
+            equipo.humedad &&
+            equipo.agua &&
+            equipo.desague &&
+            equipo.recomendaciones
+          )
+            " v-permission="['administrador', 'calidad']" class="c6" x-large @click="ActualizarFinalizar()">
             Actualizar referencia
           </v-btn>
           <v-spacer> </v-spacer>
@@ -292,7 +295,7 @@
         </v-dialog>
       </v-container>
 
-<!--          <pre>
+      <!--          <pre>
       
        {{ equipo }}
       </pre> -->
@@ -424,40 +427,40 @@ export default {
     },
     imprimirDocumento(item) {
 
-this.documento = Object.assign({}, item);
+      this.documento = Object.assign({}, item);
 
-  console.log('llavereporte', this.documento.llaveDocumento)
-  axios.post(
-    this.$store.state.ruta + 'api/s3/buscarurl',
-    {
-      fileKey: this.documento.llaveDocumento
+      console.log('llavereporte', this.documento.llaveDocumento)
+      axios.post(
+        this.$store.state.ruta + 'api/s3/buscarurl',
+        {
+          fileKey: this.documento.llaveDocumento
+
+        },
+        {
+          headers: {
+            token: this.$store.state.token,
+          },
+        }
+      )
+        .then((response) => {
+          // Capturar la URL de la respuesta
+          this.url = response.data.url;
+          this.error = '';
+          console.log('URL', this.url)
+          // Abrir la URL en una nueva pestaña
+          window.open(this.url, '_blank');
+        })
+        .catch((error) => {
+          this.error = error.response ? error.response.data.error : 'Error al realizar la solicitud';
+          this.url = '';
+          console.log(error);
+        });
+
+
+
+
 
     },
-    {
-      headers: {
-        token: this.$store.state.token,
-      },
-    }
-  )
-    .then((response) => {
-      // Capturar la URL de la respuesta
-      this.url = response.data.url;
-      this.error = '';
-      console.log('URL', this.url)
-      // Abrir la URL en una nueva pestaña
-      window.open(this.url, '_blank');
-    })
-    .catch((error) => {
-      this.error = error.response ? error.response.data.error : 'Error al realizar la solicitud';
-      this.url = '';
-      console.log(error);
-    });
-
-
-
-
-
-},
     GuardarFinalizar() {
       this.esperaguardar = true;
       axios
@@ -550,16 +553,15 @@ this.documento = Object.assign({}, item);
           return error;
         });
 
-        
+
     },
     AceptarConfirmacionGuardado() {
       this.confirmacionguardado = false;
-      
+
     },
     imprimirVCard() {
   const equipo = this.equipo;
-
-  const contenidoCompacto = `
+ const contenidoCompacto = `
     <h3 style="text-align:center;">Ficha técnica</h3>
     <table border="1" cellspacing="0" cellpadding="8" style="width:100%; border-collapse: collapse; text-align:left;">
       <tr><th colspan="2" style="background:#f0f0f0; font-size:15px; text-align:center;">Información General</th></tr>
@@ -593,8 +595,7 @@ this.documento = Object.assign({}, item);
       <tr><td colspan="2" style="white-space: pre-wrap;">${equipo.recomendaciones}</td></tr>
     </table>
   `;
-
-  const estilo = `
+  const estiloCSS = `
     <style>
       body { font-family: Arial, sans-serif; padding: 20px; }
       table { width: 100%; border-collapse: collapse; }
@@ -618,12 +619,10 @@ this.documento = Object.assign({}, item);
   `;
 
   const ventana = window.open("", "_blank", "width=800,height=600");
+
   ventana.document.write(`
     <html>
-      <head>
-        <title>Imprimir Información</title>
-        ${estilo}
-      </head>
+      <head><title>Imprimir Información</title>${estiloCSS}</head>
       <body>
         <img src="/biosystems.jpg" class="logo-centrado" />
         ${contenidoCompacto}
@@ -632,11 +631,25 @@ this.documento = Object.assign({}, item);
   `);
   ventana.document.close();
 
-  setTimeout(() => {
+  // Ejecutar impresión cuando la ventana esté lista y los estilos cargados
+  ventana.addEventListener('load', () => {
+    ventana.focus();
+
+    // Escuchar el evento afterprint para cerrar la ventana automáticamente
+    ventana.addEventListener('afterprint', () => {
+      ventana.close();
+    });
+
     ventana.print();
-    ventana.close();
-  }, 500);
+
+    // Refuerzo adicional: cerrar si matchMedia indica que la impresión terminó
+    const mql = ventana.matchMedia('print');
+    mql.addListener(mqlEvent => {
+      if (!mqlEvent.matches) ventana.close();
+    });
+  });
 },
+    
     async guardarDocumento() {
       this.esperaguardar = true;
       try {
@@ -730,6 +743,7 @@ this.documento = Object.assign({}, item);
   background-origin: border-box;
   background-clip: content-box, border-box;
 }
+
 button.disabled {
   cursor: not-allowed;
   opacity: 0.5;

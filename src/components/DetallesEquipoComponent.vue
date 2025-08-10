@@ -198,18 +198,22 @@
 
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
-      <v-data-table :headers="encabezadosDocumentosLegales" :items="documentosLegales" class="tabla-normal elevation-1"
-        loading-text="Cargando ... por favor espere" hide-default-footer  disable-pagination>
-        <template v-slot:[`item.imprimir`]="{ item }">
-          <div class="columna-imprimir">
-            <div>
-              <v-icon style="margin-left: 10px" medium @click="imprimirDocumento(item)">
-                mdi-file-download-outline
-              </v-icon>
-            </div>
-          </div>
-        </template>
-      </v-data-table>
+     <v-data-table
+  :headers="encabezadosDocumentosLegales"
+  :items="documentosFiltrados"
+  class="tabla-normal elevation-1"
+  loading-text="Cargando ... por favor espere"
+  hide-default-footer
+  disable-pagination
+>
+  <template v-slot:[`item.imprimir`]="{ item }">
+    <div class="columna-imprimir">
+      <v-icon style="margin-left:10px" medium @click="imprimirDocumento(item)">
+        mdi-file-download-outline
+      </v-icon>
+    </div>
+  </template>
+</v-data-table>
 
 
     </v-row>
@@ -370,7 +374,10 @@ export default {
       "Acta de entrega",
       "Acta de retiro",
       "Contrato",
-      "Evidencia del soporte",
+      "Soportes del reporte",
+      "Asistencia a entrenamiento",
+      "Certificados de entrenamiento",
+      "Evaluaciones de entrenamiento",
     ],
 
     equipo: [],
@@ -474,6 +481,20 @@ export default {
   }),
 
   computed: {
+   documentosFiltrados() {
+    return this.documentosLegales.filter(item => {
+      // Si el usuario tiene rol permitido, muestra todo
+      if (this.esRolPermitido) {
+        return true;
+      }
+      // Si no, excluye documentos que contengan "Factura"
+      return !/Factura/i.test(item.nombreDocumento);
+    });
+  },
+  esRolPermitido() {
+    const permitidos = ['administrador', 'calidad', 'cotizaciones', 'comercial'];
+    return permitidos.includes(this.$store.state.user.rol);
+  },
     formTitle() {
       if (this.ventanaGuardarDocumento) {
         return "Nuevo documento";

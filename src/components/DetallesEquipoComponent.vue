@@ -199,7 +199,7 @@
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
       <v-data-table :headers="encabezadosDocumentosLegales" :items="documentosLegales" class="tabla-normal elevation-1"
-        loading-text="Cargando ... por favor espere" hide-default-footer>
+        loading-text="Cargando ... por favor espere" hide-default-footer  disable-pagination>
         <template v-slot:[`item.imprimir`]="{ item }">
           <div class="columna-imprimir">
             <div>

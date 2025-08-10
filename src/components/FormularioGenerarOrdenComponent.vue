@@ -127,7 +127,7 @@
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.actividades" counter clearable autocomplete
             placeholder="Describa las actividades relacionadas con el soporte" rows="3" row-height="30" auto-grow
-            :maxlength="3000" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+            :maxlength="1000" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
 
@@ -139,7 +139,7 @@
       <v-row>
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.pruebas" counter clearable autocomplete
-            placeholder="Liste las pruevas realizadas para verificar el adecuado funcionamiento del equipo" rows="3"
+            placeholder="Liste las pruebas realizadas para verificar el adecuado funcionamiento del equipo" rows="3"
             row-height="30" auto-grow :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>

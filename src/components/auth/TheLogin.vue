@@ -80,10 +80,10 @@ export default {
   beforeCreate() {
     this.$store.dispatch("autoLogin")
     if (this.$store.state.existe === 1) {
-      this.$router.push({ name: 'ListarClientes' })
+      this.$router.push({ name: 'ListarEquipos' })
     }
 
-    //this.$store.dispatch("autoLogin")? this.$router.push({name: 'ListarClientes'}) : false;
+   
   },
   methods: {
     async loginUser() {
@@ -108,7 +108,7 @@ export default {
     },
     LoginAceptado() {
       this.confirmacionlogin = false
-      this.$router.push({ name: 'ListarClientes' });
+      this.$router.push({ name: 'ListarEquipos' });
 
 
     }

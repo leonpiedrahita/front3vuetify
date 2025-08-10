@@ -11,7 +11,7 @@
           <v-text-field v-model="buscar.serie" label="Serie" variant="outlined" persistent-hint />
         </v-col>
         <v-col cols="12" sm="6" md="2" class="pa-0">
-          <v-text-field v-model="buscar.propietario" label="Propietario" variant="outlined" persistent-hint />
+          <v-text-field v-model="buscar.cliente" label="Cliente" variant="outlined" persistent-hint />
         </v-col>
         <v-col cols="12" sm="6" md="2" class="pa-0 d-flex justify-center justify-sm-center justify-md-start">
           <v-btn class="mb-5" color="primary" min-width="228" size="large" variant="flat" @click="buscarEquipos">
@@ -296,8 +296,9 @@
 
 
                 <!-- Título centrado en negrilla -->
-                <v-toolbar-title class="text-center font-weight-bold">
-                  Nombre: {{ historialclientes.nombre }} &nbsp; | &nbsp; Serie: {{ historialclientes.serie }}
+                <v-toolbar-title class="text-center wrap-text">
+                  Nombre: {{ historialclientes.nombre }}<br>
+                  Serie: {{ historialclientes.serie }}
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <!-- Botón cerrar a la derecha -->
@@ -307,7 +308,7 @@
               <!-- CUERPO DEL DIALOGO -->
               <v-card-text>
                 <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios || []"
-                  :search="search" class="elevation-1" hide-default-footer>
+                  :search="search" class="elevation-1" hide-default-footer disable-pagination>
                   <!-- Formateo de la fecha -->
                   <template #item.fecha="{ item }">
                     {{
@@ -502,13 +503,13 @@ export default {
     etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
-    listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler","Dado de Baja"],
+    listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler", "Dado de Baja"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
       nombreequipo: "",
       serie: "",
-      propietario: "",
+      cliente: "",
       contrato: "",
     },
     ordenes: [
@@ -867,7 +868,7 @@ export default {
           nombre: this.buscar.nombreequipo, // Por ejemplo, un filtro basado en el nombre
           serie: this.buscar.serie,   // Por ejemplo, un filtro basado en la serie
           contrato: this.buscar.contrato, // Por ejemplo, un filtro basado en el estado
-          propietarioNombre: this.buscar.propietario // Por ejemplo, un filtro basado en el nombre del propietario
+          clienteNombre: this.buscar.cliente // Por ejemplo, un filtro basado en el nombre del propietario
 
         }, {
           headers: {
@@ -1081,7 +1082,7 @@ export default {
               });
               this.dialogomodificarequipocliente = false;
               this.mensajeDialogo = "Equipo actualizado correctamente";
-            this.confirmacionguardado = true;
+              this.confirmacionguardado = true;
               this.buscarEquipos();
             })
             .catch((error) => {

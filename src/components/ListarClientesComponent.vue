@@ -55,8 +55,14 @@
                         :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.nit" label="NIT" disabled="disabled"
-                        required class="centered-input"></v-text-field>
+                      
+                      <v-text-field
+  v-model="editedItem.nit"
+  label="NIT"
+  :disabled="Editarcliente"
+  required
+  class="centered-input"
+/>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete label="Ciudad" v-model="editedItem.sedePrincipal.ciudad" :items="municipios"

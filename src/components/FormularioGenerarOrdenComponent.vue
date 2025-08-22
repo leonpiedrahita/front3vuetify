@@ -54,12 +54,12 @@
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="reporte.profesionalcliente" label="Nombre del profesional" required
+          <v-text-field v-model="reporte.profesionalcliente" label="Nombre del Usuario" required
             :rules="[(v) => !!v || 'Campo Requerido']"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
           <v-text-field v-model="reporte.telefonocliente" :rules="[(v) => !!v || 'Campo Requerido']"
-            label="Telefono del Profesional" required></v-text-field>
+            label="Telefono del Usuario" required></v-text-field>
         </v-col>
       </v-row>
       <v-divider class="mb-5 mt-5"></v-divider>

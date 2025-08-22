@@ -504,7 +504,7 @@ export default {
     etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
-    listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler", "Dado de Baja"],
+    listacontratos: ["Sin asignar", "Comodato", "Venta","Venta Externo", "Alquiler", "Préstamo", "Dado de Baja"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {

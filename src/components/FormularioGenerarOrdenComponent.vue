@@ -438,6 +438,7 @@ export default {
       "Mantenimiento preventivo",
       "Mantenimiento correctivo",
       "Mantenimiento preventivo y correctivo",
+      "Soporte telefónico",
       "Desinstalación",
       "Alistamiento"
     ],

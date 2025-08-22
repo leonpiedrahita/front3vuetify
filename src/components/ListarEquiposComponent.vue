@@ -88,13 +88,14 @@
                           nuevoproveedor }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.cliente.nombre" :items="nombresclientes" label="Cliente"
-                        required :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevocliente }}</v-autocomplete>
+                      <v-autocomplete v-model="nuevoequipo.cliente.id" :items="clientes" item-title="nombreciudad"
+                        item-value="id" label="Seleccione un cliente" required
+                        :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevocliente }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.ubicacion.nombre" :items="nombreUbicacionesCliente"
-                        label="Sede" :rules="[(v) => !!v || 'Campo Requerido']" required>
-                      </v-autocomplete>
+                      <v-autocomplete v-model="nuevoequipo.ubicacion.id" :items="ubicacionclientes"
+                        item-title="nombreDireccionCombinados" item-value="id" label="Sede"
+                        :rules="[(v) => !!v || 'Campo Requerido']" required></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.tipoDeContrato" :items="listacontratos"
@@ -129,7 +130,7 @@
                   nuevoequipo.tipoDeContrato &&
                   nuevoequipo.propietario &&
                   nuevoequipo.cliente &&
-                  nuevoequipo.ubicacion.nombre &&
+                  nuevoequipo.ubicacion.id &&
                   fechaDeMovimiento
                 )
                   " color="primary darken-1" text @click="save2">
@@ -675,6 +676,7 @@ export default {
       ubicacion: {
         nombre: "",
         direccion: "",
+        ciudad: "",
       },
       fechaDeMovimiento: null,
     },
@@ -777,7 +779,7 @@ export default {
       // Este watcher se ejecutará cuando nuevoequipo.propietario.nombre cambie
       this.nuevopropietario();
     },
-    'nuevoequipo.cliente.nombre': function (newValue) {
+    'nuevoequipo.cliente.id': function (newValue) {
       // Este watcher se ejecutará cuando nuevoequipo.cliente.nombre cambie
       this.nuevocliente();
     },
@@ -930,79 +932,102 @@ export default {
     },
 
     save2() {
-      console.log("nuevoequipo", this.nuevoequipo);
+  console.log("nuevoequipo", this.nuevoequipo);
 
-      const clienteEncontrado = this.clientes.find(
-        (cliente) => cliente.id === this.nuevoequipo.cliente.id
-      );
+  // Buscar cliente por ID
+  const clienteEncontrado = this.clientes.find(
+    (cliente) => cliente.id === this.nuevoequipo.cliente.id
+  );
+  console.log("clienteEncontrado", clienteEncontrado);
 
-      if (clienteEncontrado) {
-        const sedeEncontrada = clienteEncontrado.sedes?.find(
-          (sede) => sede.ciudad === this.nuevoequipo.ubicacion.nombre
-        );
+  if (clienteEncontrado) {
+    // Buscar sede por ID
+    const sedeEncontrada = clienteEncontrado.sedes?.find(
+      (sede) => sede.id === this.nuevoequipo.ubicacion.id
+    );
+    console.log("sedeEncontrada", sedeEncontrada);
 
-        if (sedeEncontrada) {
-          this.nuevoequipo.ubicacion.direccion = sedeEncontrada.direccion;
-        } else {
-          console.warn("No se encontró la sede con ciudad:", this.nuevoequipo.ubicacion.nombre);
-          this.nuevoequipo.ubicacion.direccion = "";
+    if (sedeEncontrada) {
+      this.nuevoequipo.ubicacion.ciudad = sedeEncontrada.ciudad;
+      this.nuevoequipo.ubicacion.direccion = sedeEncontrada.direccion;
+    } else {
+      console.warn("No se encontró la sede con ID:", this.nuevoequipo.ubicacion.id);
+      this.nuevoequipo.ubicacion.ciudad = "";
+      this.nuevoequipo.ubicacion.direccion = "";
+    }
+  } else {
+    console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
+    this.nuevoequipo.ubicacion.ciudad = "";
+    this.nuevoequipo.ubicacion.direccion = "";
+  }
+
+  // Verificar duplicados: serie e inventario
+  const encontrarserie = this.equipos.find(
+    (registro) => registro.serie === this.nuevoequipo.serie
+  );
+
+  const encontrarinventario =
+    this.nuevoequipo.placaDeInventario !== "N/A"
+      ? this.equipos.find(
+          (registro) =>
+            registro.placaDeInventario === this.nuevoequipo.placaDeInventario
+        )
+      : null;
+
+  if (encontrarserie) {
+    this.textodialogo = "El número de serie ya se encuentra registrado";
+    this.dialogo = true;
+  } else if (encontrarinventario) {
+    this.textodialogo = "El número de inventario ya se encuentra registrado";
+    this.dialogo = true;
+  } else {
+    // Convertir fecha a ISO antes de enviar
+    const fechaISO = this.fechadecalendario
+      ? new Date(this.fechadecalendario).toISOString()
+      : new Date().toISOString();
+
+    console.log("equipo nuevo", this.nuevoequipo);
+    console.log("ciudad", this.nuevoequipo.ubicacion.ciudad);
+    console.log("direccion", this.nuevoequipo.ubicacion.direccion);
+
+    
+    axios
+      .post(
+        this.$store.state.ruta + "api/equipo/registrar/",
+        {
+          nuevoequipo: {
+            ...this.nuevoequipo,
+            fechaDeMovimiento: fechaISO,
+            ubicacionNombre: this.nuevoequipo.ubicacion.ciudad,
+            ubicacionDireccion: this.nuevoequipo.ubicacion.direccion,
+          },
+        },
+        {
+          headers: {
+            token: this.$store.state.token,
+          },
         }
-      } else {
-        console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
-        this.nuevoequipo.ubicacion.direccion = "";
-      }
+      )
+      .then((response) => {
+        console.log(response);
+        this.$nextTick(() => {
+          this.nuevoequipo = this.nuevoequipopordefecto;
+        });
+        this.mensajeDialogo = "Equipo registrado correctamente";
+        this.confirmacionguardado = true;
+        this.buscarEquipos();
+      })
+      .catch((error) => {
+        console.log(error);
+        return error;
+      });
+    
+  }
 
-      const encontrarserie = this.equipos.find(
-        (registro) => registro.serie === this.nuevoequipo.serie
-      );
-
-      const encontrarinventario =
-        this.nuevoequipo.placaDeInventario !== "N/A"
-          ? this.equipos.find(
-            (registro) =>
-              registro.placaDeInventario === this.nuevoequipo.placaDeInventario
-          )
-          : null;
-
-      if (encontrarserie) {
-        this.textodialogo = "El número de serie ya se encuentra registrado";
-        this.dialogo = true;
-      } else if (encontrarinventario) {
-        this.textodialogo =
-          "El número de inventario ya se encuentra registrado";
-        this.dialogo = true;
-      } else {
-        axios
-          .post(
-            this.$store.state.ruta + "api/equipo/registrar/",
-            {
-              nuevoequipo: this.nuevoequipo,
-            },
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response);
-            this.$nextTick(() => {
-              this.nuevoequipo = this.nuevoequipopordefecto;
-            });
-            this.mensajeDialogo = "Equipo registrado correctamente";
-            this.confirmacionguardado = true;
-            this.buscarEquipos();
-          })
-          .catch((error) => {
-            console.log(error);
-            return error;
-          });
-      }
-
-      this.dialog2 = false;
-      this.close();
-
-    },
+  this.dialog2 = false;
+  this.close();
+}
+,
     actualizarequipo() {
       if (this.inventarioactual === this.equipomodificado.placaDeInventario) {
         console.log("equipoenviado", this.equipomodificado);
@@ -1109,11 +1134,11 @@ export default {
           })
           .then((response) => {
             this.clientes = response.data.map((cliente) => {
-              cliente.nombre = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
+              cliente.nombreciudad = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
               return cliente;
             });
 
-            this.nombresclientes = this.clientes.map((cliente) => cliente.nombre);
+            this.nombresclientes = this.clientes.map((cliente) => cliente.nombreciudad);
           })
           .catch((error) => {
             console.error("Error al obtener clientes:", error);
@@ -1151,7 +1176,6 @@ export default {
       } else {
         this.equipomodificado = Object.assign({}, item);
         this.inventarioactual = this.equipomodificado.placaDeInventario;
-
         this.dialogomodificarequipocliente = true;
         axios
           .get(this.$store.state.ruta + "api/cliente/listar", {
@@ -1160,11 +1184,12 @@ export default {
             },
           })
           .then((response) => {
-            this.clientes = response.data; //el this es porque no es propia de la funcion sino de l componente
-              /*           this.nombresclientes = this.clientes.map((cliente)=>({nombre:cliente.nombre,id:cliente._id,sede:cliente.sede}));
-               */ this.nombresclientes = this.clientes.map(
-              (cliente) => cliente.nombre
-            );
+            this.clientes = response.data.map((cliente) => {
+              cliente.nombre = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
+              return cliente;
+            });
+
+            this.nombresclientes = this.clientes.map((cliente) => cliente.nombre);
           })
           .catch((error) => {
             //console.log(error);
@@ -1341,7 +1366,7 @@ export default {
     nuevopropietario: function () {
       // `this` apunta a la instancia vm
       this.nuevoequipo.propietario.id = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.nuevoequipo.propietario.nombre) {
+        if (cliente.nombreciudad === this.nuevoequipo.propietario.nombre) {
           return cliente.id;
         }
       });
@@ -1352,13 +1377,40 @@ export default {
     },
     nuevoproveedor: function () {
       const proveedor = this.clientes.find(
-        (cliente) => cliente.nombre === this.nuevoequipo.proveedor.nombre
+        (cliente) => cliente.nombreciudad === this.nuevoequipo.proveedor.nombre
       );
 
       if (proveedor) {
         this.nuevoequipo.proveedor.id = proveedor.id;
       } else {
         this.nuevoequipo.proveedor.id = null;
+      }
+    },
+    nuevocliente: function () {
+      // Buscar cliente por ID
+      const clienteSeleccionado = this.clientes.find(
+        (cliente) => cliente.id === this.nuevoequipo.cliente.id
+      );
+      console.log("clienteSeleccionado", this.nuevoequipo.cliente.id);
+      if (clienteSeleccionado) {
+        // Asignar sedes activas con campo nombreDireccionCombinados
+        this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa).map(
+          (sede) => ({
+            ...sede,
+            nombreDireccionCombinados: `${sede.ciudad} - ${sede.direccion}`
+          })
+        ) || [];
+
+        // Extraer solo los nombres combinados (array de strings)
+        this.nombreUbicacionesCliente = this.ubicacionclientes.map(
+          (s) => s.nombreDireccionCombinados
+        );
+
+      } else {
+        console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
+        this.nuevoequipo.cliente.id = null;
+        this.ubicacionclientes = [];
+        this.nombreUbicacionesCliente = [];
       }
     },
 
@@ -1387,28 +1439,7 @@ export default {
       this.equipomodificado.proveedor.id = filtered[0];
     },
 
-    nuevocliente() {
-      // Buscar cliente por nombre
-      const clienteSeleccionado = this.clientes.find(
-        (cliente) => cliente.nombre === this.nuevoequipo.cliente.nombre
-      );
 
-      if (clienteSeleccionado) {
-        // Asignar ID
-        this.nuevoequipo.cliente.id = clienteSeleccionado.id;
-
-        // Asignar sedes activas
-        this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
-
-        // Extraer nombres de las ubicaciones
-        this.nombreUbicacionesCliente = this.ubicacionclientes.map((sedes) => sedes.ciudad);
-      } else {
-        // Si no se encuentra el cliente, limpia
-        this.nuevoequipo.cliente.id = null;
-        this.ubicacionclientes = [];
-        this.nombreUbicacionesCliente = [];
-      }
-    },
     nuevoclientemodificado() {
       // Buscar cliente por nombre
       const clienteSeleccionado = this.clientes.find(

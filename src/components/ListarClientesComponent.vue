@@ -55,7 +55,7 @@
                         :rules="[(v) => !!v || 'Campo Requerido']" required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.nit" label="NIT" :rules="[(v) => !!v || 'Campo Requerido']"
+                      <v-text-field v-model="editedItem.nit" label="NIT" disabled="disabled"
                         required class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
@@ -477,6 +477,7 @@ export default {
         this.Agregarcliente = false;
 
         this.editedIndex = -1;
+        this.listar();
       });
       /* this.listar(); */
     },
@@ -493,46 +494,40 @@ export default {
     editar() {
 
       this.esperarguardar = true;
-      const encontrarnit = this.equipos.find(
-        (registro) => registro.nit === this.editedItem.nit
-      );
-      if (encontrarnit) {
-        this.textodialogo = "El NIT ya se encuentra registrado";
-        this.cerrareditar();
-        this.esperarguardar = false;
-        this.dialogo = true;
-      } else {
-        this.Editarcliente = false;
-        axios
-          .patch(
-            this.$store.state.ruta + "api/cliente/actualizar/" + this.editedItem.id,
-            {
-              nombre: this.editedItem.nombre,
-              nit: this.editedItem.nit,
-              sedePrincipal: {
-                ciudad: this.editedItem.sedePrincipal.ciudad,
-                direccion: this.editedItem.sedePrincipal.direccion,
-                activa: true, // Puedes hacerlo dinámico si es necesario
-              },
+
+      this.Editarcliente = false;
+      axios
+        .patch(
+          this.$store.state.ruta + "api/cliente/actualizar/" + this.editedItem.id,
+          {
+            nombre: this.editedItem.nombre,
+            nit: this.editedItem.nit,
+            sedePrincipal: {
+              ciudad: this.editedItem.sedePrincipal.ciudad,
+              direccion: this.editedItem.sedePrincipal.direccion,
+              activa: true, // Puedes hacerlo dinámico si es necesario
             },
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response);
-            this.cerrareditar();
-            this.mensajeDialogo = "Cliente editado correctamente";
-            this.confirmacionguardado = true;
-            this.listar();
-          })
-          .catch((error) => {
-            console.log(error);
-            return error;
-          });
-      }
+          },
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+        .then((response) => {
+          this.esperarguardar = false;
+          this.Editarcliente = false;
+          console.log(response);
+          this.cerrareditar();
+          this.mensajeDialogo = "Cliente editado correctamente";
+          this.confirmacionguardado = true;
+          this.listar();
+        })
+        .catch((error) => {
+          console.log(error);
+          return error;
+        });
+
 
     },
     agregarCliente() {

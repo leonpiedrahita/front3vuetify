@@ -659,7 +659,7 @@ imprimirVCard() {
 
   const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  // HTML unificado para ambos casos
+  // HTML unificado
   const htmlContenido = `
     <html>
       <head>
@@ -682,29 +682,13 @@ imprimirVCard() {
   `;
 
   if (esMovil) {
-    // ----------- MODO MÓVIL (iframe oculto) -----------
-    const iframe = document.createElement("iframe");
-    iframe.style.position = "fixed";
-    iframe.style.right = "0";
-    iframe.style.bottom = "0";
-    iframe.style.width = "0";
-    iframe.style.height = "0";
-    iframe.style.border = "0";
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(htmlContenido);
-    doc.close();
-
-    iframe.onload = () => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      document.body.removeChild(iframe);
-    };
-
+    // ----------- MODO MÓVIL (Xiaomi fix: imprimir en la misma página) -----------
+    const original = document.body.innerHTML;
+    document.body.innerHTML = htmlContenido;
+    window.print();
+    document.body.innerHTML = original;
   } else {
-    // ----------- MODO PC (window.open, como lo tenías) -----------
+    // ----------- MODO PC (como lo tenías) -----------
     const ventana = window.open("", "_blank", "width=800,height=600");
     ventana.document.write(htmlContenido);
     ventana.document.close();

@@ -678,15 +678,32 @@ imprimirVCard() {
           <title>Imprimir Información</title>
           ${estilo}
           <style>
-            body { font-family: Arial, sans-serif; margin: 0mm; }
-            .v-card { box-shadow: none; font-size: 15px !important; }
-            .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
-            .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0mm;
+            }
+            .v-card {
+              box-shadow: none;
+              font-size: 15px !important;
+            }
+            .imagen-superior-centrada {
+              display: block;
+              margin: 0 auto 10px auto;
+              width: 200px;
+              height: auto;
+            }
+            .marco-delgado {
+              border: 2px solid #000;
+              border-radius: 8px;
+              padding: 10px;
+              margin: 10px;
+              font-size: 15px;
+            }
           </style>
         </head>
         <body>
           <div class="marco-delgado">
-            <img src="${imagenUrl}" class="imagen-superior-centrada" />
+            <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
             ${contenido}
           </div>
         </body>

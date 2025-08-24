@@ -655,65 +655,84 @@ export default {
 imprimirVCard() {
   const contenido = document.getElementById("vcard-imprimir").innerHTML;
   const estilo = document.head.innerHTML;
-  const imagenUrl = `${location.origin}/biosystems.jpg`; // Ruta absoluta
+  const imagenUrl = `${location.origin}/biosystems.jpg`;
 
-  const ventana = window.open("", "_blank", "width=800,height=600");
+  const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  ventana.document.write(`
-    <html>
-      <head>
-        <title>Imprimir Información</title>
-        ${estilo}
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0mm;
-          }
-          .v-card {
-            box-shadow: none;
-            font-size: 15px !important;
-          }
-          .imagen-superior-centrada {
-            display: block;
-            margin: 0 auto 10px auto;
-            width: 200px;
-            height: auto;
-          }
-          .marco-delgado {
-            border: 2px solid #000;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px;
-            font-size: 15px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="marco-delgado">
-          <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
-          ${contenido}
-        </div>
-      </body>
-    </html>
-  `);
+  if (esMovil) {
+    // ----------- MODO MÓVIL (iframe oculto) -----------
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
 
-  ventana.document.close();
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>Imprimir Información</title>
+          ${estilo}
+          <style>
+            body { font-family: Arial, sans-serif; margin: 0mm; }
+            .v-card { box-shadow: none; font-size: 15px !important; }
+            .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
+            .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+          </style>
+        </head>
+        <body>
+          <div class="marco-delgado">
+            <img src="${imagenUrl}" class="imagen-superior-centrada" />
+            ${contenido}
+          </div>
+        </body>
+      </html>
+    `);
+    doc.close();
 
-  ventana.onload = () => {
-    const imagen = ventana.document.getElementById("imagen-biosystems");
+    iframe.onload = () => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      document.body.removeChild(iframe);
+    };
 
-    if (!imagen.complete) {
-      imagen.onload = () => {
-        ventana.focus();
-        ventana.print();
-        ventana.close();
-      };
-    } else {
+  } else {
+    // ----------- MODO PC (window.open) -----------
+    const ventana = window.open("", "_blank", "width=800,height=600");
+
+    ventana.document.write(`
+      <html>
+        <head>
+          <title>Imprimir Información</title>
+          ${estilo}
+          <style>
+            body { font-family: Arial, sans-serif; margin: 0mm; }
+            .v-card { box-shadow: none; font-size: 15px !important; }
+            .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
+            .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+          </style>
+        </head>
+        <body>
+          <div class="marco-delgado">
+            <img src="${imagenUrl}" class="imagen-superior-centrada" />
+            ${contenido}
+          </div>
+        </body>
+      </html>
+    `);
+
+    ventana.document.close();
+
+    ventana.onload = () => {
       ventana.focus();
       ventana.print();
       ventana.close();
-    }
-  };
+    };
+  }
 }
 ,
 

@@ -701,7 +701,7 @@ imprimirVCard() {
     };
 
   } else {
-    // ----------- MODO PC (window.open) -----------
+    // ----------- MODO PC (tu código original) -----------
     const ventana = window.open("", "_blank", "width=800,height=600");
 
     ventana.document.write(`
@@ -710,15 +710,32 @@ imprimirVCard() {
           <title>Imprimir Información</title>
           ${estilo}
           <style>
-            body { font-family: Arial, sans-serif; margin: 0mm; }
-            .v-card { box-shadow: none; font-size: 15px !important; }
-            .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
-            .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0mm;
+            }
+            .v-card {
+              box-shadow: none;
+              font-size: 15px !important;
+            }
+            .imagen-superior-centrada {
+              display: block;
+              margin: 0 auto 10px auto;
+              width: 200px;
+              height: auto;
+            }
+            .marco-delgado {
+              border: 2px solid #000;
+              border-radius: 8px;
+              padding: 10px;
+              margin: 10px;
+              font-size: 15px;
+            }
           </style>
         </head>
         <body>
           <div class="marco-delgado">
-            <img src="${imagenUrl}" class="imagen-superior-centrada" />
+            <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
             ${contenido}
           </div>
         </body>
@@ -728,8 +745,19 @@ imprimirVCard() {
     ventana.document.close();
 
     ventana.onload = () => {
-      ventana.focus();
-    
+      const imagen = ventana.document.getElementById("imagen-biosystems");
+
+      if (!imagen.complete) {
+        imagen.onload = () => {
+          ventana.focus();
+          ventana.print();
+          ventana.close();
+        };
+      } else {
+        ventana.focus();
+        ventana.print();
+        ventana.close();
+      }
     };
   }
 }

@@ -659,6 +659,28 @@ imprimirVCard() {
 
   const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+  // HTML unificado para ambos casos
+  const htmlContenido = `
+    <html>
+      <head>
+        <title>Imprimir Información</title>
+        ${estilo}
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0mm; }
+          .v-card { box-shadow: none; font-size: 15px !important; }
+          .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
+          .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+        </style>
+      </head>
+      <body>
+        <div class="marco-delgado">
+          <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
+          ${contenido}
+        </div>
+      </body>
+    </html>
+  `;
+
   if (esMovil) {
     // ----------- MODO MÓVIL (iframe oculto) -----------
     const iframe = document.createElement("iframe");
@@ -672,43 +694,7 @@ imprimirVCard() {
 
     const doc = iframe.contentWindow.document;
     doc.open();
-    doc.write(`
-      <html>
-        <head>
-          <title>Imprimir Información</title>
-          ${estilo}
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0mm;
-            }
-            .v-card {
-              box-shadow: none;
-              font-size: 15px !important;
-            }
-            .imagen-superior-centrada {
-              display: block;
-              margin: 0 auto 10px auto;
-              width: 200px;
-              height: auto;
-            }
-            .marco-delgado {
-              border: 2px solid #000;
-              border-radius: 8px;
-              padding: 10px;
-              margin: 10px;
-              font-size: 15px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="marco-delgado">
-            <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
-            ${contenido}
-          </div>
-        </body>
-      </html>
-    `);
+    doc.write(htmlContenido);
     doc.close();
 
     iframe.onload = () => {
@@ -718,47 +704,9 @@ imprimirVCard() {
     };
 
   } else {
-    // ----------- MODO PC (tu código original) -----------
+    // ----------- MODO PC (window.open, como lo tenías) -----------
     const ventana = window.open("", "_blank", "width=800,height=600");
-
-    ventana.document.write(`
-      <html>
-        <head>
-          <title>Imprimir Información</title>
-          ${estilo}
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0mm;
-            }
-            .v-card {
-              box-shadow: none;
-              font-size: 15px !important;
-            }
-            .imagen-superior-centrada {
-              display: block;
-              margin: 0 auto 10px auto;
-              width: 200px;
-              height: auto;
-            }
-            .marco-delgado {
-              border: 2px solid #000;
-              border-radius: 8px;
-              padding: 10px;
-              margin: 10px;
-              font-size: 15px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="marco-delgado">
-            <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
-            ${contenido}
-          </div>
-        </body>
-      </html>
-    `);
-
+    ventana.document.write(htmlContenido);
     ventana.document.close();
 
     ventana.onload = () => {

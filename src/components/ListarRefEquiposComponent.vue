@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-2">
     <v-data-table :headers="headers" :items="referencias" :search="search" class="elevation-1" :loading="cargando"
-      loading-text="Cargando ... por favor espere" >
+      loading-text="Cargando ... por favor espere" :items-per-page="-1">
       <template v-slot:top>
         <v-toolbar flat>
           <v-row justify="space-around">

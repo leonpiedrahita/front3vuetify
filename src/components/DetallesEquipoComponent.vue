@@ -682,13 +682,13 @@ imprimirVCard() {
   `;
 
   if (esMovil) {
-    // ----------- MODO MÓVIL (Xiaomi fix: imprimir en la misma página) -----------
-    const original = document.body.innerHTML;
-    document.body.innerHTML = htmlContenido;
-    window.print();
-    document.body.innerHTML = original;
+    // ----------- MODO MÓVIL: solo mostrar, no imprimir automáticamente -----------
+    const ventana = window.open("", "_blank", "width=800,height=600");
+    ventana.document.write(htmlContenido);
+    ventana.document.close();
+    // ⚠️ Aquí NO se llama a print(), solo muestra el contenido
   } else {
-    // ----------- MODO PC (como lo tenías) -----------
+    // ----------- MODO PC: imprimir automáticamente -----------
     const ventana = window.open("", "_blank", "width=800,height=600");
     ventana.document.write(htmlContenido);
     ventana.document.close();

@@ -729,8 +729,7 @@ imprimirVCard() {
 
     ventana.onload = () => {
       ventana.focus();
-      ventana.print();
-      ventana.close();
+    
     };
   }
 }

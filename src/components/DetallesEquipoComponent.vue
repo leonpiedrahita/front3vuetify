@@ -667,11 +667,17 @@ imprimirVCard() {
         ${estilo}
         <style>
           body { font-family: Arial, sans-serif; margin: 0mm; }
+          .v-btn { display:none; }
           .v-card { box-shadow: none; font-size: 15px !important; }
           .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
           .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
           .mensaje-movil { font-size:14px; text-align:center; margin:10px; color:#555; }
           button { padding:8px 16px; border-radius:6px; border:1px solid #555; margin-top:15px; cursor:pointer; }
+
+          /* 👇 Ocultar botón al imprimir */
+          @media print {
+            .mensaje-movil { display: none !important; }
+          }
         </style>
       </head>
       <body>
@@ -968,5 +974,6 @@ button.disabled {
     page-break-after: auto;
     page-break-inside: avoid;
   }
+  .mensaje-movil { display: none !important; }
 }
 </style>

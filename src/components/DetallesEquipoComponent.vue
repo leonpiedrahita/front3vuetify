@@ -685,7 +685,7 @@ imprimirVCard() {
           <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
           ${contenido}
         </div>
-        ${esMovil ? '<div class="mensaje-movil">📄 Pulsa el botón para imprimir:<br><button onclick="window.print()">🖨️ Imprimir</button></div>' : ''}
+        ${esMovil ? '<div class="mensaje-movil"><br><button onclick="window.print()">🖨️ Imprimir</button></div>' : ''}
       </body>
     </html>
   `;

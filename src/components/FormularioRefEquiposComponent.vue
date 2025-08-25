@@ -561,7 +561,7 @@ export default {
     },
     imprimirVCard() {
   const equipo = this.equipo;
- const contenidoCompacto = `
+  const contenidoCompacto = `
     <h3 style="text-align:center;">Ficha técnica</h3>
     <table border="1" cellspacing="0" cellpadding="8" style="width:100%; border-collapse: collapse; text-align:left;">
       <tr><th colspan="2" style="background:#f0f0f0; font-size:15px; text-align:center;">Información General</th></tr>
@@ -595,6 +595,10 @@ export default {
       <tr><td colspan="2" style="white-space: pre-wrap;">${equipo.recomendaciones}</td></tr>
     </table>
   `;
+
+  // Detectar móvil/tablet (incluye Xiaomi)
+  const esMovil = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || "ontouchstart" in window;
+
   const estiloCSS = `
     <style>
       body { font-family: Arial, sans-serif; padding: 20px; }
@@ -609,7 +613,11 @@ export default {
         height: auto;
       }
 
+      .mensaje-movil { font-size:14px; text-align:center; margin:15px; color:#555; }
+      button { padding:8px 16px; border-radius:6px; border:1px solid #555; margin-top:15px; cursor:pointer; }
+
       @media print {
+        .mensaje-movil, button { display:none !important; } /* 🔹 No imprimir el botón */
         body { font-size: 12px; }
         table { font-size: 12px; }
         th, td { font-size: 12px; padding: 6px; }
@@ -626,30 +634,27 @@ export default {
       <body>
         <img src="/biosystems.jpg" class="logo-centrado" />
         ${contenidoCompacto}
+        ${esMovil ? '<div class="mensaje-movil"><button onclick="window.print()">🖨️ Imprimir</button></div>' : ''}
       </body>
     </html>
   `);
   ventana.document.close();
 
-  // Ejecutar impresión cuando la ventana esté lista y los estilos cargados
-  ventana.addEventListener('load', () => {
-    ventana.focus();
+  if (!esMovil) {
+    // En PC: imprimir automáticamente y cerrar al terminar
+    ventana.onload = () => {
+      ventana.focus();
+      ventana.print();
 
-    // Escuchar el evento afterprint para cerrar la ventana automáticamente
-    ventana.addEventListener('afterprint', () => {
-      ventana.close();
-    });
+      ventana.addEventListener("afterprint", () => ventana.close());
 
-    ventana.print();
-
-    // Refuerzo adicional: cerrar si matchMedia indica que la impresión terminó
-    const mql = ventana.matchMedia('print');
-    mql.addListener(mqlEvent => {
-      if (!mqlEvent.matches) ventana.close();
-    });
-  });
+      const mql = ventana.matchMedia("print");
+      mql.addListener(e => { if (!e.matches) ventana.close(); });
+    };
+  }
 },
-    
+
+
     async guardarDocumento() {
       this.esperaguardar = true;
       try {

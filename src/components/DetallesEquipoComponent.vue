@@ -657,7 +657,8 @@ imprimirVCard() {
   const estilo = document.head.innerHTML;
   const imagenUrl = `${location.origin}/biosystems.jpg`;
 
-  const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // Detectar móvil/tablet (incluye Xiaomi)
+  const esMovil = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || "ontouchstart" in window;
 
   const htmlContenido = `
     <html>
@@ -670,6 +671,7 @@ imprimirVCard() {
           .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
           .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
           .mensaje-movil { font-size:14px; text-align:center; margin:10px; color:#555; }
+          button { padding:8px 16px; border-radius:6px; border:1px solid #555; margin-top:15px; cursor:pointer; }
         </style>
       </head>
       <body>
@@ -677,7 +679,7 @@ imprimirVCard() {
           <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
           ${contenido}
         </div>
-        ${esMovil ? '<div class="mensaje-movil">📄 Usa el menú de tu navegador para imprimir o guardar en PDF.</div>' : ''}
+        ${esMovil ? '<div class="mensaje-movil">📄 Pulsa el botón para imprimir:<br><button onclick="window.print()">🖨️ Imprimir</button></div>' : ''}
       </body>
     </html>
   `;

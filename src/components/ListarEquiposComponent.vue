@@ -527,7 +527,7 @@ export default {
     ],
     headers: [
       { title: "Serie", value: "serie", align: "center" },
-      { title: "Nombre", value: "nombre", align: "center" },
+      { title: "Nombre", key: "nombre", align: "center" },
       { title: "Inventario", value: "placaDeInventario", align: "center" },
       {
         title: "Propietario",
@@ -547,7 +547,7 @@ export default {
       {
         title: "Ubicacion",
         align: "center",
-        value: "ubicacionNombre",
+        key: "ubicacionNombre",
       },
       { title: "Contrato", key: "tipoDeContrato", align: "center" },
       {

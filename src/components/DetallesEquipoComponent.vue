@@ -659,7 +659,6 @@ imprimirVCard() {
 
   const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  // HTML unificado
   const htmlContenido = `
     <html>
       <head>
@@ -670,6 +669,7 @@ imprimirVCard() {
           .v-card { box-shadow: none; font-size: 15px !important; }
           .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
           .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+          .mensaje-movil { font-size:14px; text-align:center; margin:10px; color:#555; }
         </style>
       </head>
       <body>
@@ -677,25 +677,19 @@ imprimirVCard() {
           <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
           ${contenido}
         </div>
+        ${esMovil ? '<div class="mensaje-movil">📄 Usa el menú de tu navegador para imprimir o guardar en PDF.</div>' : ''}
       </body>
     </html>
   `;
 
-  if (esMovil) {
-    // ----------- MODO MÓVIL: solo mostrar, no imprimir automáticamente -----------
-    const ventana = window.open("", "_blank", "width=800,height=600");
-    ventana.document.write(htmlContenido);
-    ventana.document.close();
-    // ⚠️ Aquí NO se llama a print(), solo muestra el contenido
-  } else {
-    // ----------- MODO PC: imprimir automáticamente -----------
-    const ventana = window.open("", "_blank", "width=800,height=600");
-    ventana.document.write(htmlContenido);
-    ventana.document.close();
+  const ventana = window.open("", "_blank", "width=800,height=600");
+  ventana.document.write(htmlContenido);
+  ventana.document.close();
 
+  if (!esMovil) {
+    // Solo en PC lanzar impresión automática
     ventana.onload = () => {
       const imagen = ventana.document.getElementById("imagen-biosystems");
-
       if (!imagen.complete) {
         imagen.onload = () => {
           ventana.focus();

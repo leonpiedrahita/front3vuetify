@@ -213,7 +213,7 @@
           <v-col cols="12" align-self="center">
             <v-textarea v-model="equipo.recomendaciones" counter clearable autocomplete
               placeholder="Describa las recomendaciones dadas por el fabricante" rows="3" row-height="30" auto-grow
-              :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+              :maxlength="500" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
           </v-col>
         </v-row>
         <v-row>
@@ -285,7 +285,7 @@
             <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
             <v-card-text>
               <div class="text-h5 pa-5">
-                El documento ha sido guardado exitosamente.
+                Carga exitosa!
               </div>
             </v-card-text>
             <v-card-actions class="justify-center">
@@ -362,7 +362,7 @@ export default {
       desague: "",
       recomendaciones: "",
     },
-    clasificacionriesgo: ["I", "IIa", "IIb", "III"],
+    clasificacionriesgo: ["I", "IIa", "IIb", "III","N/A"],
     periodicidadmantenimiento: [
       "Libre de mantenimiento",
       "Trimestral",

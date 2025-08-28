@@ -204,7 +204,7 @@
   class="tabla-normal elevation-1"
   loading-text="Cargando ... por favor espere"
   hide-default-footer
-  disable-pagination
+  :items-per-page="-1"
 >
   <template v-slot:[`item.imprimir`]="{ item }">
     <div class="columna-imprimir">

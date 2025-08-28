@@ -84,7 +84,7 @@
               <div class="columna-imprimir">
                 <div>
                   <v-icon style="margin-left: 10px" medium @click="imprimirDocumento(item)">
-                    mdi-printer
+                    mdi-file-download-outline
                   </v-icon>
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default {
 
       },
       {
-        title: "Imprimir",
+        title: "Descargar",
         value: "imprimir",
         sortable: false,
         align: "center",

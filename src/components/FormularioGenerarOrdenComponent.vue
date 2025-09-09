@@ -438,7 +438,8 @@ export default {
       "Mantenimiento preventivo y correctivo",
       "Soporte telefónico",
       "Desinstalación",
-      "Alistamiento"
+      "Alistamiento",
+      "Inspección"
     ],
     fechadeiniciocalendario: null,
     menu1: false,

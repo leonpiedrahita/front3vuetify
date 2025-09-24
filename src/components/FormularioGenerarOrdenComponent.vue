@@ -436,10 +436,11 @@ export default {
       "Mantenimiento preventivo",
       "Mantenimiento correctivo",
       "Mantenimiento preventivo y correctivo",
-      "Soporte telefónico",
+      "Soporte remoto",
+      "Entrenamiento remoto",
       "Desinstalación",
-      "Alistamiento",
-      "Inspección"
+      "Inspección",
+      "Actualización"
     ],
     fechadeiniciocalendario: null,
     menu1: false,

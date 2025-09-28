@@ -365,10 +365,12 @@ export default {
     listaNombresDocumentos: [
       "Factura de Compra",
       "Factura de Venta",
-      "Certificado de conformidad",
+      "Certificado de Conformidad",
       "Declaracion de Importación",
       "Sin Declaración de Importación (Soporte)",
       "Sin Certificado de Conformidad (Soporte) ",
+      "Nota Crédito Proveedor",
+      "Nota Crédito Cliente",
     ],
     listaNombresSoportes: [
       "Acta de entrega",

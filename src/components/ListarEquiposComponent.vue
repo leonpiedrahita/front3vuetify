@@ -528,7 +528,7 @@ export default {
     headers: [
       { title: "Serie", value: "serie", align: "center" },
       { title: "Nombre", key: "nombre", align: "center" },
-      { title: "Inventario", value: "placaDeInventario", align: "center" },
+     /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
         title: "Propietario",
         align: "center",

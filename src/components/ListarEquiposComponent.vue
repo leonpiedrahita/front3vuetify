@@ -311,7 +311,7 @@
               <!-- CUERPO DEL DIALOGO -->
               <v-card-text>
                 <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios"
-                   class="elevation-1" :items-per-page="-1" >
+                  class="elevation-1" :items-per-page="-1">
                   <!-- Formateo de la fecha -->
                   <template #item.fecha="{ item }">
                     {{
@@ -426,11 +426,15 @@
       </template>
 
       <template v-slot:[`item.detalles`]="{ item }">
-        <v-icon medium @click="detallesEquipo(item)">
+        <v-icon medium @click="detallesEquipo(item)" :color="!item.documentosLegales || item.documentosLegales.length < 1
+          ? 'red'
+          : item.documentosLegales.length < 3
+            ? 'orange'
+            : 'green'
+          ">
           mdi-archive-eye-outline
         </v-icon>
       </template>
-
       <template v-slot:[`item.editar`]="{ item }">
         <v-icon medium @click="modificarEquipo(item)"> mdi-pencil </v-icon>
       </template>
@@ -528,7 +532,7 @@ export default {
     headers: [
       { title: "Serie", value: "serie", align: "center" },
       { title: "Nombre", key: "nombre", align: "center" },
-     /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
+      /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
         title: "Propietario",
         align: "center",
@@ -724,7 +728,7 @@ export default {
       fechaDeMovimiento: null,
     },
     nuevoequipopordefecto: {
-       nombre: "",
+      nombre: "",
       marca: null,
       id: "",
       serie: "",
@@ -933,26 +937,26 @@ export default {
       this.dialogomodificarequipocliente = false;
       this.buscarEquipos()
       this.$nextTick(() => {
-    this.nuevoequipo.nombre = "";
-    this.nuevoequipo.marca = null;
-    this.nuevoequipo.id = "";
-    this.nuevoequipo.serie = "";  
-    this.nuevoequipo.placaDeInventario = "";
-    this.nuevoequipo.tipoDeContrato = "";
-    this.nuevoequipo.propietario.nombre = "";
-    this.nuevoequipo.propietario.id = "";
-    this.nuevoequipo.cliente.nombre = "";
-    this.nuevoequipo.cliente.id = "";
-    this.nuevoequipo.proveedor.nombre = "";
-    this.nuevoequipo.proveedor.id = "";
-    this.nuevoequipo.ubicacion.nombre = ""; 
-    this.nuevoequipo.ubicacion.direccion = "";
-    this.nuevoequipo.ubicacion.ciudad = "";
-    this.nuevoequipo.ubicacion.id = "";
+        this.nuevoequipo.nombre = "";
+        this.nuevoequipo.marca = null;
+        this.nuevoequipo.id = "";
+        this.nuevoequipo.serie = "";
+        this.nuevoequipo.placaDeInventario = "";
+        this.nuevoequipo.tipoDeContrato = "";
+        this.nuevoequipo.propietario.nombre = "";
+        this.nuevoequipo.propietario.id = "";
+        this.nuevoequipo.cliente.nombre = "";
+        this.nuevoequipo.cliente.id = "";
+        this.nuevoequipo.proveedor.nombre = "";
+        this.nuevoequipo.proveedor.id = "";
+        this.nuevoequipo.ubicacion.nombre = "";
+        this.nuevoequipo.ubicacion.direccion = "";
+        this.nuevoequipo.ubicacion.ciudad = "";
+        this.nuevoequipo.ubicacion.id = "";
 
-    this.fechaDeMovimiento = null;
-    this.fechadecalendario = null;
-  });
+        this.fechaDeMovimiento = null;
+        this.fechadecalendario = null;
+      });
 
 
     },
@@ -1048,26 +1052,26 @@ export default {
           .then((response) => {
             console.log(response);
             this.$nextTick(() => {
-    this.nuevoequipo.nombre = "";
-    this.nuevoequipo.marca = null;
-    this.nuevoequipo.id = "";
-    this.nuevoequipo.serie = "";  
-    this.nuevoequipo.placaDeInventario = "";
-    this.nuevoequipo.tipoDeContrato = "";
-    this.nuevoequipo.propietario.nombre = "";
-    this.nuevoequipo.propietario.id = "";
-    this.nuevoequipo.cliente.nombre = "";
-    this.nuevoequipo.cliente.id = "";
-    this.nuevoequipo.proveedor.nombre = "";
-    this.nuevoequipo.proveedor.id = "";
-    this.nuevoequipo.ubicacion.nombre = ""; 
-    this.nuevoequipo.ubicacion.direccion = "";
-    this.nuevoequipo.ubicacion.ciudad = "";
-    this.nuevoequipo.ubicacion.id = "";
+              this.nuevoequipo.nombre = "";
+              this.nuevoequipo.marca = null;
+              this.nuevoequipo.id = "";
+              this.nuevoequipo.serie = "";
+              this.nuevoequipo.placaDeInventario = "";
+              this.nuevoequipo.tipoDeContrato = "";
+              this.nuevoequipo.propietario.nombre = "";
+              this.nuevoequipo.propietario.id = "";
+              this.nuevoequipo.cliente.nombre = "";
+              this.nuevoequipo.cliente.id = "";
+              this.nuevoequipo.proveedor.nombre = "";
+              this.nuevoequipo.proveedor.id = "";
+              this.nuevoequipo.ubicacion.nombre = "";
+              this.nuevoequipo.ubicacion.direccion = "";
+              this.nuevoequipo.ubicacion.ciudad = "";
+              this.nuevoequipo.ubicacion.id = "";
 
-    this.fechaDeMovimiento = null;
-    this.fechadecalendario = null;
-  })
+              this.fechaDeMovimiento = null;
+              this.fechadecalendario = null;
+            })
             this.mensajeDialogo = "Equipo registrado correctamente";
             this.confirmacionguardado = true;
             this.buscarEquipos();
@@ -1098,7 +1102,7 @@ export default {
         if (sedeEncontrada) {
           this.equipomodificado.ubicacionNombre = sedeEncontrada.ciudad;
           this.equipomodificado.ubicacionDireccion = sedeEncontrada.direccion;
-          
+
         } else {
           console.warn(
             "No se encontró la sede con ID:",
@@ -1145,7 +1149,7 @@ export default {
         placaDeInventario: this.equipomodificado.placaDeInventario,
         tipoDeContrato: this.equipomodificado.tipoDeContrato,
       };
-console.log("payload", payload);
+      console.log("payload", payload);
       // Llamada PATCH
       axios
         .patch(
@@ -1166,7 +1170,7 @@ console.log("payload", payload);
           this.mensajeDialogo = "Equipo actualizado correctamente";
           this.confirmacionguardado = true;
           this.buscarEquipos();
-          
+
         })
         .catch((error) => {
           console.log(error);
@@ -1229,7 +1233,7 @@ console.log("payload", payload);
       if (this.$store.state.existe === 0) {
         this.$router.push({ name: "Login" });
       } else {
-        
+
 
         console.log("equipomodificado2", this.equipomodificado);
         axios
@@ -1246,14 +1250,14 @@ console.log("payload", payload);
 
             );
             this.equipomodificado = Object.assign({}, item);
-        console.log("equipomodificado1", this.equipomodificado);
-        this.inventarioactual = this.equipomodificado.placaDeInventario;
+            console.log("equipomodificado1", this.equipomodificado);
+            this.inventarioactual = this.equipomodificado.placaDeInventario;
 
 
-        this.equipomodificado.cliente = {
-          ...this.equipomodificado.cliente,
-          nombreciudad: `${this.equipomodificado.ubicacionNombre} - ${this.equipomodificado.ubicacionDireccion || 'Sin ciudad'}`
-        };
+            this.equipomodificado.cliente = {
+              ...this.equipomodificado.cliente,
+              nombreciudad: `${this.equipomodificado.ubicacionNombre} - ${this.equipomodificado.ubicacionDireccion || 'Sin ciudad'}`
+            };
             this.dialogomodificarequipocliente = true;
             console.log("clientes", this.clientes);
 
@@ -1299,7 +1303,7 @@ console.log("payload", payload);
     mostrarHistorialClientes(item) {
 
       this.historialclientes = Object.assign({}, item)
-console.log("historialclientes", this.historialclientes.historialPropietarios);
+      console.log("historialclientes", this.historialclientes.historialPropietarios);
       this.dialogoclientes = true;
     },
     asignarLista() {
@@ -1548,15 +1552,15 @@ console.log("historialclientes", this.historialclientes.historialPropietarios);
             nombreDireccionCombinados: `${sede.ciudad} - ${sede.direccion}`
           })
         ) || [];
-console.log("ubicacionclientesmodificado", this.ubicacionclientesmodificado);
+        console.log("ubicacionclientesmodificado", this.ubicacionclientesmodificado);
 
-        
+
 
       } else {
         console.warn("No se encontró el cliente con ID:", this.equipomodificado.cliente.id);
         this.equipomodificado.cliente.id = null;
         this.ubicacionclientesmodificado = [];
-        
+
       }
     },
     exportToExcel() {

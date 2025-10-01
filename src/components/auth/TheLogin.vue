@@ -12,7 +12,7 @@
                 <v-text-field v-model="login.email" label="E-mail" required></v-text-field>
                 <v-text-field v-model="login.password" label="Contraseña" type="password" required></v-text-field>
 
-                <v-btn :disabled="!(login.email && login.password)" color="primary" class="mr-4" block type="submit">
+                <v-btn :disabled="!(login.email && login.password)" color="c4" class="mr-4" block type="submit">
                   Ingresar
                 </v-btn>
               </v-form>

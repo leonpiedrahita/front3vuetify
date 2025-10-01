@@ -427,10 +427,10 @@
 
       <template v-slot:[`item.detalles`]="{ item }">
         <v-icon medium @click="detallesEquipo(item)" :color="!item.documentosLegales || item.documentosLegales.length < 1
-          ? 'red'
-          : item.documentosLegales.length < 3
-            ? 'orange'
-            : 'green'
+            ? 'red'
+            : item.documentosLegales.length < 3
+              ? 'orange'
+              : 'green'
           ">
           mdi-archive-eye-outline
         </v-icon>

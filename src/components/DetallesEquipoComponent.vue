@@ -365,6 +365,7 @@ export default {
     listaNombresDocumentos: [
       "Factura de Compra",
       "Factura de Venta",
+      "Acta de Entrega de Venta",
       "Certificado de Conformidad",
       "Declaracion de Importación",
       "Sin Declaración de Importación (Soporte)",

@@ -426,20 +426,18 @@
       </template>
 
       <template v-slot:[`item.detalles`]="{ item }">
-        <v-icon 
-            medium 
-            @click="detallesEquipo(item)" 
-            :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
-                ? 'black' // Color negro si el contrato es 'Venta Externo'
-                : !item.documentosLegales || item.documentosLegales.length < 1
-                ? 'red'
-                : item.documentosLegales.length < 3
-                ? 'orange'
-                : 'green'
-            ">
-          mdi-archive-eye-outline
-        </v-icon>
-</template>
+                <v-icon medium  @click="detallesEquipo(item)" 
+        :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
+          ? 'black' // Color negro si el contrato es 'Venta Externo'
+          : !item.documentosLegales || item.documentosLegales.length < 1
+            ? 'red'
+            : item.documentosLegales.length < 3
+              ? 'orange'
+              : 'green'
+          ">
+                    mdi-archive-eye-outline
+                  </v-icon>
+      </template>
       <template v-slot:[`item.editar`]="{ item }">
         <v-icon medium @click="modificarEquipo(item)"> mdi-pencil </v-icon>
       </template>

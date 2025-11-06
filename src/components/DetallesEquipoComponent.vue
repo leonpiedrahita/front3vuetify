@@ -198,18 +198,22 @@
 
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
-      <v-data-table :headers="encabezadosDocumentosLegales" :items="documentosLegales" class="tabla-normal elevation-1"
-        loading-text="Cargando ... por favor espere" hide-default-footer>
-        <template v-slot:[`item.imprimir`]="{ item }">
-          <div class="columna-imprimir">
-            <div>
-              <v-icon style="margin-left: 10px" medium @click="imprimirDocumento(item)">
-                mdi-file-download-outline
-              </v-icon>
-            </div>
-          </div>
-        </template>
-      </v-data-table>
+     <v-data-table
+  :headers="encabezadosDocumentosLegales"
+  :items="documentosFiltrados"
+  class="tabla-normal elevation-1"
+  loading-text="Cargando ... por favor espere"
+  hide-default-footer
+  :items-per-page="-1"
+>
+  <template v-slot:[`item.imprimir`]="{ item }">
+    <div class="columna-imprimir">
+      <v-icon style="margin-left:10px" medium @click="imprimirDocumento(item)">
+        mdi-file-download-outline
+      </v-icon>
+    </div>
+  </template>
+</v-data-table>
 
 
     </v-row>
@@ -286,7 +290,7 @@
 
           <!-- Título centrado en negrilla -->
           <v-toolbar-title class="text-center font-weight-bold">
-            Equipo: {{ equipo.nombre }} &nbsp; | &nbsp; Serie: {{ equipo.serie }}
+           {{ equipo.nombre }} &nbsp; | &nbsp; {{ equipo.serie }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
 
@@ -361,14 +365,22 @@ export default {
     listaNombresDocumentos: [
       "Factura de Compra",
       "Factura de Venta",
-      "Certificado de conformidad",
-      "Declaracion de Importación"
+      "Acta de Entrega de Venta",
+      "Certificado de Conformidad",
+      "Declaracion de Importación",
+      "Sin Declaración de Importación (Soporte)",
+      "Sin Certificado de Conformidad (Soporte) ",
+      "Nota Crédito Proveedor",
+      "Nota Crédito Cliente",
     ],
     listaNombresSoportes: [
       "Acta de entrega",
       "Acta de retiro",
       "Contrato",
-      "Evidencia del soporte",
+      "Soportes del reporte",
+      "Asistencia a entrenamiento",
+      "Certificados de entrenamiento",
+      "Evaluaciones de entrenamiento",
     ],
 
     equipo: [],
@@ -410,7 +422,7 @@ export default {
 
       },
       {
-        title: "Soportes",
+        title: "Documentos soporte",
         value: "soportes",
         sortable: false,
         align: "center",
@@ -464,7 +476,7 @@ export default {
     fileRules: [
       value => !value || value.length <= 1 || 'Máximo 1 archivos permitidos.',
       value =>
-        !value || value.every(file => file.size < 5 * 1024 * 1024) || 'Cada archivo debe ser menor a 5MB.',
+        !value || value.every(file => file.size < 10 * 1024 * 1024) || 'Cada archivo debe ser menor a 10MB.',
       value =>
         !value || value.every(file => ['image/png', 'image/jpeg', 'image/bmp', 'application/pdf'].includes(file.type))
         || 'Solo se permiten imágenes y archivos PDF.',
@@ -472,6 +484,20 @@ export default {
   }),
 
   computed: {
+   documentosFiltrados() {
+    return this.documentosLegales.filter(item => {
+      // Si el usuario tiene rol permitido, muestra todo
+      if (this.esRolPermitido) {
+        return true;
+      }
+      // Si no, excluye documentos que contengan "Factura"
+      return !/Factura/i.test(item.nombreDocumento);
+    });
+  },
+  esRolPermitido() {
+    const permitidos = ['administrador', 'calidad', 'cotizaciones', 'comercial'];
+    return permitidos.includes(this.$store.state.user.rol);
+  },
     formTitle() {
       if (this.ventanaGuardarDocumento) {
         return "Nuevo documento";
@@ -632,36 +658,28 @@ export default {
 imprimirVCard() {
   const contenido = document.getElementById("vcard-imprimir").innerHTML;
   const estilo = document.head.innerHTML;
-  const imagenUrl = `${location.origin}/biosystems.jpg`; // Ruta absoluta
+  const imagenUrl = `${location.origin}/biosystems.jpg`;
 
-  const ventana = window.open("", "_blank", "width=800,height=600");
+  // Detectar móvil/tablet (incluye Xiaomi)
+  const esMovil = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || "ontouchstart" in window;
 
-  ventana.document.write(`
+  const htmlContenido = `
     <html>
       <head>
         <title>Imprimir Información</title>
         ${estilo}
         <style>
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0mm;
-          }
-          .v-card {
-            box-shadow: none;
-            font-size: 15px !important;
-          }
-          .imagen-superior-centrada {
-            display: block;
-            margin: 0 auto 10px auto;
-            width: 200px;
-            height: auto;
-          }
-          .marco-delgado {
-            border: 2px solid #000;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px;
-            font-size: 15px;
+          body { font-family: Arial, sans-serif; margin: 0mm; }
+          .v-btn { display:none; }
+          .v-card { box-shadow: none; font-size: 15px !important; }
+          .imagen-superior-centrada { display:block; margin:0 auto 10px auto; width:200px; height:auto; }
+          .marco-delgado { border:2px solid #000; border-radius:8px; padding:10px; margin:10px; font-size:15px; }
+          .mensaje-movil { font-size:14px; text-align:center; margin:10px; color:#555; }
+          button { padding:8px 16px; border-radius:6px; border:1px solid #555; margin-top:15px; cursor:pointer; }
+
+          /* 👇 Ocultar botón al imprimir */
+          @media print {
+            .mensaje-movil { display: none !important; }
           }
         </style>
       </head>
@@ -670,27 +688,32 @@ imprimirVCard() {
           <img id="imagen-biosystems" src="${imagenUrl}" class="imagen-superior-centrada" />
           ${contenido}
         </div>
+        ${esMovil ? '<div class="mensaje-movil"><br><button onclick="window.print()">🖨️ Imprimir</button></div>' : ''}
       </body>
     </html>
-  `);
+  `;
 
+  const ventana = window.open("", "_blank", "width=800,height=600");
+  ventana.document.write(htmlContenido);
   ventana.document.close();
 
-  ventana.onload = () => {
-    const imagen = ventana.document.getElementById("imagen-biosystems");
-
-    if (!imagen.complete) {
-      imagen.onload = () => {
+  if (!esMovil) {
+    // Solo en PC lanzar impresión automática
+    ventana.onload = () => {
+      const imagen = ventana.document.getElementById("imagen-biosystems");
+      if (!imagen.complete) {
+        imagen.onload = () => {
+          ventana.focus();
+          ventana.print();
+          ventana.close();
+        };
+      } else {
         ventana.focus();
         ventana.print();
         ventana.close();
-      };
-    } else {
-      ventana.focus();
-      ventana.print();
-      ventana.close();
-    }
-  };
+      }
+    };
+  }
 }
 ,
 
@@ -954,5 +977,6 @@ button.disabled {
     page-break-after: auto;
     page-break-inside: avoid;
   }
+  .mensaje-movil { display: none !important; }
 }
 </style>

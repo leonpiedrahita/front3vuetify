@@ -11,7 +11,7 @@
           <v-text-field v-model="buscar.serie" label="Serie" variant="outlined" persistent-hint />
         </v-col>
         <v-col cols="12" sm="6" md="2" class="pa-0">
-          <v-text-field v-model="buscar.propietario" label="Propietario" variant="outlined" persistent-hint />
+          <v-text-field v-model="buscar.cliente" label="Cliente" variant="outlined" persistent-hint />
         </v-col>
         <v-col cols="12" sm="6" md="2" class="pa-0 d-flex justify-center justify-sm-center justify-md-start">
           <v-btn class="mb-5" color="primary" min-width="228" size="large" variant="flat" @click="buscarEquipos">
@@ -53,7 +53,7 @@
             </v-col>
 
           </v-row>
-          <v-dialog v-model="dialog2" max-width="500px">
+          <v-dialog v-model="dialog2" max-width="500px" persistent>
             <v-card>
               <v-card-title>
                 <span class="headline">{{ formTitle }}</span>
@@ -88,13 +88,14 @@
                           nuevoproveedor }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.cliente.nombre" :items="nombresclientes" label="Cliente"
-                        required :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevocliente }}</v-autocomplete>
+                      <v-autocomplete v-model="nuevoequipo.cliente.id" :items="clientes" item-title="nombreciudad"
+                        item-value="id" label="Seleccione un cliente" required
+                        :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevocliente }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.ubicacion.nombre" :items="nombreUbicacionesCliente"
-                        label="Sede" :rules="[(v) => !!v || 'Campo Requerido']" required>
-                      </v-autocomplete>
+                      <v-autocomplete v-model="nuevoequipo.ubicacion.id" :items="ubicacionclientes"
+                        item-title="nombreDireccionCombinados" item-value="id" label="Sede"
+                        :rules="[(v) => !!v || 'Campo Requerido']" required></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="nuevoequipo.tipoDeContrato" :items="listacontratos"
@@ -127,9 +128,10 @@
                   nuevoequipo.serie &&
                   nuevoequipo.placaDeInventario &&
                   nuevoequipo.tipoDeContrato &&
-                  nuevoequipo.propietario &&
-                  nuevoequipo.cliente &&
-                  nuevoequipo.ubicacion.nombre &&
+                  nuevoequipo.propietario.nombre &&
+                  nuevoequipo.proveedor.nombre &&
+                  nuevoequipo.cliente.id &&
+                  nuevoequipo.ubicacion.id &&
                   fechaDeMovimiento
                 )
                   " color="primary darken-1" text @click="save2">
@@ -172,17 +174,17 @@
                         label="Proveedor" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
                           nuevoproveedormodificado }}</v-autocomplete>
                     </v-col>
-                    <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="equipomodificado.cliente.nombre" :items="nombresclientes" label="Cliente"
-                        required :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevoclientemodificado
-                        }}</v-autocomplete>
-                    </v-col>
 
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="equipomodificado.ubicacionNombre"
-                        :items="nombreUbicacionesClienteModificado" item-text="nombre" label="Sede"
-                        :rules="[(v) => !!v || 'Campo Requerido']" required>
-                      </v-autocomplete>
+                      <v-autocomplete v-model="equipomodificado.clienteId" :items="clientes" item-title="nombreciudad"
+                        item-value="id" label="Seleccione un cliente" required
+                        :rules="[(v) => !!v || 'Campo Requerido']">{{
+                          nuevoclientemodificado }}</v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete v-model="equipomodificado.ubicacionId" :items="ubicacionclientesmodificado"
+                        item-title="nombreDireccionCombinados" item-value="id" label="Sede"
+                        :rules="[(v) => !!v || 'Campo Requerido']" required></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.tipoDeContrato" :items="listacontratos"
@@ -203,9 +205,10 @@
                   equipomodificado.serie &&
                   equipomodificado.placaDeInventario &&
                   equipomodificado.tipoDeContrato &&
-                  equipomodificado.propietario &&
-                  equipomodificado.cliente &&
-                  equipomodificado.ubicacionNombre
+                  equipomodificado.propietario.nombre &&
+                  equipomodificado.proveedor.nombre &&
+                  equipomodificado.clienteId &&
+                  equipomodificado.ubicacionId
                 )
                   " color="primary darken-1" text @click="actualizarequipo">
                   Modificar
@@ -296,8 +299,9 @@
 
 
                 <!-- Título centrado en negrilla -->
-                <v-toolbar-title class="text-center font-weight-bold">
-                  Nombre: {{ historialclientes.nombre }} &nbsp; | &nbsp; Serie: {{ historialclientes.serie }}
+                <v-toolbar-title class="text-center wrap-text">
+                  Nombre: {{ historialclientes.nombre }}<br>
+                  Serie: {{ historialclientes.serie }}
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
                 <!-- Botón cerrar a la derecha -->
@@ -306,8 +310,8 @@
 
               <!-- CUERPO DEL DIALOGO -->
               <v-card-text>
-                <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios || []"
-                  :search="search" class="elevation-1" hide-default-footer>
+                <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios"
+                  class="elevation-1" :items-per-page="-1">
                   <!-- Formateo de la fecha -->
                   <template #item.fecha="{ item }">
                     {{
@@ -420,12 +424,20 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.detalles`]="{ item }">
-        <v-icon medium @click="detallesEquipo(item)">
-          mdi-archive-eye-outline
-        </v-icon>
-      </template>
 
+      <template v-slot:[`item.detalles`]="{ item }">
+                <v-icon medium  @click="detallesEquipo(item)" 
+        :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
+          ? 'black' // Color negro si el contrato es 'Venta Externo'
+          : !item.documentosLegales || item.documentosLegales.length < 1
+            ? 'red'
+            : item.documentosLegales.length < 3
+              ? 'orange'
+              : 'green'
+          ">
+                    mdi-archive-eye-outline
+                  </v-icon>
+      </template>
       <template v-slot:[`item.editar`]="{ item }">
         <v-icon medium @click="modificarEquipo(item)"> mdi-pencil </v-icon>
       </template>
@@ -502,13 +514,13 @@ export default {
     etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
-    listacontratos: ["Sin asignar", "Comodato", "Venta", "Alquiler","Dado de Baja"],
+    listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Dado de Baja","Devuelto al Proveedor"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
       nombreequipo: "",
       serie: "",
-      propietario: "",
+      cliente: "",
       contrato: "",
     },
     ordenes: [
@@ -522,8 +534,8 @@ export default {
     ],
     headers: [
       { title: "Serie", value: "serie", align: "center" },
-      { title: "Nombre", value: "nombre", align: "center" },
-      { title: "Inventario", value: "placaDeInventario", align: "center" },
+      { title: "Nombre", key: "nombre", align: "center" },
+      /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
         title: "Propietario",
         align: "center",
@@ -542,7 +554,7 @@ export default {
       {
         title: "Ubicacion",
         align: "center",
-        value: "ubicacionNombre",
+        key: "ubicacionNombre",
       },
       { title: "Contrato", key: "tipoDeContrato", align: "center" },
       {
@@ -619,6 +631,16 @@ export default {
         key: "cliente.nombre",
       },
       {
+        title: "Ciudad",
+        align: "center",
+        key: "ubicacionNombre",
+      },
+      {
+        title: "Dirección",
+        align: "center",
+        key: "ubicacionDireccion",
+      },
+      {
         title: "Tipo de Contrato",
         align: "center",
         key: "tipoDeContrato",
@@ -674,6 +696,7 @@ export default {
       ubicacion: {
         nombre: "",
         direccion: "",
+        ciudad: "",
       },
       fechaDeMovimiento: null,
     },
@@ -699,7 +722,12 @@ export default {
       ubicacion: {
         nombre: "",
         direccion: "",
+        ciudad: "",
       },
+      propietarioId: null,
+      clienteId: null,
+      proveedorId: null,
+      ubicacionId: null,
       fechaDeMovimiento: null,
     },
     nuevoequipopordefecto: {
@@ -724,6 +752,8 @@ export default {
       ubicacion: {
         nombre: "",
         direccion: "",
+        ciudad: "",
+        id: "",
       },
       fechaDeMovimiento: null,
     },
@@ -769,14 +799,14 @@ export default {
       val || this.close();
     },
     'nuevoequipo.nombre': function (newValue) {
-      // Este watcher se ejecutará cuando nuevoequipo.nombre cambie
+      // Este watcher se ejecutará cuando nuevoequipo.nombre cambie                                                                              
       this.nuevamarca();
     },
     'nuevoequipo.propietario.nombre': function (newValue) {
       // Este watcher se ejecutará cuando nuevoequipo.propietario.nombre cambie
       this.nuevopropietario();
     },
-    'nuevoequipo.cliente.nombre': function (newValue) {
+    'nuevoequipo.cliente.id': function (newValue) {
       // Este watcher se ejecutará cuando nuevoequipo.cliente.nombre cambie
       this.nuevocliente();
     },
@@ -784,24 +814,23 @@ export default {
       // Este watcher se ejecutará cuando nuevoequipo.proveedor.nombre cambie
       this.nuevoproveedor();
     },
-    'equipomodificado.cliente.nombre': function (newValue) {
+    'equipomodificado.clienteId': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
-      this.nuevopropietariomodificado();
+
       this.nuevoclientemodificado();
-      this.nuevoproveedormodificado();
+
     },
     'equipomodificado.propietario.nombre': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
-      this.nuevoclientemodificado();
       this.nuevopropietariomodificado();
-      this.nuevoproveedormodificado();
+
     },
     'equipomodificado.proveedor.nombre': function (newValue) {
       // Este watcher se ejecutará cuando 'equipomodificado.cliente.nombre' cambie
-      this.nuevoclientemodificado();
+
       this.nuevoproveedormodificado();
-      this.nuevopropietariomodificado();
-    }
+
+    },
   },
   beforeCreate() {
     this.$store.dispatch("autoLogin");
@@ -867,7 +896,7 @@ export default {
           nombre: this.buscar.nombreequipo, // Por ejemplo, un filtro basado en el nombre
           serie: this.buscar.serie,   // Por ejemplo, un filtro basado en la serie
           contrato: this.buscar.contrato, // Por ejemplo, un filtro basado en el estado
-          propietarioNombre: this.buscar.propietario // Por ejemplo, un filtro basado en el nombre del propietario
+          clienteNombre: this.buscar.cliente // Por ejemplo, un filtro basado en el nombre del propietario
 
         }, {
           headers: {
@@ -911,7 +940,25 @@ export default {
       this.dialogomodificarequipocliente = false;
       this.buscarEquipos()
       this.$nextTick(() => {
-        this.nuevoequipo = this.nuevoequipopordefecto;
+        this.nuevoequipo.nombre = "";
+        this.nuevoequipo.marca = null;
+        this.nuevoequipo.id = "";
+        this.nuevoequipo.serie = "";
+        this.nuevoequipo.placaDeInventario = "";
+        this.nuevoequipo.tipoDeContrato = "";
+        this.nuevoequipo.propietario.nombre = "";
+        this.nuevoequipo.propietario.id = "";
+        this.nuevoequipo.cliente.nombre = "";
+        this.nuevoequipo.cliente.id = "";
+        this.nuevoequipo.proveedor.nombre = "";
+        this.nuevoequipo.proveedor.id = "";
+        this.nuevoequipo.ubicacion.nombre = "";
+        this.nuevoequipo.ubicacion.direccion = "";
+        this.nuevoequipo.ubicacion.ciudad = "";
+        this.nuevoequipo.ubicacion.id = "";
+
+        this.fechaDeMovimiento = null;
+        this.fechadecalendario = null;
       });
 
 
@@ -931,26 +978,34 @@ export default {
     save2() {
       console.log("nuevoequipo", this.nuevoequipo);
 
+      // Buscar cliente por ID
       const clienteEncontrado = this.clientes.find(
         (cliente) => cliente.id === this.nuevoequipo.cliente.id
       );
+      console.log("clienteEncontrado", clienteEncontrado);
 
       if (clienteEncontrado) {
+        // Buscar sede por ID
         const sedeEncontrada = clienteEncontrado.sedes?.find(
-          (sede) => sede.ciudad === this.nuevoequipo.ubicacion.nombre
+          (sede) => sede.id === this.nuevoequipo.ubicacion.id
         );
+        console.log("sedeEncontrada", sedeEncontrada);
 
         if (sedeEncontrada) {
+          this.nuevoequipo.ubicacion.ciudad = sedeEncontrada.ciudad;
           this.nuevoequipo.ubicacion.direccion = sedeEncontrada.direccion;
         } else {
-          console.warn("No se encontró la sede con ciudad:", this.nuevoequipo.ubicacion.nombre);
+          console.warn("No se encontró la sede con ID:", this.nuevoequipo.ubicacion.id);
+          this.nuevoequipo.ubicacion.ciudad = "";
           this.nuevoequipo.ubicacion.direccion = "";
         }
       } else {
         console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
+        this.nuevoequipo.ubicacion.ciudad = "";
         this.nuevoequipo.ubicacion.direccion = "";
       }
 
+      // Verificar duplicados: serie e inventario
       const encontrarserie = this.equipos.find(
         (registro) => registro.serie === this.nuevoequipo.serie
       );
@@ -967,15 +1022,29 @@ export default {
         this.textodialogo = "El número de serie ya se encuentra registrado";
         this.dialogo = true;
       } else if (encontrarinventario) {
-        this.textodialogo =
-          "El número de inventario ya se encuentra registrado";
+        this.textodialogo = "El número de inventario ya se encuentra registrado";
         this.dialogo = true;
       } else {
+        // Convertir fecha a ISO antes de enviar
+        const fechaISO = this.fechadecalendario
+          ? new Date(this.fechadecalendario).toISOString()
+          : new Date().toISOString();
+
+        console.log("equipo nuevo", this.nuevoequipo);
+        console.log("ciudad", this.nuevoequipo.ubicacion.ciudad);
+        console.log("direccion", this.nuevoequipo.ubicacion.direccion);
+
+
         axios
           .post(
             this.$store.state.ruta + "api/equipo/registrar/",
             {
-              nuevoequipo: this.nuevoequipo,
+              nuevoequipo: {
+                ...this.nuevoequipo,
+                fechaDeMovimiento: fechaISO,
+                ubicacionNombre: this.nuevoequipo.ubicacion.ciudad,
+                ubicacionDireccion: this.nuevoequipo.ubicacion.direccion,
+              },
             },
             {
               headers: {
@@ -986,8 +1055,26 @@ export default {
           .then((response) => {
             console.log(response);
             this.$nextTick(() => {
-              this.nuevoequipo = this.nuevoequipopordefecto;
-            });
+              this.nuevoequipo.nombre = "";
+              this.nuevoequipo.marca = null;
+              this.nuevoequipo.id = "";
+              this.nuevoequipo.serie = "";
+              this.nuevoequipo.placaDeInventario = "";
+              this.nuevoequipo.tipoDeContrato = "";
+              this.nuevoequipo.propietario.nombre = "";
+              this.nuevoequipo.propietario.id = "";
+              this.nuevoequipo.cliente.nombre = "";
+              this.nuevoequipo.cliente.id = "";
+              this.nuevoequipo.proveedor.nombre = "";
+              this.nuevoequipo.proveedor.id = "";
+              this.nuevoequipo.ubicacion.nombre = "";
+              this.nuevoequipo.ubicacion.direccion = "";
+              this.nuevoequipo.ubicacion.ciudad = "";
+              this.nuevoequipo.ubicacion.id = "";
+
+              this.fechaDeMovimiento = null;
+              this.fechadecalendario = null;
+            })
             this.mensajeDialogo = "Equipo registrado correctamente";
             this.confirmacionguardado = true;
             this.buscarEquipos();
@@ -996,50 +1083,48 @@ export default {
             console.log(error);
             return error;
           });
+
       }
 
       this.dialog2 = false;
       this.close();
-
-    },
+    }
+    ,
     actualizarequipo() {
-      if (this.inventarioactual === this.equipomodificado.placaDeInventario) {
-        console.log("equipoenviado", this.equipomodificado);
-        axios
-          .patch(
-            this.$store.state.ruta +
-            "api/equipo/actualizar/" +
-            this.equipomodificado.id,
-            {
-              ubicacionNombre: this.equipomodificado.ubicacionNombre,
-              ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
-              cliente: this.equipomodificado.cliente,
-              propietario: this.equipomodificado.propietario,
-              proveedor: this.equipomodificado.proveedor,
-              placaDeInventario: this.equipomodificado.placaDeInventario,
-              tipoDeContrato: this.equipomodificado.tipoDeContrato,
-            },
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
-          )
-          .then((response) => {
-            console.log(response);
-            this.$nextTick(() => {
-              this.equipomodificado.nuevoequipopordefecto;
-            });
-            this.dialogomodificarequipocliente = false;
-            this.mensajeDialogo = "Equipo actualizado correctamente";
-            this.confirmacionguardado = true;
-            this.buscarEquipos();
-          })
-          .catch((error) => {
-            console.log(error);
-            return error;
-          });
+      const clienteEncontrado = this.clientes.find(
+        (cliente) => cliente.id === this.equipomodificado.clienteId
+      );
+
+      if (clienteEncontrado) {
+        // Buscar sede por ID
+        const sedeEncontrada = clienteEncontrado.sedes?.find(
+          (sede) => sede.id === this.equipomodificado.ubicacionId
+        );
+        console.log("sedeEncontrada", sedeEncontrada);
+
+        if (sedeEncontrada) {
+          this.equipomodificado.ubicacionNombre = sedeEncontrada.ciudad;
+          this.equipomodificado.ubicacionDireccion = sedeEncontrada.direccion;
+
+        } else {
+          console.warn(
+            "No se encontró la sede con ID:",
+            this.equipomodificado.ubicacionId
+          );
+          this.equipomodificado.ubicacionNombre = "";
+          this.equipomodificado.ubicacionDireccion = "";
+        }
       } else {
+        console.warn(
+          "No se encontró el cliente con ID:",
+          this.equipomodificado.clienteId
+        );
+        this.equipomodificado.ubicacionNombre = "";
+        this.equipomodificado.ubicacionDireccion = "";
+      }
+
+      // Verificar inventario duplicado solo si cambió
+      if (this.inventarioactual !== this.equipomodificado.placaDeInventario) {
         const encontrarinventario =
           this.equipomodificado.placaDeInventario !== "N/A"
             ? this.equipos.find(
@@ -1053,45 +1138,47 @@ export default {
           this.textodialogo =
             "El número de inventario ya se encuentra registrado";
           this.dialogo = true;
-        } else {
-          axios
-            .patch(
-              this.$store.state.ruta +
-              "api/equipo/actualizar/" +
-              this.equipomodificado.id,
-              {
-                ubicacionNombre: this.equipomodificado.ubicacionNombre,
-                ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
-                cliente: this.equipomodificado.cliente,
-                propietario: this.equipomodificado.propietario,
-                proveedor: this.equipomodificado.proveedor,
-                placaDeInventario: this.equipomodificado.placaDeInventario,
-                tipoDeContrato: this.equipomodificado.tipoDeContrato,
-              },
-              {
-                headers: {
-                  token: this.$store.state.token,
-                },
-              }
-            )
-            .then((response) => {
-              console.log(response);
-              this.$nextTick(() => {
-                this.nuevoequipo = this.nuevoequipopordefecto;
-              });
-              this.dialogomodificarequipocliente = false;
-              this.mensajeDialogo = "Equipo actualizado correctamente";
-            this.confirmacionguardado = true;
-              this.buscarEquipos();
-            })
-            .catch((error) => {
-              console.log(error);
-              return error;
-            });
+          return;
         }
       }
 
-      /* this.close(); */
+      // Payload para el PATCH
+      const payload = {
+        ubicacionNombre: this.equipomodificado.ubicacionNombre,
+        ubicacionDireccion: this.equipomodificado.ubicacionDireccion,
+        clienteId: this.equipomodificado.clienteId,
+        propietarioId: this.equipomodificado.propietario.id,
+        proveedorId: this.equipomodificado.proveedor.id,
+        placaDeInventario: this.equipomodificado.placaDeInventario,
+        tipoDeContrato: this.equipomodificado.tipoDeContrato,
+      };
+      console.log("payload", payload);
+      // Llamada PATCH
+      axios
+        .patch(
+          `${this.$store.state.ruta}api/equipo/actualizar/${this.equipomodificado.id}`,
+          payload,
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+          /* this.$nextTick(() => {
+            this.equipomodificado = this.nuevoequipopordefecto;
+          }); */
+          this.dialogomodificarequipocliente = false;
+          this.mensajeDialogo = "Equipo actualizado correctamente";
+          this.confirmacionguardado = true;
+          this.buscarEquipos();
+
+        })
+        .catch((error) => {
+          console.log(error);
+          return error;
+        });
     },
     nuevoEquipo() {
       this.$store.dispatch("autoLogin");
@@ -1108,14 +1195,15 @@ export default {
           })
           .then((response) => {
             this.clientes = response.data.map((cliente) => {
-              cliente.nombre = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
+              cliente.nombreciudad = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
               return cliente;
             });
 
-            this.nombresclientes = this.clientes.map((cliente) => cliente.nombre);
+            this.nombresclientes = this.clientes.map((cliente) => cliente.nombreciudad);
           })
           .catch((error) => {
             console.error("Error al obtener clientes:", error);
+            return error;
           });
         axios
           .get(this.$store.state.ruta + "api/refequipo/listar",
@@ -1148,10 +1236,9 @@ export default {
       if (this.$store.state.existe === 0) {
         this.$router.push({ name: "Login" });
       } else {
-        this.equipomodificado = Object.assign({}, item);
-        this.inventarioactual = this.equipomodificado.placaDeInventario;
 
-        this.dialogomodificarequipocliente = true;
+
+        console.log("equipomodificado2", this.equipomodificado);
         axios
           .get(this.$store.state.ruta + "api/cliente/listar", {
             headers: {
@@ -1159,17 +1246,55 @@ export default {
             },
           })
           .then((response) => {
-            this.clientes = response.data; //el this es porque no es propia de la funcion sino de l componente
-              /*           this.nombresclientes = this.clientes.map((cliente)=>({nombre:cliente.nombre,id:cliente._id,sede:cliente.sede}));
-               */ this.nombresclientes = this.clientes.map(
-              (cliente) => cliente.nombre
+            this.clientes = response.data.map((cliente) => {
+              cliente.nombreciudad = `${cliente.nombre} - ${cliente.sedePrincipal?.ciudad || 'Sin ciudad'}`;
+              return cliente;
+            }
+
             );
+            this.equipomodificado = Object.assign({}, item);
+            console.log("equipomodificado1", this.equipomodificado);
+            this.inventarioactual = this.equipomodificado.placaDeInventario;
+
+
+            this.equipomodificado.cliente = {
+              ...this.equipomodificado.cliente,
+              nombreciudad: `${this.equipomodificado.ubicacionNombre} - ${this.equipomodificado.ubicacionDireccion || 'Sin ciudad'}`
+            };
+            this.dialogomodificarequipocliente = true;
+            console.log("clientes", this.clientes);
+
+            this.nombresclientes = this.clientes.map((cliente) => cliente.nombreciudad);
+            const propietario = this.clientes.find(
+              (cliente) => cliente.id === this.equipomodificado.propietarioId
+            );
+
+            if (propietario) {
+              this.equipomodificado.propietario.id = propietario.id;
+              this.equipomodificado.propietario.nombre = propietario.nombreciudad;
+            } else {
+              this.nuevoequipo.propietario.id = null;
+            }
+            const proveedor = this.clientes.find(
+              (cliente) => cliente.id === this.equipomodificado.proveedorId
+            );
+
+            if (proveedor) {
+              this.equipomodificado.proveedor.id = proveedor.id;
+              this.equipomodificado.proveedor.nombre = proveedor.nombreciudad;
+            } else {
+              this.nuevoequipo.proveedor.id = null;
+            }
           })
           .catch((error) => {
             //console.log(error);
+            console.error("Error al obtener clientes:", error);
             return error;
           });
+
+
       }
+
     },
     detallesEquipo(item) {
       this.$store.dispatch("guardarDetallesEquipo", {
@@ -1181,7 +1306,7 @@ export default {
     mostrarHistorialClientes(item) {
 
       this.historialclientes = Object.assign({}, item)
-
+      console.log("historialclientes", this.historialclientes.historialPropietarios);
       this.dialogoclientes = true;
     },
     asignarLista() {
@@ -1340,7 +1465,7 @@ export default {
     nuevopropietario: function () {
       // `this` apunta a la instancia vm
       this.nuevoequipo.propietario.id = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.nuevoequipo.propietario.nombre) {
+        if (cliente.nombreciudad === this.nuevoequipo.propietario.nombre) {
           return cliente.id;
         }
       });
@@ -1351,7 +1476,7 @@ export default {
     },
     nuevoproveedor: function () {
       const proveedor = this.clientes.find(
-        (cliente) => cliente.nombre === this.nuevoequipo.proveedor.nombre
+        (cliente) => cliente.nombreciudad === this.nuevoequipo.proveedor.nombre
       );
 
       if (proveedor) {
@@ -1360,11 +1485,38 @@ export default {
         this.nuevoequipo.proveedor.id = null;
       }
     },
+    nuevocliente: function () {
+      // Buscar cliente por ID
+      const clienteSeleccionado = this.clientes.find(
+        (cliente) => cliente.id === this.nuevoequipo.cliente.id
+      );
+      console.log("clienteSeleccionado", this.nuevoequipo.cliente.id);
+      if (clienteSeleccionado) {
+        // Asignar sedes activas con campo nombreDireccionCombinados
+        this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa).map(
+          (sede) => ({
+            ...sede,
+            nombreDireccionCombinados: `${sede.ciudad} - ${sede.direccion}`
+          })
+        ) || [];
+
+        // Extraer solo los nombres combinados (array de strings)
+        this.nombreUbicacionesCliente = this.ubicacionclientes.map(
+          (s) => s.nombreDireccionCombinados
+        );
+
+      } else {
+        console.warn("No se encontró el cliente con ID:", this.nuevoequipo.cliente.id);
+        this.nuevoequipo.cliente.id = null;
+        this.ubicacionclientes = [];
+        this.nombreUbicacionesCliente = [];
+      }
+    },
 
     nuevopropietariomodificado: function () {
       // `this` apunta a la instancia vm
       this.equipomodificado.propietario.id = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.equipomodificado.propietario.nombre) {
+        if (cliente.nombreciudad === this.equipomodificado.propietario.nombre) {
           return cliente.id;
         }
       });
@@ -1376,7 +1528,7 @@ export default {
     nuevoproveedormodificado: function () {
       // `this` apunta a la instancia vm
       this.equipomodificado.proveedor.id = this.clientes.map((cliente) => {
-        if (cliente.nombre === this.equipomodificado.proveedor.nombre) {
+        if (cliente.nombreciudad === this.equipomodificado.proveedor.nombre) {
           return cliente.id;
         }
       });
@@ -1386,49 +1538,32 @@ export default {
       this.equipomodificado.proveedor.id = filtered[0];
     },
 
-    nuevocliente() {
-      // Buscar cliente por nombre
-      const clienteSeleccionado = this.clientes.find(
-        (cliente) => cliente.nombre === this.nuevoequipo.cliente.nombre
-      );
 
-      if (clienteSeleccionado) {
-        // Asignar ID
-        this.nuevoequipo.cliente.id = clienteSeleccionado.id;
-
-        // Asignar sedes activas
-        this.ubicacionclientes = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
-
-        // Extraer nombres de las ubicaciones
-        this.nombreUbicacionesCliente = this.ubicacionclientes.map((sedes) => sedes.ciudad);
-      } else {
-        // Si no se encuentra el cliente, limpia
-        this.nuevoequipo.cliente.id = null;
-        this.ubicacionclientes = [];
-        this.nombreUbicacionesCliente = [];
-      }
-    },
     nuevoclientemodificado() {
       // Buscar cliente por nombre
       const clienteSeleccionado = this.clientes.find(
-        (cliente) => cliente.nombre === this.equipomodificado.cliente.nombre
+        (cliente) => cliente.id === this.equipomodificado.clienteId
       );
+      console.log("equipomodificado.clienteId", this.equipomodificado.clienteId)
+      console.log("clienteSeleccionado", clienteSeleccionado);
 
       if (clienteSeleccionado) {
-        // Asignar ID
-        this.equipomodificado.cliente.id = clienteSeleccionado.id;
+        // Asignar sedes activas con campo nombreDireccionCombinados
+        this.ubicacionclientesmodificado = clienteSeleccionado.sedes?.filter(s => s.activa).map(
+          (sede) => ({
+            ...sede,
+            nombreDireccionCombinados: `${sede.ciudad} - ${sede.direccion}`
+          })
+        ) || [];
+        console.log("ubicacionclientesmodificado", this.ubicacionclientesmodificado);
 
-        // Filtrar sedes activas
-        this.ubicacionclientesmodificado = clienteSeleccionado.sedes?.filter(s => s.activa) || [];
 
-        // Extraer nombres de las ubicaciones
-        this.nombreUbicacionesClienteModificado = this.ubicacionclientesmodificado.map(
-          (sede) => sede.ciudad
-        );
+
       } else {
+        console.warn("No se encontró el cliente con ID:", this.equipomodificado.cliente.id);
         this.equipomodificado.cliente.id = null;
         this.ubicacionclientesmodificado = [];
-        this.nombreUbicacionesClienteModificado = [];
+
       }
     },
     exportToExcel() {

@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-2">
     <v-data-table :headers="headers" :items="referencias" :search="search" class="elevation-1" :loading="cargando"
-      loading-text="Cargando ... por favor espere" hide-default-footer>
+      loading-text="Cargando ... por favor espere" :items-per-page="-1">
       <template v-slot:top>
         <v-toolbar flat>
           <v-row justify="space-around">
@@ -46,19 +46,19 @@ export default {
     headers: [
       {
         title: "Nombre del equipo",
-        value: "nombre",
+        key: "nombre",
         align: "center",
       },
-      { title: "Marca", value: "marca", align: "center" },
+      { title: "Marca", key: "marca", align: "center" },
       {
         title: "Servicio",
         align: "center",
-        value: "servicio",
+        key: "servicio",
       },
       {
         title: "Riesgo",
         align: "center",
-        value: "clasificacionriesgo",
+        key: "clasificacionriesgo",
         divider: true,
       },
 

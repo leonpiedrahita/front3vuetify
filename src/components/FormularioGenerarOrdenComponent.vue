@@ -54,12 +54,12 @@
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="reporte.profesionalcliente" label="Nombre del profesional" required
+          <v-text-field v-model="reporte.profesionalcliente" label="Nombre del Usuario" required
             :rules="[(v) => !!v || 'Campo Requerido']"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
           <v-text-field v-model="reporte.telefonocliente" :rules="[(v) => !!v || 'Campo Requerido']"
-            label="Telefono del Profesional" required></v-text-field>
+            label="Telefono del Usuario" required></v-text-field>
         </v-col>
       </v-row>
       <v-divider class="mb-5 mt-5"></v-divider>
@@ -127,7 +127,7 @@
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.actividades" counter clearable autocomplete
             placeholder="Describa las actividades relacionadas con el soporte" rows="3" row-height="30" auto-grow
-            :maxlength="3000" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
+            :maxlength="1000" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
 
@@ -139,7 +139,7 @@
       <v-row>
         <v-col cols="12" align-self="center">
           <v-textarea v-model="reporte.pruebas" counter clearable autocomplete
-            placeholder="Liste las pruevas realizadas para verificar el adecuado funcionamiento del equipo" rows="3"
+            placeholder="Liste las pruebas realizadas para verificar el adecuado funcionamiento del equipo" rows="3"
             row-height="30" auto-grow :maxlength="250" :rules="[(v) => !!v || 'Campo Requerido']"></v-textarea>
         </v-col>
       </v-row>
@@ -196,22 +196,23 @@
           <p disabled class="centered-input">Responsable del soporte</p>
           <v-card-actions>
             <v-col cols="12" lg="12" align="center">
-              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="seleccionGuardarReporteInterno" :disabled="!(
-                this.reporte.tipodeasistencia &&
-                this.reporte.duracion &&
-                this.reporte.fechadeinicio &&
-                this.reporte.fechadefinalizacion &&
-                this.reporte.profesionalcliente &&
-                this.reporte.telefonocliente &&
-                this.reporte.hallazgos &&
-                this.reporte.actividades &&
-                this.reporte.pruebas &&
-                this.reporte.repuestos &&
-                this.reporte.observaciones &&
-                this.reporte.firmaingeniero &&
-                this.reporte.ingeniero
-              )
-                ">
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large
+                @click="seleccionGuardarReporteInterno" :disabled="!(
+                  this.reporte.tipodeasistencia &&
+                  this.reporte.duracion &&
+                  this.reporte.fechadeinicio &&
+                  this.reporte.fechadefinalizacion &&
+                  this.reporte.profesionalcliente &&
+                  this.reporte.telefonocliente &&
+                  this.reporte.hallazgos &&
+                  this.reporte.actividades &&
+                  this.reporte.pruebas &&
+                  this.reporte.repuestos &&
+                  this.reporte.observaciones &&
+                  this.reporte.firmaingeniero &&
+                  this.reporte.ingeniero
+                )
+                  ">
                 Guardar y finalizar
               </v-btn>
               <!--               <v-btn class="blue darken-1 ma-1" @click="save">
@@ -221,7 +222,8 @@
           </v-card-actions>
         </v-col>
       </v-row>
-<v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronogramaInterno">
+      <v-dialog transition="dialog-bottom-transition" max-width="600" persistent
+        v-model="dialogoPreguntarCronogramaInterno">
         <v-card>
           <!-- Encabezado con color y texto centrado -->
           <v-toolbar color="secondary" dark>
@@ -267,14 +269,9 @@
       </v-row>
       <v-row justify="space-around">
         <v-col cols="12" md="4">
-  <v-select
-    v-model="reporte.tipodeasistencia"
-    :items="tipodeasistenciaExtendida"
-    label="Tipo de asistencia"
-    required
-    :rules="[(v) => !!v || 'Campo Requerido']"
-  ></v-select>
-</v-col>
+          <v-select v-model="reporte.tipodeasistencia" :items="tipodeasistenciaExtendida" label="Tipo de asistencia"
+            required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
+        </v-col>
 
 
         <v-col cols="12" md="4">
@@ -382,7 +379,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      
+
     </v-container>
 
     <!-- <pre>
@@ -435,11 +432,15 @@ export default {
     tipodeasistencia: [
       "Instalación",
       "Entrenamiento",
+      "Instalación y entrenamiento",
       "Mantenimiento preventivo",
       "Mantenimiento correctivo",
       "Mantenimiento preventivo y correctivo",
+      "Soporte remoto",
+      "Entrenamiento remoto",
       "Desinstalación",
-      "Alistamiento"
+      "Inspección",
+      "Actualización"
     ],
     fechadeiniciocalendario: null,
     menu1: false,
@@ -512,7 +513,7 @@ export default {
     fileRules: [
       value => !value || value.length <= 1 || 'Máximo 1 archivos permitidos.',
       value =>
-        !value || value.every(file => file.size < 5 * 1024 * 1024) || 'Cada archivo debe ser menor a 5MB.',
+        !value || value.every(file => file.size < 10 * 1024 * 1024) || 'Cada archivo debe ser menor a 10MB.',
       value =>
         !value || value.every(file => ['image/png', 'image/jpeg', 'image/bmp', 'application/pdf'].includes(file.type))
         || 'Solo se permiten imágenes y archivos PDF.',
@@ -549,8 +550,8 @@ export default {
       return errors;
     },
     tipodeasistenciaExtendida() {
-    return [...this.tipodeasistencia, "Soportes previos"];
-  },
+      return [...this.tipodeasistencia, "Soportes previos"];
+    },
 
   },
   created() {
@@ -664,54 +665,54 @@ export default {
         });
     },
     async guardarReporteInternoCronograma() {
-  this.save();
-  this.esperaguardar = true;
+      this.save();
+      this.esperaguardar = true;
 
-  try {
-    const config = {
-      headers: { token: this.$store.state.token }
-    };
+      try {
+        const config = {
+          headers: { token: this.$store.state.token }
+        };
 
-    // PATCH primero
-    const responsePatch = await axios.patch(
-      `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
-      {
-        fechaDePreventivo: this.fechacalendariodefinalizacion,
-        id_equipo: this.equipo.id
-      },
-      config
-    );
+        // PATCH primero
+        const responsePatch = await axios.patch(
+          `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+          {
+            fechaDePreventivo: this.fechacalendariodefinalizacion,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
 
-    // POST después
-    const response = await axios.post(
-      this.$store.state.ruta + "api/reporte/registrar/",
-      {
-        reporte: this.reporte,
-        id_equipo: this.equipo.id
-      },
-      config
-    );
+        // POST después
+        const response = await axios.post(
+          this.$store.state.ruta + "api/reporte/registrar/",
+          {
+            reporte: this.reporte,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
 
-    const identificacion = response.data.identificacion;
-    localStorage.setItem("idreporte", identificacion);
-    this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+        const identificacion = response.data.identificacion;
+        localStorage.setItem("idreporte", identificacion);
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion });
 
-    const nuevaVentanaURL = this.$router.resolve({
-      name: 'ImprimirReporte',
-      params: { idreporte: identificacion.toString() }
-    }).href;
-    
-    window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-    this.$router.push({ name: "ListarEquipos" });
+        const nuevaVentanaURL = this.$router.resolve({
+          name: 'ImprimirReporte',
+          params: { idreporte: identificacion.toString() }
+        }).href;
 
-    this.confirmacionguardado = true;
+        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+        this.$router.push({ name: "ListarEquipos" });
 
-  } catch (error) {
-    console.error("Error al guardar el reporte:", error.response?.data || error.message);
-  } finally {
-    this.esperaguardar = false;
-  }
-},
+        this.confirmacionguardado = true;
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
     async guardarReporteExterno() {
       this.esperaguardar = true;
 
@@ -758,7 +759,7 @@ export default {
         this.esperaguardar = false;
       }
     },
-  
+
     async guardarReporteExternoCronograma() {
       this.esperaguardar = true;
 
@@ -776,13 +777,13 @@ export default {
           headers: { token: this.$store.state.token }
         };
 
-         const response = await axios.post(`${this.$store.state.ruta}api/s3/guardar`, formData, config);
+        const response = await axios.post(`${this.$store.state.ruta}api/s3/guardar`, formData, config);
         const identificacion = response.data.id;
-    
+
         localStorage.setItem("idreporte", identificacion);
-        this.$store.dispatch("guardarIdentificacion", { id: identificacion }); 
-console.log('Equipo.id', this.equipo.id)
-console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+        console.log('Equipo.id', this.equipo.id)
+        console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
         const responsePatch = await axios.patch(
           `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
           {
@@ -792,7 +793,7 @@ console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
           config
         );
 
-        console.log("Reporte creado:", response); 
+        console.log("Reporte creado:", response);
         console.log("Fecha actualizada:", responsePatch);
         this.confirmacionguardado = true;
 
@@ -815,12 +816,15 @@ console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
     },
     seleccionGuardarReporteExterno() {
       if (
-        this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
-        this.reporte.tipodeasistencia === 'Instalación' ||
-        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'||
-        this.reporte.tipodeasistencia === 'Soportes previos'||
-        this.reporte.tipodeasistencia === 'Alistamiento'
-      ) {
+        this.equipo.referencia.periodicidadmantenimiento !== "Libre de mantenimiento" &&
+        [
+          "Mantenimiento preventivo",
+          "Instalación",
+          "Mantenimiento preventivo y correctivo",
+          "Alistamiento",
+          "Instalación y entrenamiento"
+        ].includes(this.reporte.tipodeasistencia)
+      )  {
         this.dialogoPreguntarCronograma = true;
       } else {
         this.guardarReporteExterno();
@@ -828,10 +832,14 @@ console.log('fechacalendariodefinalizacion', this.fechacalendariodefinalizacion)
     },
     seleccionGuardarReporteInterno() {
       if (
-        this.reporte.tipodeasistencia === 'Mantenimiento preventivo' ||
-        this.reporte.tipodeasistencia === 'Instalación' ||
-        this.reporte.tipodeasistencia === 'Mantenimiento preventivo y correctivo'||
-        this.reporte.tipodeasistencia === 'Alistamiento'
+        this.equipo.referencia.periodicidadmantenimiento !== "Libre de mantenimiento" &&
+        [
+          "Mantenimiento preventivo",
+          "Instalación",
+          "Mantenimiento preventivo y correctivo",
+          "Alistamiento",
+          "Instalación y entrenamiento"
+        ].includes(this.reporte.tipodeasistencia)
       ) {
         this.dialogoPreguntarCronogramaInterno = true;
       } else {

@@ -55,7 +55,7 @@
           <div class="dato">{{ reporte.direccioncliente }}</div>
         </div>
         <div class="gridparejas">
-          <div class="subtitulonegrita">Nombre del Profesional :</div>
+          <div class="subtitulonegrita">Nombre del Usuario :</div>
           <div class="dato">{{ reporte.profesionalcliente }}</div>
         </div>
         <div class="gridparejas">

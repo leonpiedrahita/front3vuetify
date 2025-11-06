@@ -6,7 +6,7 @@
         <v-row align="center" style="height: 90vh">
           <v-col cols="12" md="10" lg="7" class="mx-auto">
             <v-card class="pa-10">
-              <v-img src="/src/imagenes/logo/GoMaint.png" max-width="350" class="mx-auto mb-6"></v-img>
+              <v-img src="/src/imagenes/logo/GoMaint.png" max-width="550" class="mx-auto mb-1"></v-img>
               <v-card-title title align="center"> Acceder a su cuenta </v-card-title>
               <v-form ref="form" lazy-validation @submit.prevent="loginUser">
                 <v-text-field v-model="login.email" label="E-mail" required></v-text-field>
@@ -80,10 +80,10 @@ export default {
   beforeCreate() {
     this.$store.dispatch("autoLogin")
     if (this.$store.state.existe === 1) {
-      this.$router.push({ name: 'ListarClientes' })
+      this.$router.push({ name: 'ListarEquipos' })
     }
 
-    //this.$store.dispatch("autoLogin")? this.$router.push({name: 'ListarClientes'}) : false;
+   
   },
   methods: {
     async loginUser() {
@@ -108,7 +108,7 @@ export default {
     },
     LoginAceptado() {
       this.confirmacionlogin = false
-      this.$router.push({ name: 'ListarClientes' });
+      this.$router.push({ name: 'ListarEquipos' });
 
 
     }

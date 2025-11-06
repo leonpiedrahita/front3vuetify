@@ -16,15 +16,22 @@
                     </v-row>
                 </v-toolbar>
             </template>
+            <template v-slot:item.createdAt="{ item }">
+                {{ formatearFecha(item.createdAt) }}
+            </template>
+
+            <template v-slot:item.updatedAt="{ item }">
+                {{ formatearFecha(item.updatedAt) }}
+            </template>
             <template v-slot:[`item.crear`]="{ item }">
                 <v-icon medium @click="abrirOrden(item)">
                     mdi-vector-polyline-edit
                 </v-icon>
             </template>
         </v-data-table>
-        
+
     </v-card>
-   <!--  <pre>{{ ordenes }}</pre> -->
+    <pre>{{ ordenes }}</pre>
 </template>
 
 <script>
@@ -43,7 +50,7 @@ export default {
                 key: "equipo.nombre",
                 align: "center",
             },
-            { title: "Número de serie", value: "equipo.serie", align: "center" },
+            { title: "Número de serie", key: "equipo.serie", align: "center" },
             {
                 title: "Cliente asignado",
                 align: "center",
@@ -53,6 +60,18 @@ export default {
                 title: "Estado",
                 align: "center",
                 key: "estado",
+                divider: true,
+            },
+            {
+                title: "Fecha de ingreso",
+                align: "center",
+                key: "createdAt",
+                divider: true,
+            },
+            {
+                title: "Última actualización",
+                align: "center",
+                key: "updatedAt",
                 divider: true,
             },
 
@@ -66,15 +85,30 @@ export default {
     }),
 
     methods: {
+        // --- NUEVA FUNCIÓN para formatear la fecha ---
+        formatearFecha(fechaString) {
+            if (!fechaString) return 'N/A';
+
+            // Crea un objeto Date a partir de la cadena ISO (ej: "2025-08-05T02:22:54.500Z")
+            const date = new Date(fechaString);
+
+            // Retorna la fecha en formato día/mes/año
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        },
+        // ---------------------------------------------
         listar() {
             //va a ir a mi backend y me traerá las peticiones de la base de datos
             axios
                 .get(this.$store.state.ruta + "api/ingreso/ingresos",
-                {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
+                    {
+                        headers: {
+                            token: this.$store.state.token,
+                        },
+                    }
                 )
                 .then((response) => {
                     this.ordenes = response.data; //el this es porque no es propia de la funcion sino de l componente
@@ -88,11 +122,9 @@ export default {
         abrirOrden(item) {
             this.ordenseleccionada = Object.assign({}, item);
             this.$store.dispatch("guardarOrdenesEquipo", {
-                ordenes: this.ordenseleccionada,
-                equipo: this.ordenseleccionada.equipo,
-                idorden: this.ordenseleccionada.id
+                ingreso: this.ordenseleccionada,
             });
-            this.$router.push({ name: "Pasos" })
+            this.$router.push({ name: "SeguimientoIngresos" })
         }
     },
     beforeCreate() {

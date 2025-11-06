@@ -5,23 +5,23 @@ import router from '../router'
 const apiUrl = import.meta.env.VITE_API_URL
 const store = createStore({
 
-    
+
     state: { //Creo las variables que son solo de lectura
         token: '',
         user: '',
         existe: 0,
-        ubicacion:'',
-        icono:'',
-        color:'',
-        ruta:apiUrl,
-       
-       identificacion:"",
-       ordenes:{},
-       equipo:{},
-       idorden:"",
-       referenciaequipo:{},
-       nuevareferencia:0,
-       detallesequipo:{}
+        ubicacion: '',
+        icono: '',
+        color: '',
+        ruta: apiUrl,
+
+        identificacion: "",
+        ingreso: {},
+        equipo: {},
+        idorden: "",
+        referenciaequipo: {},
+        nuevareferencia: 0,
+        detallesequipo: {}
     },
     mutations: {//creo las mutaciones para cambiar el valor de las variables del estado
         setToken(state, token) {//con state accedo a las variables del estado y con el token accedo al valor que devolvio el back al momento de loguearme
@@ -33,28 +33,27 @@ const store = createStore({
         setExistetoken(state, existe) {//Se define si existe el token o no
             state.existe = existe
         },
-        setUbicacion(state,{ubicacion, icono,color}){
+        setUbicacion(state, { ubicacion, icono, color }) {
             state.ubicacion = ubicacion
             state.icono = icono
             state.color = color
         },
-        setIdentificacion(state,id){
-            state.identificacion=id
+        setIdentificacion(state, id) {
+            state.identificacion = id
         },
-        setOrdenesEquipo(state,{ordenes,equipo,idorden}){
-            state.ordenes=ordenes
-            state.equipo=equipo
-            state.idorden=idorden
+        setOrdenesEquipo(state, ingreso) {
+            state.ingreso = ingreso
+
         },
-        setReferenciaEquipo(state,{referenciaequipo,nuevareferencia}){
-            state.referenciaequipo=referenciaequipo
-            state.nuevareferencia=nuevareferencia
-            
+        setReferenciaEquipo(state, { referenciaequipo, nuevareferencia }) {
+            state.referenciaequipo = referenciaequipo
+            state.nuevareferencia = nuevareferencia
+
         },
-        setDetallesEquipo(state,detallesequipo){
-            state.detallesequipo=detallesequipo
-            
-            
+        setDetallesEquipo(state, detallesequipo) {
+            state.detallesequipo = detallesequipo
+
+
         }
 
     },
@@ -67,14 +66,14 @@ const store = createStore({
         autoLogin({ commit }) {//este metodo verifica que el usuario ya esté logueado para no pedirle mas token, solo recibe el coomit ya que solo verifico que dentro de el localstorage esté el token y si está, lo seteamos
             const token = localStorage.getItem('token');
             if (token) {
-                const iniciotoken = new Date(jwtdecode(token).iat*1000);
-                const finaltoken = new Date(jwtdecode(token).exp*1000);
-                const horaactual= new Date();
+                const iniciotoken = new Date(jwtdecode(token).iat * 1000);
+                const finaltoken = new Date(jwtdecode(token).exp * 1000);
+                const horaactual = new Date();
                 const restatoken = horaactual - iniciotoken
-/*                 console.log(finaltoken)
-                console.log(iniciotoken)
-                console.log(horaactual)
-                console.log(restatoken) */
+                /*                 console.log(finaltoken)
+                                console.log(iniciotoken)
+                                console.log(horaactual)
+                                console.log(restatoken) */
                 if (restatoken < 1800000) {
                     commit("setToken", token);
                     commit("setUsuario", jwtdecode(token));
@@ -82,7 +81,7 @@ const store = createStore({
                 } else {
                     commit("setExistetoken", 0);
                     return false;
-                    
+
                 }
 
             } else {
@@ -93,32 +92,32 @@ const store = createStore({
         salir({ commit }) {//para borrar los datos y devolver el usuario a Home
             commit("setToken", null);
             commit("setUsuario", null);
-            localStorage.removeItem('token');  
+            localStorage.removeItem('token');
             router.push({ name: 'Login' });
         },
-        guardarUbicacion({ commit }, {ubicacion, icono,color}) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
-            commit("setUbicacion", {ubicacion, icono,color});
-            
+        guardarUbicacion({ commit }, { ubicacion, icono, color }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
+            commit("setUbicacion", { ubicacion, icono, color });
+
         },
         guardarIdentificacion({ commit }, identificacion) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
             commit("setIdentificacion", identificacion.id);
-            
+
         },
-        guardarOrdenesEquipo({ commit }, {ordenes,equipo,idorden}) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
-            commit("setOrdenesEquipo", {ordenes,equipo,idorden});
-            
+        guardarOrdenesEquipo({ commit }, ingreso) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
+            commit("setOrdenesEquipo", ingreso);
+
         },
-        guardarReferenciaEquipo({ commit }, {referenciaequipo,nuevareferencia}) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
-            commit("setReferenciaEquipo", {referenciaequipo,nuevareferencia});
-            
+        guardarReferenciaEquipo({ commit }, { referenciaequipo, nuevareferencia }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
+            commit("setReferenciaEquipo", { referenciaequipo, nuevareferencia });
+
         },
         guardarDetallesEquipo({ commit }, detallesequipo) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
             commit("setDetallesEquipo", detallesequipo.detallesequipo);
-            
+
         },
-        
+
     },
-   
+
 
 })
 

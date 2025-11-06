@@ -6,13 +6,13 @@
         <v-row align="center" style="height: 90vh">
           <v-col cols="12" md="10" lg="7" class="mx-auto">
             <v-card class="pa-10">
-              <v-img src="/src/imagenes/logo/GoMaintOctubre.png" max-width="550" class="mx-auto mb-1"></v-img>
+              <v-img src="/src/imagenes/logo/GoMaint.png" max-width="550" class="mx-auto mb-1"></v-img>
               <v-card-title title align="center"> Acceder a su cuenta </v-card-title>
               <v-form ref="form" lazy-validation @submit.prevent="loginUser">
                 <v-text-field v-model="login.email" label="E-mail" required></v-text-field>
                 <v-text-field v-model="login.password" label="Contraseña" type="password" required></v-text-field>
 
-                <v-btn :disabled="!(login.email && login.password)" color="c4" class="mr-4" block type="submit">
+                <v-btn :disabled="!(login.email && login.password)" color="primary" class="mr-4" block type="submit">
                   Ingresar
                 </v-btn>
               </v-form>
@@ -118,7 +118,7 @@ export default {
 <style scoped>
 .fondo-logo {
   min-height: 100vh;
-  background-image: url('/engrane medio sin fondo octubre.png');
+  background-image: url('/engrane medio sin fondo.png');
   background-repeat: no-repeat;
   background-color: #f5f5f5;
   /* gris claro */

@@ -177,8 +177,8 @@ export default {
                         "-" +
                         today.getFullYear() +
                         ")";
-this.ordenes.etapaActual++;
-                this.ordenes.ultimaEtapa++;
+                this.ingreso.etapaActual++;
+                this.ingreso.ultimaEtapa++;
                     axios
                         .post(
                             this.$store.state.ruta + "api/ingreso/agregaretapa/" + this.ingreso.id,

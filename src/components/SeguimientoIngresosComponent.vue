@@ -115,8 +115,8 @@
             </v-card-text>
         </v-card>
     </v-dialog>
-    <pre>{{ ingreso.etapas[ingreso.etapas.length - 1].nombre }}</pre>
-    <pre>{{ ingreso }}</pre>
+    <!-- <pre>{{ ingreso.etapas[ingreso.etapas.length - 1].nombre }}</pre>
+    <pre>{{ ingreso }}</pre> -->
 </template>
 
 <script>
@@ -184,7 +184,7 @@ export default {
                         ")";
                     this.ingreso.etapaActual++;
                     this.ingreso.ultimaEtapa++;
-                    if (this.nuevaEtapa.nombre === "Despachado" || this.nuevaEtapa.nombre === "Finalizado") {
+                    if (this.nuevaEtapa.nombre === "Despachado" || this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado") {
                         this.nuevoEstado = "Cerrado";
                     }
                     else {
@@ -265,6 +265,9 @@ export default {
                     "Pdte. de repuestos",
                     "Pdte. de aprobación de repuestos",
                     "Despachado",
+                    "Finalizado",
+                    "Cancelado"
+                    ,
 
                 ];
             } else if (this.$store.state.user.rol === "soporte") {
@@ -275,6 +278,8 @@ export default {
                     "Pdte. de repuestos",
                     "Pdte. de aprobación de repuestos",
                     "Listo para despacho",
+                    "Finalizado",
+                    "Cancelado"
                 ];
             }
             else if (this.$store.state.user.rol === "bodega") {
@@ -290,6 +295,7 @@ export default {
                 this.listadeEtapas = [
                     "Soporte ingeniería",
                     "Soporte aplicaciones",
+                    "Cancelado"
                 ];
 
             } else if (this.$store.state.user.rol === "comercial") {

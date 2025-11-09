@@ -189,9 +189,23 @@ export default {
   },
 
   created() {
-    this.listar();
+    
   },
+beforeMount() {
+    // Aquí puedes acceder a los datos que se usarán en el renderizado
+    this.listar();
+    
+  },
+  
+  // Alternativa: se ejecuta justo después de que el componente se inserta en el DOM.
+  // mounted() {
+  //   document.title = `Reporte ${this.reporte.numero} - ${this.reporte.tipo}`;
+  // },
 
+  beforeUnmount() {
+    // IMPORTANTE: Es buena práctica restaurar el título al salir del componente
+    document.title = 'GoMaint'; 
+  },
   methods: {
     listar() {
   const id = localStorage.getItem("idreporte");
@@ -214,6 +228,7 @@ export default {
     .then((response) => {
       this.reporte = response.data;
       console.log("Reporte:", this.reporte);
+      document.title = `Reporte ${this.reporte.numero} - ${this.reporte.tipodeasistencia} - ${this.reporte.fechadefinalizacion} - ${this.reporte.nombrecliente}`;
     })
     .catch((error) => {
       console.error("Error al obtener el reporte:", error);

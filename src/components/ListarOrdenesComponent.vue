@@ -63,7 +63,7 @@
         </v-data-table>
 
     </v-card>
-    <pre>{{ ordenes }}</pre>
+    <!-- <pre>{{ ordenes }}</pre> -->
 </template>
 
 <script>
@@ -205,8 +205,8 @@ export default {
                 EtapaActual: item.etapas && item.etapas.length > 0
                     ? (item.etapas.at(-1)?.nombre ?? item.etapas[item.etapas.length - 1].nombre)
                     : 'N/A',
-                
-                
+
+
             }));
             // Crear hoja y libro
             const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
@@ -217,7 +217,21 @@ export default {
             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
 
-            saveAs(blob, 'Ingresos.xlsx');
+            // 4. GENERAR NOMBRE DE ARCHIVO CON FECHA 📅
+            const now = new Date();
+
+            // Formato YYYY-MM-DD (Ejemplo: 2025-11-09)
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Mese 0-index, por eso + 1
+            const day = String(now.getDate()).padStart(2, '0');
+
+            const fechaActual = `${day}-${month}-${year}`;
+
+            // Concatenar el nombre y la fecha
+            const nombreArchivo = `Ingresos-${fechaActual}.xlsx`;
+
+            // 5. Guardar el archivo
+            saveAs(blob, nombreArchivo);
         },
     },
     beforeCreate() {

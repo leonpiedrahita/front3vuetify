@@ -68,8 +68,11 @@
                         <v-row>
                             <v-col cols="12">
                                 <h2 class="text-h6 text-primary text-center">Etapa actual</h2>
-                                <v-divider class="mt-1 mb-4"></v-divider>
+                                <p class="text-center text-body-3 text-black font-weight-bold">
+                                    {{ ingreso.etapas[ingreso.etapas.length - 1].nombre }}
+                                </p>
                             </v-col>
+
 
                             <v-col cols="12">
                                 <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
@@ -112,6 +115,7 @@
             </v-card-text>
         </v-card>
     </v-dialog>
+    <pre>{{ ingreso.etapas[ingreso.etapas.length - 1].nombre }}</pre>
     <pre>{{ ingreso }}</pre>
 </template>
 
@@ -177,8 +181,8 @@ export default {
                         "-" +
                         today.getFullYear() +
                         ")";
-                this.ingreso.etapaActual++;
-                this.ingreso.ultimaEtapa++;
+                    this.ingreso.etapaActual++;
+                    this.ingreso.ultimaEtapa++;
                     axios
                         .post(
                             this.$store.state.ruta + "api/ingreso/agregaretapa/" + this.ingreso.id,

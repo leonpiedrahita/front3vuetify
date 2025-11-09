@@ -83,7 +83,7 @@ export default {
       this.$router.push({ name: 'ListarEquipos' })
     }
 
-   
+
   },
   methods: {
     async loginUser() {

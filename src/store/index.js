@@ -34,14 +34,13 @@ const store = createStore({
         setExistetoken(state, existe) {//Se define si existe el token o no
             state.existe = existe
         },
-        setUbicacion(state, { ubicacion, icono, color }) {
+        
         setUbicacion(state, { ubicacion, icono, color }) {
             state.ubicacion = ubicacion
             state.icono = icono
             state.color = color
         },
-        setIdentificacion(state, id) {
-            state.identificacion = id
+        
         setIdentificacion(state, id) {
             state.identificacion = id
         },
@@ -49,18 +48,14 @@ const store = createStore({
             state.ingreso = ingreso
 
         },
-        setReferenciaEquipo(state, { referenciaequipo, nuevareferencia }) {
-            state.referenciaequipo = referenciaequipo
-            state.nuevareferencia = nuevareferencia
+        
 
         setReferenciaEquipo(state, { referenciaequipo, nuevareferencia }) {
             state.referenciaequipo = referenciaequipo
             state.nuevareferencia = nuevareferencia
 
         },
-        setDetallesEquipo(state, detallesequipo) {
-            state.detallesequipo = detallesequipo
-
+    
 
         setDetallesEquipo(state, detallesequipo) {
             state.detallesequipo = detallesequipo
@@ -111,9 +106,7 @@ const store = createStore({
             localStorage.removeItem('token');
             router.push({ name: 'Login' });
         },
-        guardarUbicacion({ commit }, { ubicacion, icono, color }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
-            commit("setUbicacion", { ubicacion, icono, color });
-
+       
         guardarUbicacion({ commit }, { ubicacion, icono, color }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
             commit("setUbicacion", { ubicacion, icono, color });
 
@@ -127,8 +120,7 @@ const store = createStore({
             commit("setOrdenesEquipo", ingreso);
 
         },
-        guardarReferenciaEquipo({ commit }, { referenciaequipo, nuevareferencia }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
-            commit("setReferenciaEquipo", { referenciaequipo, nuevareferencia });
+       
 
         guardarReferenciaEquipo({ commit }, { referenciaequipo, nuevareferencia }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
             commit("setReferenciaEquipo", { referenciaequipo, nuevareferencia });

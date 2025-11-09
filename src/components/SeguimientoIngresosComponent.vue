@@ -16,10 +16,10 @@
             <!-- Botón cerrar a la derecha -->
         </v-toolbar>
         <div class="d-flex justify-center align-center mb-2 mt-2"
-            v-if="ingreso.estado === 'Abierta' && this.$store.state.user.rol !== 'comercial' && this.$store.state.user.rol !== 'calidad'">
+            v-if="ingreso.estado === 'Abierto' && this.$store.state.user.rol !== 'comercial' && this.$store.state.user.rol !== 'calidad'">
 
             <v-btn color="c6" prepend-icon="mdi-plus" @click="abrirDialogoNuevaEtapa">
-                Actualizar estado
+                Actualizar etapa
             </v-btn>
         </div>
         <v-timeline align="start" density="confortable" truncate-line="both">
@@ -55,7 +55,7 @@
     <v-dialog v-model="dialogoNuevaEtapa" transition="dialog-bottom-transition" persistent max-width="800">
         <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-toolbar-title class="text-center font-weight-bold">
-                Añadir nuevo estado
+                Añadir nueva etapa
             </v-toolbar-title>
             <v-spacer></v-spacer>
 
@@ -90,7 +90,7 @@
                             </v-col>
 
                             <v-col cols="12" md="6">
-                                <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación *"
+                                <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
                                     :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente', 'Dado de baja']"
                                     :rules="[v => !!v || 'La ubicación es obligatoria']" required
                                     variant="outlined"></v-select>
@@ -103,7 +103,7 @@
             <v-card-actions class="pa-4 bg-grey-lighten-4">
                 <v-spacer></v-spacer>
                 <v-btn color="red" @click="cerrarDialogoNuevaEtapa">Cancelar</v-btn>
-                <v-btn color="success" @click="guardarNuevaEtapa">Guardar Estado</v-btn>
+                <v-btn color="success" @click="guardarNuevaEtapa">Guardar Etapa</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -128,6 +128,7 @@ export default {
         const ingreso = null;
         const esperarguardar = false;
         const listadeEtapas = [];
+        const nuevoEstado = null;
         const modeloEtapaInicial = {
             nombre: '',
             comentario: '',
@@ -183,6 +184,12 @@ export default {
                         ")";
                     this.ingreso.etapaActual++;
                     this.ingreso.ultimaEtapa++;
+                    if (this.nuevaEtapa.nombre === "Despachado" || this.nuevaEtapa.nombre === "Finalizado") {
+                        this.nuevoEstado = "Cerrado";
+                    }
+                    else {
+                        this.nuevoEstado = "Abierto";
+                    }
                     axios
                         .post(
                             this.$store.state.ruta + "api/ingreso/agregaretapa/" + this.ingreso.id,
@@ -194,7 +201,7 @@ export default {
                                 etapaActual: this.ingreso.etapaActual,
                                 ultimaEtapa: this.ingreso.ultimaEtapa,
                                 ubicacion: this.nuevaEtapa.ubicacion,
-                                estado: "Abierta"
+                                estado: this.nuevoEstado,
                             },
                             {
                                 headers: {
@@ -205,7 +212,6 @@ export default {
                         .then((response) => {
                             console.log(response);
                             this.esperarguardar = false;
-                            this.finalizar = true;
                             this.etapaautorizada = "";
                             this.observaciones = "";
                             this.ubicacionseleccionada = "";
@@ -281,7 +287,10 @@ export default {
 
             }
             else if (this.$store.state.user.rol === "cotizaciones") {
-                this.listadeEtapas = [];
+                this.listadeEtapas = [
+                    "Soporte ingeniería",
+                    "Soporte aplicaciones",
+                ];
 
             } else if (this.$store.state.user.rol === "comercial") {
                 this.listadeEtapas = [];
@@ -298,7 +307,7 @@ export default {
             this.consultarEquipo();
             this.asignarLista();
             this.$store.dispatch("guardarUbicacion", {
-                ubicacion: "Estados del ingreso",
+                ubicacion: "Etapas del ingreso",
                 icono: "mdi-vector-polyline",
                 color: "c6",
             });

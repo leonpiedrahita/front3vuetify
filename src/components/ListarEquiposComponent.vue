@@ -271,12 +271,12 @@
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px">
             <v-col cols="12">
-              <v-card class="pa-5"><v-text-field v-model="etapaautorizada" :items="listadeetapas"
-                  label="Etapa de Ingreso" required :rules="[(v) => !!v || 'Campo Requerido']"
-                  disabled=""></v-text-field>
+              <v-card class="pa-5"><v-text-field v-model="etapaSegunRol" 
+                  label="Etapa de Ingreso" 
+                  readonly></v-text-field>
                 <!-- <v-textarea v-model="observaciones"></v-textarea> -->
-                <v-card-actions><v-btn class="primary darken-1" text @click="confirmarEtapa(0)">Confirmar
-                    Etapa</v-btn></v-card-actions>
+                <v-card-actions class="justify-center"><v-btn color="c6" variant="flat" large  @click="confirmarEtapa(0)">Confirmar
+                    Ingreso</v-btn></v-card-actions>
               </v-card>
             </v-col>
           </v-dialog>
@@ -511,7 +511,6 @@ export default {
     search: "",
     cargando: false,
     esperaguardar: false,
-    etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Dado de Baja","Devuelto al Proveedor"],
@@ -533,7 +532,7 @@ export default {
       },
     ],
     headers: [
-      { title: "Serie", value: "serie", align: "center" },
+      { title: "Serie", key: "serie", align: "center" },
       { title: "Nombre", key: "nombre", align: "center" },
       /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
@@ -575,7 +574,7 @@ export default {
         value: "generarorden",
         sortable: false,
         align: "center",
-        roles: ["administrador"],
+        roles: ["administrador", "bodega", "cotizaciones"],
       },
       {
         title: "Crear Reporte",
@@ -760,6 +759,19 @@ export default {
   }),
 
   computed: {
+    etapaSegunRol() {
+            // Accede al rol del usuario desde tu Vuex Store
+            const userRol = this.$store.state.user.rol; 
+            
+            if (userRol === 'bodega') {
+                return 'Cuarentena';
+            } else if (userRol === 'cotizaciones') {
+                return 'Cotización aprobada';
+            }
+            
+            // Valor predeterminado si el rol no coincide (p. ej., un administrador)
+            return 'Rol no autorizado'; F
+        },
     headersfiltrados() {
       // Filtra las columnas según los permisos
       return this.headers.filter(column => {
@@ -1357,7 +1369,7 @@ export default {
           ")";
 
         this.ordenes[m].etapas.push({
-          nombre: this.etapaautorizada,
+          nombre: this.etapaSegunRol,
           comentario: this.observaciones,
           responsable: this.$store.state.user.nombre,
           fecha: date,
@@ -1608,7 +1620,7 @@ export default {
       // Crear hoja y libro
       const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
+      XLSX.utils.book_append_sheet(wb, ws, 'Cronograma MP');
 
       // Escribir y guardar
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });

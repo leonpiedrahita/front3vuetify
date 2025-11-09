@@ -70,39 +70,53 @@ const store = createStore({
             commit("setUsuario", jwtdecode(token));
             localStorage.setItem('token', token);
         },
-        autoLogin({ commit }) {
-            // 1. Obtiene el token
-            const token = localStorage.getItem('token');
+autoLogin({ commit }) {
+    // 1. Obtiene el token
+    const token = localStorage.getItem('token');
 
-            if (token) {
-                const iniciotoken = new Date(jwtdecode(token).iat * 1000);
-                const finaltoken = new Date(jwtdecode(token).exp * 1000);
-                const horaactual = new Date();
-                const restatoken = horaactual - iniciotoken
-                /*                 console.log(finaltoken)
-                                console.log(iniciotoken)
-                                console.log(horaactual)
-                                console.log(restatoken) */
-                if (restatoken < 1800000) {
-                    commit("setToken", token);
-                    commit("setUsuario", jwtdecode(token));
-                    commit("setExistetoken", 1);
-                } else {
-                    commit("setExistetoken", 0);
-                    return false;
+    if (!token) {
+        // No hay token, forzamos el cierre de sesión/desactivamos el token
+        commit("setExistetoken", 0);
+        return false;
+    }
 
-                }
-
-            } else {
-                // No hay token en localStorage
-                commit("setExistetoken", 0);
-                return false;
-            }
-        },
+    try {
+        // Decodifica el token para obtener sus datos (payload)
+        const payload = jwtdecode(token); 
+        
+        // Convertimos los timestamps de JWT (en segundos) a objetos Date (en milisegundos)
+        const horaExpiracion = new Date(payload.exp * 1000);
+        const horaActual = new Date();
+        
+        // Comprobación de la expiración:
+        // Si la hora actual es MENOR que la hora de expiración, el token es VÁLIDO.
+        if (horaActual < horaExpiracion) {
+            
+            // 2. Token Válido: Establece los datos de la sesión
+            commit("setToken", token);
+            commit("setUsuario", payload); // Usamos el payload decodificado
+            commit("setExistetoken", 1);
+            return true;
+            
+        } else {
+            
+            // 3. Token Expirado: Limpiamos la sesión
+            localStorage.removeItem('token'); // Opcional pero recomendado
+            commit("setExistetoken", 0);
+            return false;
+            
+        }
+    } catch (error) {
+        // Captura errores si el token está malformado o es ilegible
+        console.error("Error decodificando el token:", error);
+        localStorage.removeItem('token');
+        commit("setExistetoken", 0);
+        return false;
+    }
+},
         salir({ commit }) {//para borrar los datos y devolver el usuario a Home
             commit("setToken", null);
             commit("setUsuario", null);
-            localStorage.removeItem('token');
             localStorage.removeItem('token');
             router.push({ name: 'Login' });
         },

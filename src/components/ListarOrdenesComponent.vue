@@ -6,10 +6,25 @@
 
                 <v-toolbar flat>
 
-                    <v-row justify="space-around">
-                        <v-col cols="6" sm="5">
+                    <v-row align="center">
+                        <v-col cols="12" sm="6" md="6" lg="6">
                             <v-text-field v-model="search" append-icon="mdi-magnify"
                                 label="Buscar: Equipo/Serie/Cliente/Estado" single-line hide-details></v-text-field>
+                        </v-col>
+
+                        <v-spacer></v-spacer>
+
+                        <v-col cols="12" sm="6" md="6" lg="6" class="d-flex justify-space-around">
+
+                            <v-btn size="large" color="primary" variant="flat" @click="listarAbiertos()">
+                                Listar Abiertos
+                            </v-btn>
+                            <v-btn size="large" color="primary" variant="flat" @click="listarTodos()">
+                                Listar Todos
+                            </v-btn>
+                            <v-btn size="large" color="primary" variant="flat" @click="exportarAExcel()">
+                                Exportar a Excel
+                            </v-btn>
                         </v-col>
 
 
@@ -23,6 +38,23 @@
             <template v-slot:item.updatedAt="{ item }">
                 {{ formatearFecha(item.updatedAt) }}
             </template>
+            <template v-slot:item.ubicacion="{ item }">
+                <span v-if="item.etapas && item.etapas.length > 0">
+                    {{ item.etapas.at(-1)?.ubicacion ?? item.etapas[item.etapas.length - 1].ubicacion }}
+                </span>
+                <span v-else>
+                    N/A
+                </span>
+            </template>
+            <template v-slot:item.nombreEtapaActual="{ item }">
+                <span v-if="item.etapas && item.etapas.length > 0">
+                    {{ item.etapas.at(-1)?.nombre ?? item.etapas[item.etapas.length - 1].nombre }}
+                </span>
+                <span v-else>
+                    N/A
+                </span>
+            </template>
+
             <template v-slot:[`item.crear`]="{ item }">
                 <v-icon medium @click="abrirOrden(item)">
                     mdi-vector-polyline-edit
@@ -36,6 +68,8 @@
 
 <script>
 import axios from "axios";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 export default {
     name: "ListarOrdenesComponent",
     components: {},
@@ -46,13 +80,13 @@ export default {
         ordenseleccionada: {},
         encabezado: [
             {
-                title: "Nombre del equipo",
+                title: "Equipo",
                 key: "equipo.nombre",
                 align: "center",
             },
-            { title: "Número de serie", key: "equipo.serie", align: "center" },
+            { title: "Serie", key: "equipo.serie", align: "center" },
             {
-                title: "Cliente asignado",
+                title: "Cliente",
                 align: "center",
                 key: "equipo.cliente.nombre",
             },
@@ -60,19 +94,32 @@ export default {
                 title: "Estado",
                 align: "center",
                 key: "estado",
-                divider: true,
+
             },
             {
-                title: "Fecha de ingreso",
+                title: "Ubicación",
+                value: "ubicacion",
+                align: "center",
+            },
+            {
+                title: "Ingreso",
                 align: "center",
                 key: "createdAt",
-                divider: true,
+
             },
             {
                 title: "Última actualización",
                 align: "center",
                 key: "updatedAt",
-                divider: true,
+
+            },
+
+            {
+                title: "Etapa Actual",
+                value: "nombreEtapaActual",
+                align: "center",
+                sortable: false,
+
             },
 
             {
@@ -100,10 +147,28 @@ export default {
             });
         },
         // ---------------------------------------------
-        listar() {
+        listarTodos() {
             //va a ir a mi backend y me traerá las peticiones de la base de datos
             axios
                 .get(this.$store.state.ruta + "api/ingreso/ingresos",
+                    {
+                        headers: {
+                            token: this.$store.state.token,
+                        },
+                    }
+                )
+                .then((response) => {
+                    this.ordenes = response.data; //el this es porque no es propia de la funcion sino de l componente
+                    this.cargando = false
+                })
+                .catch((error) => {
+                    //console.log(error);
+                    return error;
+                });
+        },
+        listarAbiertos() {
+            axios
+                .get(this.$store.state.ruta + "api/ingreso/ingresosabiertos",
                     {
                         headers: {
                             token: this.$store.state.token,
@@ -125,7 +190,35 @@ export default {
                 ingreso: this.ordenseleccionada,
             });
             this.$router.push({ name: "SeguimientoIngresos" })
-        }
+        },
+        exportarAExcel() {
+            const exportData = this.ordenes.map(item => ({
+                Equipo: item.equipo.nombre,
+                Serie: item.equipo.serie,
+                Cliente: item.equipo.cliente.nombre,
+                Estado: item.estado,
+                ubicacion: item.etapas && item.etapas.length > 0
+                    ? (item.etapas.at(-1)?.ubicacion ?? item.etapas[item.etapas.length - 1].ubicacion)
+                    : 'N/A',
+                FechaIngreso: this.formatearFecha(item.createdAt),
+                UltimaActualizacion: this.formatearFecha(item.updatedAt),
+                EtapaActual: item.etapas && item.etapas.length > 0
+                    ? (item.etapas.at(-1)?.nombre ?? item.etapas[item.etapas.length - 1].nombre)
+                    : 'N/A',
+                
+                
+            }));
+            // Crear hoja y libro
+            const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Ingresos');
+
+            // Escribir y guardar
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+            saveAs(blob, 'Ingresos.xlsx');
+        },
     },
     beforeCreate() {
         this.$store.dispatch("autoLogin");
@@ -139,7 +232,7 @@ export default {
         });
     },
     created() {
-        this.listar();
+        this.listarAbiertos();
     },
 };
 </script>

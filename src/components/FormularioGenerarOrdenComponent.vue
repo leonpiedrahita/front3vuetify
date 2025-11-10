@@ -19,16 +19,16 @@
       </v-row>
       <v-row justify="space-between">
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.nombre" label="Nombre" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.nombre" label="Nombre" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.marca" label="Marca" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.marca" label="Marca" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.serie" label="Serie" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.serie" label="Serie" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.propietario.nombre" label="Propietario" disabled
+          <v-text-field v-model="equipo.propietario.nombre" label="Propietario" readonly
             class="centered-input"></v-text-field>
         </v-col>
       </v-row>
@@ -40,17 +40,17 @@
       </v-row>
       <v-row justify="space-between">
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.cliente.nombre" label="Nombre / Razón social" disabled
+          <v-text-field v-model="equipo.cliente.nombre" label="Nombre / Razón social" readonly
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.cliente.nit" label="NIT" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.cliente.nit" label="NIT" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicacionNombre" label="Sede" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.ubicacionNombre" label="Sede" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicacionDireccion" label="Dirección" disabled
+          <v-text-field v-model="equipo.ubicacionDireccion" label="Dirección" readonly
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
@@ -74,10 +74,18 @@
             :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
         </v-col>
 
-        <v-col cols="12" md="3" class="mt-5">
-          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15"
-            min="0.5" step="0.25"></v-slider>
-        </v-col>
+        <v-col cols="12" md="3">
+    <v-text-field
+        color="c6"
+        label="Duración (Horas)"
+        v-model.number="reporte.duracion"
+        type="number"
+        :max="20"
+        :min="0.5"
+        :step="0.25"
+        outlined  dense     hide-details
+    ></v-text-field>
+</v-col>
         <v-col cols="12" md="3">
           <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
             <template v-slot:activator="{ props }">
@@ -175,8 +183,8 @@
           <div class="lafirma">
             <VueSignaturePad id="signature" height="200px" width="350px" ref="signaturePad" :options="options" />
           </div>
-          <v-text-field v-model="reporte.profesionalcliente" disabled class="centered-input"></v-text-field>
-          <p disabled class="centered-input">Recibe a satisfacción</p>
+          <v-text-field v-model="reporte.profesionalcliente" readonly class="centered-input"></v-text-field>
+          <p readonly class="centered-input">Recibe a satisfacción</p>
           <v-col cols="6" lg="5" align="center">
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -192,8 +200,8 @@
           <div class="lafirma">
             <img class="lafirma" :src="reporte.firmaingeniero" />
           </div>
-          <v-text-field v-model="reporte.ingeniero" disabled class="centered-input"></v-text-field>
-          <p disabled class="centered-input">Responsable del soporte</p>
+          <v-text-field v-model="reporte.ingeniero" readonly class="centered-input"></v-text-field>
+          <p readonly class="centered-input">Responsable del soporte</p>
           <v-card-actions>
             <v-col cols="12" lg="12" align="center">
               <v-btn color="c6" min-width="228" size="large" variant="flat" large

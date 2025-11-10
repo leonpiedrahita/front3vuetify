@@ -474,7 +474,10 @@ export default {
     display: grid;
     row-gap: 2px;
     padding: 2px;
+    /* Versión con prefijo para Webkit */
     -webkit-print-color-adjust: exact;
+    /* Versión estándar (para compatibilidad) */
+    print-color-adjust: exact;
   }
 }
 

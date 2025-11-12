@@ -69,24 +69,35 @@
         </v-col>
       </v-row>
       <v-row justify="space-around">
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="6">
           <v-select v-model="reporte.tipodeasistencia" :items="tipodeasistencia" label="Tipo de asistencia" required
             :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
         </v-col>
 
-        <v-col cols="12" md="3">
-    <v-text-field
-        color="c6"
-        label="Duración (Horas)"
-        v-model.number="reporte.duracion"
-        type="number"
-        :max="20"
-        :min="0.5"
-        :step="0.25"
-        outlined  dense     hide-details
-    ></v-text-field>
-</v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="6">
+          <v-text-field color="c6" label="Duración (Horas)" v-model="reporte.duracion" required outlined dense
+            readonly="" hide-details>
+            <template v-slot:prepend>
+              <v-btn icon @click="changeDuration(-1)" :disabled="reporte.duracion <= 0.5" size="x-small" color="c6" variant="flat">
+                <v-icon>mdi-chevron-double-left</v-icon>
+              </v-btn>
+              <v-btn icon @click="changeDuration(-0.25)" :disabled="reporte.duracion <= 0.5" size="x-small" color="c6" variant="flat" class="ml-1">
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </template>
+            
+
+            <template v-slot:append>
+              <v-btn icon @click="changeDuration(0.25)" :disabled="reporte.duracion >= 50" size="x-small" color="c6" variant="flat">
+                <v-icon>mdi-chevron-right</v-icon>
+              </v-btn>
+              <v-btn icon @click="changeDuration(1)" :disabled="reporte.duracion >= 50" size="x-small" color="c6" variant="flat" class="ml-1">
+                <v-icon>mdi-chevron-double-right</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
           <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
             <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadeinicio" label="Fecha de inicio" prepend-icon="mdi-calendar" readonly
@@ -99,7 +110,7 @@
             </v-locale-provider>
           </v-menu>
         </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="6">
           <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition" min-width="auto">
             <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadefinalizacion" label="Fecha de finalización"
@@ -580,6 +591,23 @@ export default {
     });
   },
   methods: {
+    changeDuration(step) {
+      // 1. Calcula el nuevo valor
+      let newValue = this.reporte.duracion + step;
+
+      // 2. Redondea el nuevo valor para evitar problemas de coma flotante
+      // (Multiplicamos y dividimos por 100 para trabajar con enteros y asegurar la precisión de 0.25)
+      newValue = Math.round(newValue * 100) / 100;
+
+      // 3. Aplica las restricciones de mínimo y máximo (0.5 y 20)
+      if (newValue < 0.5) {
+        this.reporte.duracion = 0.5;
+      } else if (newValue > 20) {
+        this.reporte.duracion = 20;
+      } else {
+        this.reporte.duracion = newValue;
+      }
+    },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
 
       this.reporte.fechadeinicio = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
@@ -832,7 +860,7 @@ export default {
           "Alistamiento",
           "Instalación y entrenamiento"
         ].includes(this.reporte.tipodeasistencia)
-      )  {
+      ) {
         this.dialogoPreguntarCronograma = true;
       } else {
         this.guardarReporteExterno();

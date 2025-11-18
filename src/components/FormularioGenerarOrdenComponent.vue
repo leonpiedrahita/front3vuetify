@@ -404,24 +404,27 @@
       </v-dialog>
 
     </v-container>
-    <v-dialog v-model="dialogoAbierto" persistent max-width="450">
-      <v-card v-if="preguntaActual">
-        <v-card-title class="text-h6 primary white--text">
-          Confirmación de Requerimiento
+    <v-dialog v-model="dialogoAbierto" persistent max-width="450"  >
+      <v-card v-if="preguntaActual" >
+        
+        <v-card-title class="text-h4 primary text-center" >
+          Atención
         </v-card-title>
 
-        <v-card-text class="pt-4 text-body-1">
+        <v-card-text class="pt-0 text-h5 text-center">
           {{ preguntaActual.texto }}
         </v-card-text>
 
-        <v-card-actions>
+        <v-card-actions class="justify-center">
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="responderPregunta(false)">
+          <v-btn color="error" class="mb-5"  size="large" variant="flat" text @click="responderPregunta(false)">
             No
           </v-btn>
-          <v-btn color="success" text @click="responderPregunta(true)">
+          <v-spacer></v-spacer>
+          <v-btn color="success" class="mb-5"  size="large" variant="flat" text @click="responderPregunta(true)">
             Sí
           </v-btn>
+          <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
     </v-dialog>

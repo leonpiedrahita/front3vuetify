@@ -26,6 +26,8 @@
             <v-icon left size="18">mdi-paw</v-icon>
             <span class="separator"></span>
             Todos los derechos reservados 2025.
+            <span class="separator"></span>
+            V.1.2.0
           </div>
         </v-row>
       </v-col>

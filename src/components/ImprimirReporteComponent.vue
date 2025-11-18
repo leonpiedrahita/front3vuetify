@@ -118,7 +118,7 @@
       <div class="grid principal" fluid>
         <div class="gridfirma">
           <div class="lafirma">
-            <img :src="reporte.tipodeasistencia === 'Soporte remoto'
+            <img :src="reporte.firmacliente === 'Soporte remoto'
               ? selloremoto
               : reporte.firmacliente === 'Taller'
                 ? sellotaller

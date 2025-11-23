@@ -6,7 +6,7 @@
         <v-row align="center" style="height: 90vh">
           <v-col cols="12" md="10" lg="7" class="mx-auto">
             <v-card class="pa-10" color="transparent">
-              <v-img src="/src/imagenes/logo/GoMaintnavideno.png" max-width="550" class="mx-auto mb-1"></v-img>
+              <v-img src="/src/imagenes/logo/GoMaintNavideno.png" max-width="550" class="mx-auto mb-1"></v-img>
               <v-card-title title align="center"> Acceder a su cuenta </v-card-title>
               <v-form ref="form" lazy-validation @submit.prevent="loginUser">
                 <v-text-field v-model="login.email" label="E-mail" required></v-text-field>

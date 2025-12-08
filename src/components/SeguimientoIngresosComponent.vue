@@ -1,5 +1,5 @@
 <template>
-    <v-card class="pb-4">
+    <v-card class="pb-4 pl-2 pr-2 ml-2 mr-2 mt-2">
         <v-toolbar flat style="background-color: #52B69A; color: white;">
 
             <!-- Botón cerrar flotando a la derecha -->
@@ -22,7 +22,7 @@
                 Actualizar etapa
             </v-btn>
         </div>
-        <v-timeline align="start" density="confortable" truncate-line="both">
+        <v-timeline align="start" density="confortable" truncate-line="both" >
             <v-timeline-item v-for="(etapa, index) in ingreso.etapas" :key="etapa.id" dot-color="primary" size="small">
                 <!-- Dibuja el número en el dot -->
                 <!-- Slot para mostrar el número como ícono -->
@@ -63,7 +63,7 @@
 
         <v-card>
             <v-card-text>
-                <v-form ref="formNuevaEtapa" @submit.prevent="guardarNuevaEtapa">
+                <v-form ref="formNuevaEtapa">
                     <v-container>
                         <v-row>
                             <v-col cols="12">
@@ -102,8 +102,8 @@
 
             <v-card-actions class="pa-4 bg-grey-lighten-4">
                 <v-spacer></v-spacer>
-                <v-btn color="red" @click="cerrarDialogoNuevaEtapa">Cancelar</v-btn>
-                <v-btn color="success" @click="guardarNuevaEtapa">Guardar Etapa</v-btn>
+                <v-btn color="error darken-1" variant="flat" @click="cerrarDialogoNuevaEtapa">Cancelar</v-btn>
+                <v-btn color="primary darken-1" variant="flat" @click="consultarEstado">Guardar Etapa</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -113,6 +113,31 @@
                 Por favor espere...
                 <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
             </v-card-text>
+        </v-card>
+    </v-dialog>
+    <v-dialog v-model="cambiarestado" persistent width="500">
+        <v-card>
+            <v-toolbar flat style="background-color: #52B69A; color: white;">
+                <v-toolbar-title class="text-center font-weight-bold">
+                    Nuevo estado del equipo
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+
+            </v-toolbar>
+            <v-card-text>
+                <v-select v-model="nuevoestadoequipo" label="Nuevo estado *" :items=listadeestadosequipo
+                    :rules="[v => !!v || 'El estado es obligatorio']" required>
+                </v-select>
+            </v-card-text>
+            <v-card-actions>
+
+                <v-btn :disabled="!(
+                    nuevoestadoequipo
+                )
+                    " color="primary darken-1" variant="flat" text @click="guardarNuevaEtapa">
+                    Aceptar
+                </v-btn>
+            </v-card-actions>
         </v-card>
     </v-dialog>
     <!-- <pre>{{ ingreso.etapas[ingreso.etapas.length - 1].nombre }}</pre>
@@ -138,6 +163,9 @@ export default {
         };
 
         return {
+            cambiarestado: false,
+            nuevoestadoequipo: null,
+            listadeestadosequipo: ['Activo', 'En soporte', 'Disponible', 'Disp. Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
             ingreso,
             dialogoNuevaEtapa: false, // Reemplaza ref(false)
             modeloEtapaInicial,
@@ -164,6 +192,125 @@ export default {
         },
 
         async guardarNuevaEtapa() {
+            // 1. Validación del Formulario (Vuetify)
+            // Se extrae 'valid' de la validación asíncrona del formulario
+            const { valid } = await this.$refs.formNuevaEtapa.validate();
+
+            if (!valid) {
+                alert('Por favor, complete todos los campos obligatorios.');
+                return; // Detiene la ejecución si el formulario no es válido
+            }
+
+            // 2. Verificación de Autenticación
+            this.$store.dispatch("autoLogin");
+            if (this.$store.state.existe === 0) {
+                this.$router.push({ name: "Login" });
+                return; // Detiene la ejecución si no está logueado
+            }
+
+            // --- Preparación de Datos ---
+            this.esperarguardar = true;
+
+            // Mejora 1: Formato de fecha más limpio con template literals y padStart
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const date = `(${day}-${month}-${year})`;
+
+            // Actualización de contadores locales
+            this.ingreso.etapaActual++;
+            this.ingreso.ultimaEtapa++;
+
+            // Lógica para determinar el nuevo estado del ingreso
+            let nuevoEstado = "Abierto";
+            if (["Despachado", "Finalizado", "Cancelado"].includes(this.nuevaEtapa.nombre)) {
+                nuevoEstado = "Cerrado";
+            }
+            this.nuevoEstado = nuevoEstado; // Asume que 'nuevoEstado' es una propiedad de data
+
+            // Definición del payload para la API (Mejora 2: Uso de constantes para API)
+            const token = this.$store.state.token;
+            const rutaBase = this.$store.state.ruta;
+            const ingresoId = this.ingreso.id;
+
+            const payloadEtapa = {
+                nombre: this.nuevaEtapa.nombre,
+                comentario: this.nuevaEtapa.comentario,
+                responsable: this.$store.state.user.nombre,
+                fecha: date,
+                etapaActual: this.ingreso.etapaActual,
+                ultimaEtapa: this.ingreso.ultimaEtapa,
+                ubicacion: this.nuevaEtapa.ubicacion,
+                estado: nuevoEstado,
+            };
+
+            try {
+                // 3. API Call 1: Agregar Etapa
+                // Mejora 3: Uso de await para esperar la respuesta de la primera API
+                const responseEtapa = await axios.post(
+                    `${rutaBase}api/ingreso/agregaretapa/${ingresoId}`,
+                    payloadEtapa,
+                    { headers: { token } }
+                );
+                console.log('Respuesta de agregar etapa:', responseEtapa.data);
+
+                // 4. API Call 2: Actualizar Estado del Equipo (Condicional)
+                if (this.cambiarestado) {
+                    this.ingreso.equipo.estado = this.nuevoestadoequipo; // Actualiza el estado local
+
+                    // Mejora 4: Uso de await para la segunda llamada sin anidar promesas
+                    const responseEquipo = await axios.patch(
+                        `${rutaBase}api/equipo/actualizarestado/${this.ingreso.equipo.id}`,
+                        { nuevoEstado: this.nuevoestadoequipo },
+                        { headers: { token } }
+                    );
+                    console.log('Respuesta de actualización de equipo:', responseEquipo.data);
+                    this.cambiarestado = false; // Restablecer la bandera después del éxito
+                }
+
+                // 5. Limpieza de Estado y UI (Tras Éxito)
+                this.etapaautorizada = "";
+                this.observaciones = "";
+                this.ubicacionseleccionada = "";
+
+                // Cierra el diálogo y consulta datos actualizados solo si todo fue exitoso
+                this.consultarEquipoActualizado();
+                this.cerrarDialogoNuevaEtapa();
+
+            } catch (error) {
+                // 6. Manejo de Errores
+                console.error("Error al guardar la nueva etapa o actualizar el equipo:", error);
+
+                // Uso de Encadenamiento Opcional (?.) para acceso seguro a propiedades
+                if (error.response?.data?.error) {
+                    // Manejo de errores específicos
+                    this.textodialogo = error.response.data.error;
+                    this.dialogoetapa = false;
+                    // No se limpian los campos aquí si se asume que el usuario debe ver el error y reintentar
+                    this.dialogo = true;
+                } else {
+                    // Manejo de errores genéricos (ej. error de red)
+                    // Opcional: mostrar un mensaje de error genérico al usuario
+                    // this.textodialogo = "Ocurrió un error inesperado. Por favor, intente de nuevo.";
+                    // this.dialogo = true;
+                }
+
+            } finally {
+                // 7. Limpieza Final (Garantizada)
+                // Se ejecuta siempre, independientemente del éxito o el error
+                this.esperarguardar = false; // Detiene el indicador de carga
+            }
+        },
+        consultarEstado() {
+            if (this.nuevaEtapa.nombre === "Cancelado"||this.nuevaEtapa.nombre === "Despachado" || this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho") {
+                this.cambiarestado = true;
+            }
+            else {
+                this.guardarNuevaEtapa();
+            }
+        },
+        async guardarNuevaEtapaEstado() {
             // Accede a la referencia del formulario y llama a validate()
             const { valid } = await this.$refs.formNuevaEtapa.validate();
 

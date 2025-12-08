@@ -122,7 +122,7 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="close2"> Cancelar </v-btn>
+                <v-btn color="error" variant="flat" text @click="close2"> Cancelar </v-btn>
                 <v-btn :disabled="!(
                   nuevoequipo.nombre &&
                   nuevoequipo.serie &&
@@ -134,7 +134,7 @@
                   nuevoequipo.ubicacion.id &&
                   fechaDeMovimiento
                 )
-                  " color="primary darken-1" text @click="save2">
+                  " color="primary darken-1" variant="flat" text @click="save2">
                   Crear
                 </v-btn>
               </v-card-actions>
@@ -197,7 +197,7 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error darken-1" text @click="close2">
+                <v-btn variant="flat" color="error darken-1" text @click="close2">
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(
@@ -210,7 +210,7 @@
                   equipomodificado.clienteId &&
                   equipomodificado.ubicacionId
                 )
-                  " color="primary darken-1" text @click="actualizarequipo">
+                  " color="primary darken-1" text variant="flat" @click="actualizarequipo">
                   Modificar
                 </v-btn>
               </v-card-actions>
@@ -244,11 +244,12 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error" text @click="close"> Cancelar </v-btn>
-                <v-btn color="primary darken-1" text @click="save" v-if="generarreporteseleccionado">
+                <v-btn color="error" variant="flat" text @click="close"> Cancelar </v-btn>
+                <v-btn color="primary darken-1" variant="flat" text @click="save" v-if="generarreporteseleccionado">
                   Crear reporte
                 </v-btn>
-                <v-btn color="primary darken-1" text @click="guardarGenerarOrden" v-if="generarordenseleccionado">
+                <v-btn color="primary darken-1" variant="flat" text @click="guardarGenerarOrden"
+                  v-if="generarordenseleccionado">
                   Nuevo ingreso
                 </v-btn>
               </v-card-actions>
@@ -269,14 +270,43 @@
             </v-card>
 
           </v-dialog>
-          <v-dialog v-model="dialogoetapa" max-width="500px">
+          <v-dialog v-model="dialogoetapa" max-width="500px" persistent>
             <v-col cols="12">
-              <v-card class="pa-5"><v-text-field v-model="etapaSegunRol" 
-                  label="Etapa de Ingreso" 
-                  readonly></v-text-field>
+              <v-card class="pa-5"><v-select v-model="nuevaEtapa.etapaSeleccionada" :items="etapasDisponiblesPorRol"
+                  label="Etapa de Ingreso" required></v-select>
                 <!-- <v-textarea v-model="observaciones"></v-textarea> -->
-                <v-card-actions class="justify-center"><v-btn color="c6" variant="flat" large  @click="confirmarEtapa(0)">Confirmar
-                    Ingreso</v-btn></v-card-actions>
+                <v-col cols="12">
+                  <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
+                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente']"
+                    :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
+                </v-col>
+                <v-col cols="12">
+                  <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
+                    :rules="[v => !!v || 'El comentario es obligatorio']" required variant="outlined"></v-textarea>
+                </v-col>
+                <v-col cols="12">
+                  <h2 class="text-h6 text-primary text-center">Nueva Etapa</h2>
+                  <v-divider class="mt-1 mb-4"></v-divider>
+                </v-col>
+                <v-col cols="12">
+                  <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=listadeetapas
+                    :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
+                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente', 'Dado de baja']"
+                    :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
+                </v-col>
+                <v-card-actions class="justify-center">
+                  <v-btn color="error" variant="flat" large @click="cancelarEtapa()">
+                    Cancelar
+                  </v-btn>
+                  <v-btn color="c6" variant="flat" large @click="confirmarEtapa(0)"
+                    :disabled="!nuevaEtapa.etapaSeleccionada || !nuevaEtapa.ubicacionEtapaSeleccionada || !nuevaEtapa.comentario || !nuevaEtapa.nombre || !nuevaEtapa.ubicacion">
+                    Confirmar Ingreso
+                  </v-btn>
+                </v-card-actions>
               </v-card>
             </v-col>
           </v-dialog>
@@ -426,8 +456,7 @@
       </template>
 
       <template v-slot:[`item.detalles`]="{ item }">
-                <v-icon medium  @click="detallesEquipo(item)" 
-        :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
+                <v-icon medium @click="detallesEquipo(item)" :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
           ? 'black' // Color negro si el contrato es 'Venta Externo'
           : !item.documentosLegales || item.documentosLegales.length < 1
             ? 'red'
@@ -468,7 +497,7 @@
           </div>
         </v-card-text>
         <v-card-actions class="justify-center">
-          <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+          <v-btn class="c6" variant="flat" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -491,6 +520,16 @@ export default {
   },
   name: "ListarEquipos",
   data: () => ({
+    nuevaEtapa: {
+      etapaSeleccionada: "",
+      ubicacionEtapaSeleccionada: "",
+      comentario: "",
+      nombre: "",
+      ubicacion: "",
+      responsable: "",
+      fecha: "",
+
+    }, // Aquí se guardará la opción elegida por el usuario
     confirmacionguardado: false,
     mensajeDialogo: "",
     menu1: false,
@@ -511,9 +550,10 @@ export default {
     search: "",
     cargando: false,
     esperaguardar: false,
+    etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
-    listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Dado de Baja","Devuelto al Proveedor"],
+    listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Dado de Baja", "Devuelto al Proveedor"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
@@ -532,7 +572,7 @@ export default {
       },
     ],
     headers: [
-      { title: "Serie", key: "serie", align: "center" },
+      { title: "Serie", value: "serie", align: "center" },
       { title: "Nombre", key: "nombre", align: "center" },
       /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
@@ -556,6 +596,7 @@ export default {
         key: "ubicacionNombre",
       },
       { title: "Contrato", key: "tipoDeContrato", align: "center" },
+      { title: "Estado", key: "estado", align: "center" },
       {
         title: "Detalles",
         value: "detalles",
@@ -759,19 +800,20 @@ export default {
   }),
 
   computed: {
-    etapaSegunRol() {
-            // Accede al rol del usuario desde tu Vuex Store
-            const userRol = this.$store.state.user.rol; 
-            
-            if (userRol === 'bodega') {
-                return 'Cuarentena';
-            } else if (userRol === 'cotizaciones') {
-                return 'Cotización aprobada';
-            }
-            
-            // Valor predeterminado si el rol no coincide (p. ej., un administrador)
-            return 'Rol no autorizado'; F
-        },
+    etapasDisponiblesPorRol() {
+      const userRol = this.$store.state.user.rol;
+
+      if (userRol === 'bodega') {
+        return ['Cuarentena'];
+      } else if (userRol === 'cotizaciones') {
+        return ['Cotización aprobada'];
+      } else if (userRol === 'administrador') {
+        // Devuelve todas las opciones si es administrador
+        return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación', 'Finalizado'];
+      }
+
+      return ['Rol no autorizado'];
+    },
     headersfiltrados() {
       // Filtra las columnas según los permisos
       return this.headers.filter(column => {
@@ -866,6 +908,22 @@ export default {
   },
 
   methods: {
+    cancelarEtapa() {
+      this.dialogoetapa = false; // Cierra el diálogo
+      this.dialog = false;
+      this.limpiarNuevaEtapa();  // Llama a la función de limpieza
+    },
+
+    // Función auxiliar para restablecer los datos
+    limpiarNuevaEtapa() {
+      this.nuevaEtapa = {
+        etapaSeleccionada: null,
+        ubicacionEtapaSeleccionada: null,
+        comentario: '',
+        nombre: null,
+        ubicacion: null,
+      };
+    },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
 
       this.fechaDeMovimiento = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
@@ -1336,12 +1394,12 @@ export default {
         ];
       } else if (this.$store.state.user.rol === "bodega") {
         this.listadeetapas = [
-          "Llegada de equipo",
-          "Repuestos entregados",
-          "Equipo despachado",
+          "Desinfección",
+
         ];
       } else if (this.$store.state.user.rol === "cotizaciones") {
-        this.listadeetapas = ["Cotización aprobada"];
+        this.listadeetapas = ["Soporte ingeniería",
+          "Soporte aplicaciones"];
       } else if (this.$store.state.user.rol === "facturación") {
         this.listadeetapas = ["Repuestos aprobados para entrega"];
       } else if (this.$store.state.user.rol === "asesor") {
@@ -1353,73 +1411,88 @@ export default {
         this.listadeetapas = [];
       }
     },
-    confirmarEtapa(m) {
-      this.$store.dispatch("autoLogin");
-      if (this.$store.state.existe === 0) {
-        this.$router.push({ name: "Login" });
-      } else {
-        var today = new Date();
-        var date =
-          "(" +
-          today.getDate() +
-          "-" +
-          (today.getMonth() + 1) +
-          "-" +
-          today.getFullYear() +
-          ")";
+    async confirmarEtapa(m) {
+  // 1. Verificación de Autenticación (se mantiene igual)
+  this.$store.dispatch("autoLogin");
+  if (this.$store.state.existe === 0) {
+    this.$router.push({ name: "Login" });
+    return; // Usamos 'return' para salir de la función, eliminando el gran 'else'
+  }
 
-        this.ordenes[m].etapas.push({
-          nombre: this.etapaSegunRol,
-          comentario: this.observaciones,
-          responsable: this.$store.state.user.nombre,
-          fecha: date,
-          ubicacion: "Cuarentena"
-        });
-        this.ordenes[m].etapaactual++;
-        this.ordenes[m].ultimaetapa++;
+  // 2. Preparación de Datos (Mejora en la legibilidad de la fecha)
+  const today = new Date();
+  // Formato: (DD-MM-YYYY) usando padStart para 2 dígitos
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = today.getFullYear();
+  const date = `(${day}-${month}-${year})`;
 
-        this.esperaguardar = true;
+  this.nuevaEtapa.responsable = this.$store.state.user.nombre;
+  this.nuevaEtapa.fecha = date;
 
-        axios
-          .post(
-            this.$store.state.ruta + "api/ingreso/registrar",
-            {
-              equipo: this.editedItem,
-              etapa: this.ordenes[0].etapas[0],
-            },
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            }
-          )
-          .then((response) => {
-            this.esperaguardar = false;
-            this.dialogoetapa = false;
-            this.dialog = false;
-            this.$store.dispatch("guardarOrdenesEquipo", {
-              ordenes: this.ordenes[0],
-              equipo: this.editedItem,
-              idorden: response.data.result.id,
-            });
+  // 3. Inicio del Proceso y Lógica Asíncrona con Try/Catch
+  this.esperaguardar = true;
 
-            this.close();
-            console.log(response);
-            this.$router.push({ name: "Pasos" });
-          })
-          .catch((error) => {
-            this.esperaguardar = false;
-            console.log('Error', error.response.data.error);
-            if (error.response.data.error === `El equipo ya tiene un ingreso en estado "Abierto".`) {
-              this.textodialogo = error.response.data.error;
-              this.dialogoetapa = false;
-              this.dialog = false;
-              this.dialogo = true;
-            }
-            return error;
-          });
+  try {
+    const token = this.$store.state.token;
+    const rutaBase = this.$store.state.ruta;
+
+    // A. API Call 1: Registrar la Etapa
+    // Usamos 'await' para esperar la respuesta antes de continuar.
+    await axios.post(
+      rutaBase + "api/ingreso/registrar",
+      {
+        equipo: this.editedItem,
+        etapa: this.nuevaEtapa,
+      },
+      {
+        headers: { token },
       }
-    },
+    );
+
+    // B. Lógica Condicional: Actualizar Estado del Equipo (Solo para rol 'bodega')
+    if (this.$store.state.user.rol === "bodega") {
+      // Usamos el método PUT o PATCH que es más semántico para actualizaciones parciales
+      const responseUpdate = await axios.patch( // Cambiado de POST a PATCH (semántica REST)
+        rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
+        {
+          nuevoEstado: "En soporte", // Cambiado 'estado' a 'nuevoEstado' para mayor claridad
+        },
+        {
+          headers: { token },
+        }
+      );
+      console.log('Estado del equipo actualizado:', responseUpdate.data);
+    }
+
+    // C. Finalización Exitosa (Fuera de los condicionales)
+    this.esperaguardar = false;
+    this.dialogoetapa = false;
+    this.dialog = false;
+    this.limpiarNuevaEtapa();
+    this.close();
+    this.$router.push({ name: "ListarOrdenes" });
+
+  } catch (error) {
+    // D. Manejo de Errores
+    this.esperaguardar = false;
+
+    // Uso de encadenamiento opcional (?.) para prevenir errores si 'response' o 'data' no existen
+    if (error.response?.data?.error === `El equipo ya tiene un ingreso en estado "Abierto".`) {
+      this.textodialogo = error.response.data.error;
+      this.dialogoetapa = false;
+      this.dialog = false;
+      this.limpiarNuevaEtapa();
+      this.dialogo = true; // Muestra el diálogo de advertencia específica
+    } else {
+      // Manejar otros errores (p. ej., error de red, 404, 500 genérico)
+      console.error("Error al confirmar etapa:", error);
+      // Opcional: mostrar un mensaje de error genérico al usuario
+      // this.textodialogo = "Ocurrió un error desconocido. Intente de nuevo.";
+      // this.dialogo = true; 
+    }
+  }
+},
     guardarReporte() {
       this.esperaguardar = true;
       axios
@@ -1620,7 +1693,7 @@ export default {
       // Crear hoja y libro
       const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Cronograma MP');
+      XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
 
       // Escribir y guardar
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });

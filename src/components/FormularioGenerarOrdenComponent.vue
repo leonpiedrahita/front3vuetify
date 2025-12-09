@@ -19,16 +19,16 @@
       </v-row>
       <v-row justify="space-between">
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.nombre" label="Nombre" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.nombre" label="Nombre" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.marca" label="Marca" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.marca" label="Marca" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.serie" label="Serie" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.serie" label="Serie" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.propietario.nombre" label="Propietario" disabled
+          <v-text-field v-model="equipo.propietario.nombre" label="Propietario" readonly
             class="centered-input"></v-text-field>
         </v-col>
       </v-row>
@@ -40,17 +40,17 @@
       </v-row>
       <v-row justify="space-between">
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.cliente.nombre" label="Nombre / Razón social" disabled
+          <v-text-field v-model="equipo.cliente.nombre" label="Nombre / Razón social" readonly
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.cliente.nit" label="NIT" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.cliente.nit" label="NIT" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicacionNombre" label="Sede" disabled class="centered-input"></v-text-field>
+          <v-text-field v-model="equipo.ubicacionNombre" label="Sede" readonly class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-text-field v-model="equipo.ubicacionDireccion" label="Dirección" disabled
+          <v-text-field v-model="equipo.ubicacionDireccion" label="Dirección" readonly
             class="centered-input"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
@@ -69,16 +69,39 @@
         </v-col>
       </v-row>
       <v-row justify="space-around">
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="6">
           <v-select v-model="reporte.tipodeasistencia" :items="tipodeasistencia" label="Tipo de asistencia" required
             :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
         </v-col>
 
-        <v-col cols="12" md="3" class="mt-5">
-          <v-slider color="c6" label="Duración (Horas)" v-model="reporte.duracion" thumb-label="always" max="15"
-            min="0.5" step="0.25"></v-slider>
+        <v-col cols="12" md="6">
+          <v-text-field color="c6" label="Duración (Horas)" v-model="reporte.duracion" required outlined dense
+            readonly="" hide-details>
+            <template v-slot:prepend>
+              <v-btn icon @click="changeDuration(-1)" :disabled="reporte.duracion <= 0.5" size="x-small" color="c6"
+                variant="flat">
+                <v-icon>mdi-chevron-double-left</v-icon>
+              </v-btn>
+              <v-btn icon @click="changeDuration(-0.25)" :disabled="reporte.duracion <= 0.5" size="x-small" color="c6"
+                variant="flat" class="ml-1">
+                <v-icon>mdi-chevron-left</v-icon>
+              </v-btn>
+            </template>
+
+
+            <template v-slot:append>
+              <v-btn icon @click="changeDuration(0.25)" :disabled="reporte.duracion >= 50" size="x-small" color="c6"
+                variant="flat">
+                <v-icon>mdi-chevron-right</v-icon>
+              </v-btn>
+              <v-btn icon @click="changeDuration(1)" :disabled="reporte.duracion >= 50" size="x-small" color="c6"
+                variant="flat" class="ml-1">
+                <v-icon>mdi-chevron-double-right</v-icon>
+              </v-btn>
+            </template>
+          </v-text-field>
         </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="6">
           <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
             <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadeinicio" label="Fecha de inicio" prepend-icon="mdi-calendar" readonly
@@ -91,7 +114,7 @@
             </v-locale-provider>
           </v-menu>
         </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="6">
           <v-menu v-model="menu2" :close-on-content-click="false" transition="scale-transition" min-width="auto">
             <template v-slot:activator="{ props }">
               <v-text-field v-model="reporte.fechadefinalizacion" label="Fecha de finalización"
@@ -175,8 +198,8 @@
           <div class="lafirma">
             <VueSignaturePad id="signature" height="200px" width="350px" ref="signaturePad" :options="options" />
           </div>
-          <v-text-field v-model="reporte.profesionalcliente" disabled class="centered-input"></v-text-field>
-          <p disabled class="centered-input">Recibe a satisfacción</p>
+          <v-text-field v-model="reporte.profesionalcliente" readonly class="centered-input"></v-text-field>
+          <p readonly class="centered-input">Recibe a satisfacción</p>
           <v-col cols="6" lg="5" align="center">
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -192,12 +215,12 @@
           <div class="lafirma">
             <img class="lafirma" :src="reporte.firmaingeniero" />
           </div>
-          <v-text-field v-model="reporte.ingeniero" disabled class="centered-input"></v-text-field>
-          <p disabled class="centered-input">Responsable del soporte</p>
+          <v-text-field v-model="reporte.ingeniero" readonly class="centered-input"></v-text-field>
+          <p readonly class="centered-input">Responsable del soporte</p>
           <v-card-actions>
             <v-col cols="12" lg="12" align="center">
-              <v-btn color="c6" min-width="228" size="large" variant="flat" large
-                @click="seleccionGuardarReporteInterno" :disabled="!(
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="iniciarCuestionario"
+                :disabled="!(
                   this.reporte.tipodeasistencia &&
                   this.reporte.duracion &&
                   this.reporte.fechadeinicio &&
@@ -241,7 +264,7 @@
             <v-btn color="c6" size="large" variant="flat" @click="guardarReporteInternoCronograma">
               Actualizar
             </v-btn>
-            <v-space></v-space>
+            <v-spacer></v-spacer>
             <v-btn color="error" size="large" variant="flat" @click="guardarReporte">
               No Actualizar
             </v-btn>
@@ -372,7 +395,7 @@
             <v-btn color="c6" size="large" variant="flat" @click="guardarReporteExternoCronograma">
               Actualizar
             </v-btn>
-            <v-space></v-space>
+            <v-spacer></v-spacer>
             <v-btn color="error" size="large" variant="flat" @click="guardarReporteExterno">
               No Actualizar
             </v-btn>
@@ -381,11 +404,32 @@
       </v-dialog>
 
     </v-container>
+    <v-dialog v-model="dialogoAbierto" persistent max-width="450">
+      <v-card v-if="preguntaActual">
 
-    <!-- <pre>
-      
-       {{reporte}}
-      </pre> -->
+        <v-card-title class="text-h4 primary text-center">
+          Atención
+        </v-card-title>
+
+        <v-card-text class="pt-0 text-h5 text-center">
+          {{ preguntaActual.texto }}
+        </v-card-text>
+
+        <v-card-actions class="justify-center">
+          <v-spacer></v-spacer>
+          <v-btn color="error" class="mb-5" size="large" variant="flat" text @click="responderPregunta(false)">
+            No
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="success" class="mb-5" size="large" variant="flat" text @click="responderPregunta(true)">
+            Sí
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+   
+
   </form>
 </template>
 <script>
@@ -413,12 +457,44 @@ export default {
   },
 
   data: () => ({
+    respuestapreguntas: 0,
+    dialogoAbierto: false,
+    cuestionarioCompleto: false,
+    preguntasPendientes: [], // Cola de preguntas por responder
+    preguntaActual: null,    // Pregunta actualmente visible en el diálogo
+    // --- Valores y Reglas ---
+    valoresPreguntas: {
+      remoto: 100,
+      campo: 10,
+      cronograma: 1,
+    },
+    // La tabla de reglas: 1 = hacer pregunta, 0 = no hacer.
+    reglas: {
+      "Instalación": { remoto: 1, campo: 1, cronograma: 1 },
+      "Entrenamiento": { remoto: 1, campo: 1, cronograma: 0 },
+      "Instalación y entrenamiento": { remoto: 1, campo: 1, cronograma: 1 },
+      "Mantenimiento preventivo": { remoto: 0, campo: 1, cronograma: 1 },
+      "Mantenimiento correctivo": { remoto: 0, campo: 1, cronograma: 0 },
+      "Mantenimiento preventivo y correctivo": { remoto: 0, campo: 1, cronograma: 1 },
+      "Soporte remoto": { remoto: 1, campo: 0, cronograma: 0 },
+      "Entrenamiento remoto": { remoto: 1, campo: 0, cronograma: 0 },
+      "Desinstalación": { remoto: 1, campo: 1, cronograma: 0 },
+      "Inspección": { remoto: 0, campo: 1, cronograma: 0 },
+      "Actualización": { remoto: 1, campo: 1, cronograma: 0 },
+    },
+
+    // Texto que se mostrará en el diálogo para cada pregunta
+    textoPreguntas: {
+      remoto: '¿Se realizó soporte de forma remota?',
+      campo: '¿Se realizó el soporte donde el cliente?',
+      cronograma: '¿Desea actualizar la fecha del Mantenimiento Preventivo?',
+    },
     dialogoPreguntarCronograma: false,
     dialogoPreguntarCronogramaInterno: false,
     fechacalendariodefinalizacion: null,
     files: null,
     slider: null,
-    dialogofirma: false,
+
     confirmacionguardado: false,
     options: {
       penColor: "black",
@@ -572,6 +648,25 @@ export default {
     });
   },
   methods: {
+
+
+    changeDuration(step) {
+      // 1. Calcula el nuevo valor
+      let newValue = this.reporte.duracion + step;
+
+      // 2. Redondea el nuevo valor para evitar problemas de coma flotante
+      // (Multiplicamos y dividimos por 100 para trabajar con enteros y asegurar la precisión de 0.25)
+      newValue = Math.round(newValue * 100) / 100;
+
+      // 3. Aplica las restricciones de mínimo y máximo (0.5 y 20)
+      if (newValue < 0.5) {
+        this.reporte.duracion = 0.5;
+      } else if (newValue > 20) {
+        this.reporte.duracion = 20;
+      } else {
+        this.reporte.duracion = newValue;
+      }
+    },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
 
       this.reporte.fechadeinicio = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
@@ -583,9 +678,7 @@ export default {
       this.fechacalendariodefinalizacion = fechaseleccionadafinalizacion;
       this.menu2 = !this.menu2;
     },
-    submit() {
-      this.dialogofirma = true;
-    },
+
 
     consultarequipo() {
       this.equipo = JSON.parse(localStorage.getItem("equipo"));
@@ -626,9 +719,131 @@ export default {
       console.log(isEmpty);
       console.log(data);
       this.reporte.firmacliente = data;
-      this.dialogofirma = false;
+
     },
     guardarReporte() {
+      const puntaje = this.respuestapreguntas;
+      switch (puntaje) {
+        case 0:
+          // Caso 0: Si ninguna pregunta fue "Sí" (o no aplicaban preguntas).
+          this.guardarReporteInternoTaller();
+          break;
+
+        case 1:
+          // Caso 1000: Solo Remoto fue "Sí".
+          this.guardarReporteInternoTallerCronograma();
+          break;
+
+        case 10:
+          // Caso 100: Solo Taller fue "Sí".
+          this.guardarReporteInternoCampo();
+          break;
+
+        case 11:
+          // Caso 10: Solo Campo fue "Sí" (Solo posible si Remoto era "No").
+          this.guardarReporteInternoCampoCronograma();
+          break;
+
+        case 100:
+          // Caso 1: Solo Cronograma fue "Sí" (Solo posible si Remoto, Taller y Campo eran "No").
+          this.guardarReporteInternoRemoto();
+          break;
+
+        case 101:
+          // Caso 1001: Remoto (1000) + Cronograma (1)
+          this.guardarReporteInternoRemotoCronograma();
+          break;
+
+      }
+    },
+    guardarReporteInternoTaller() {
+
+      this.reporte.firmacliente = "Taller";
+      this.esperaguardar = true;
+      axios
+        .post(
+          this.$store.state.ruta + "api/reporte/registrar/",
+          {
+            reporte: this.reporte,
+            id_equipo: this.equipo.id
+          },
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+        .then((response) => {
+          localStorage.setItem("idreporte", response.data.identificacion);
+
+          this.esperaguardar = false;
+          const identificacion = response.data.identificacion;
+          console.log(response);
+          this.$store.dispatch("guardarIdentificacion", {
+            id: identificacion
+          });
+          console.log(identificacion)
+          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+          this.$router.push({ name: "ListarEquipos" });
+        })
+        .catch((error) => {
+          this.esperaguardar = false;
+          console.log(error);
+          return error;
+        });
+    },
+    async guardarReporteInternoTallerCronograma() {
+      this.reporte.firmacliente = "Taller";
+      this.esperaguardar = true;
+
+      try {
+        const config = {
+          headers: { token: this.$store.state.token }
+        };
+
+        // PATCH primero
+        const responsePatch = await axios.patch(
+          `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+          {
+            fechaDePreventivo: this.fechacalendariodefinalizacion,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
+
+        // POST después
+        const response = await axios.post(
+          this.$store.state.ruta + "api/reporte/registrar/",
+          {
+            reporte: this.reporte,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
+
+        const identificacion = response.data.identificacion;
+        localStorage.setItem("idreporte", identificacion);
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+
+        const nuevaVentanaURL = this.$router.resolve({
+          name: 'ImprimirReporte',
+          params: { idreporte: identificacion.toString() }
+        }).href;
+
+        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+        this.$router.push({ name: "ListarEquipos" });
+
+        this.confirmacionguardado = true;
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
+    guardarReporteInternoCampo() {
+
       this.save();
       this.esperaguardar = true;
       axios
@@ -664,7 +879,7 @@ export default {
           return error;
         });
     },
-    async guardarReporteInternoCronograma() {
+    async guardarReporteInternoCampoCronograma() {
       this.save();
       this.esperaguardar = true;
 
@@ -712,6 +927,169 @@ export default {
       } finally {
         this.esperaguardar = false;
       }
+    },
+    guardarReporteInternoRemoto() {
+
+      this.reporte.firmacliente = "Soporte remoto";
+      this.esperaguardar = true;
+      axios
+        .post(
+          this.$store.state.ruta + "api/reporte/registrar/",
+          {
+            reporte: this.reporte,
+            id_equipo: this.equipo.id
+          },
+          {
+            headers: {
+              token: this.$store.state.token,
+            },
+          }
+        )
+        .then((response) => {
+          localStorage.setItem("idreporte", response.data.identificacion);
+
+          this.esperaguardar = false;
+          const identificacion = response.data.identificacion;
+          console.log(response);
+          this.$store.dispatch("guardarIdentificacion", {
+            id: identificacion
+          });
+          console.log(identificacion)
+          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+          this.$router.push({ name: "ListarEquipos" });
+        })
+        .catch((error) => {
+          this.esperaguardar = false;
+          console.log(error);
+          return error;
+        });
+    },
+    async guardarReporteInternoRemotoCronograma() {
+      this.reporte.firmacliente = "Soporte remoto";
+      this.esperaguardar = true;
+
+      try {
+        const config = {
+          headers: { token: this.$store.state.token }
+        };
+
+        // PATCH primero
+        const responsePatch = await axios.patch(
+          `${this.$store.state.ruta}api/equipo/actualizarcronograma`,
+          {
+            fechaDePreventivo: this.fechacalendariodefinalizacion,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
+
+        // POST después
+        const response = await axios.post(
+          this.$store.state.ruta + "api/reporte/registrar/",
+          {
+            reporte: this.reporte,
+            id_equipo: this.equipo.id
+          },
+          config
+        );
+
+        const identificacion = response.data.identificacion;
+        localStorage.setItem("idreporte", identificacion);
+        this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+
+        const nuevaVentanaURL = this.$router.resolve({
+          name: 'ImprimirReporte',
+          params: { idreporte: identificacion.toString() }
+        }).href;
+
+        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
+        this.$router.push({ name: "ListarEquipos" });
+
+        this.confirmacionguardado = true;
+
+      } catch (error) {
+        console.error("Error al guardar el reporte:", error.response?.data || error.message);
+      } finally {
+        this.esperaguardar = false;
+      }
+    },
+    /**
+     * Prepara y comienza la secuencia de preguntas al cambiar el tipo de asistencia.
+     */
+    iniciarCuestionario() {
+      // Reiniciar estado
+      this.respuestapreguntas = 0;
+      this.cuestionarioCompleto = false;
+      this.preguntasPendientes = [];
+      this.dialogoAbierto = false; // Asegurar que el diálogo esté cerrado al inicio
+
+      const reglasAsistencia = this.reglas[this.reporte.tipodeasistencia];
+      if (!reglasAsistencia) {
+        console.error("Tipo de asistencia no reconocido:", this.reporte.tipodeasistencia);
+        return;
+      }
+
+      // 1. Crear la cola de preguntas a realizar (solo las que tienen valor 1)
+      for (const clave in reglasAsistencia) {
+        if (reglasAsistencia[clave] === 1) {
+          this.preguntasPendientes.push({
+            clave: clave,
+            valor: this.valoresPreguntas[clave],
+            texto: this.textoPreguntas[clave],
+          });
+        }
+      }
+
+      // 2. Iniciar el flujo de diálogos
+      this.procesarSiguientePregunta();
+    },
+
+    /**
+     * Muestra la siguiente pregunta pendiente.
+     */
+    procesarSiguientePregunta() {
+      if (this.preguntasPendientes.length > 0) {
+        // Extrae la primera pregunta de la cola (funciona como un FIFO)
+        this.preguntaActual = this.preguntasPendientes.shift();
+        this.dialogoAbierto = true; // Abre el diálogo
+      } else {
+        // La cola está vacía, finalizar el cuestionario
+        this.dialogoAbierto = false;
+        this.preguntaActual = null;
+        this.guardarReporte();
+      }
+    },
+
+    /**
+     * Maneja la respuesta del usuario (Sí/No) y actualiza la puntuación.
+     * @param {boolean} respuesta - true si es 'Sí', false si es 'No'.
+     */
+    responderPregunta(respuesta) {
+      // 1. Puntuación
+      if (respuesta) {
+        this.respuestapreguntas += this.preguntaActual.valor;
+      }
+
+      // 2. REGLA CONDICIONAL: Si la pregunta actual es Remoto y la respuesta es 'Sí'
+      if (this.preguntaActual.clave === 'remoto' && respuesta === true) {
+        // Buscar el índice de la pregunta 'campo' en la cola de pendientes
+        const indiceCampo = this.preguntasPendientes.findIndex(p => p.clave === 'campo');
+
+        if (indiceCampo !== -1) {
+          // Si se encuentra, la eliminamos de la cola.
+          // Al eliminarla, se omite su pregunta y no se suma su valor (10), 
+          // cumpliendo con la regla de "asignarle un cero".
+          this.preguntasPendientes.splice(indiceCampo, 1);
+          console.log("REGLA APLICADA: Pregunta 'Campo' omitida y asignada a cero, debido a respuesta 'Sí' en 'Remoto'.");
+        }
+      }
+
+      // 3. Continuar a la siguiente pregunta
+      this.dialogoAbierto = false;
+      this.$nextTick(() => {
+        this.procesarSiguientePregunta();
+      });
     },
     async guardarReporteExterno() {
       this.esperaguardar = true;
@@ -824,7 +1202,7 @@ export default {
           "Alistamiento",
           "Instalación y entrenamiento"
         ].includes(this.reporte.tipodeasistencia)
-      )  {
+      ) {
         this.dialogoPreguntarCronograma = true;
       } else {
         this.guardarReporteExterno();

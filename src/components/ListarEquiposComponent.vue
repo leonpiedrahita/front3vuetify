@@ -1458,7 +1458,7 @@ export default {
         );
 
         // B. Lógica Condicional: Actualizar Estado del Equipo (Solo para rol 'bodega')
-        if (this.$store.state.user.rol === "bodega" || this.$store.state.user.rol === "administrador") {
+        if (this.$store.state.user.rol === "bodega") {
           // Usamos el método PUT o PATCH que es más semántico para actualizaciones parciales
           const responseUpdate = await axios.patch( // Cambiado de POST a PATCH (semántica REST)
             rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,

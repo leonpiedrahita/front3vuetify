@@ -91,6 +91,11 @@ export default {
                 key: "equipo.cliente.nombre",
             },
             {
+                title: "Ciudad",
+                align: "center",
+                key: "equipo.ubicacionNombre",
+            },
+            {
                 title: "Estado",
                 align: "center",
                 key: "estado",
@@ -196,6 +201,7 @@ export default {
                 Equipo: item.equipo.nombre,
                 Serie: item.equipo.serie,
                 Cliente: item.equipo.cliente.nombre,
+                Ciudad: item.equipo.ubicacionNombre,
                 Estado: item.estado,
                 ubicacion: item.etapas && item.etapas.length > 0
                     ? (item.etapas.at(-1)?.ubicacion ?? item.etapas[item.etapas.length - 1].ubicacion)

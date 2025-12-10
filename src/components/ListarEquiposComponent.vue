@@ -54,10 +54,13 @@
 
           </v-row>
           <v-dialog v-model="dialog2" max-width="500px" persistent>
+            <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar-title class="text-center font-weight-bold">
+                {{ formTitle }}
+            </v-toolbar-title>
+        </v-toolbar>  
             <v-card>
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
+             
 
               <v-card-text>
                 <v-container>
@@ -120,8 +123,8 @@
                 </v-container>
               </v-card-text>
 
-              <v-card-actions>
-                <v-spacer></v-spacer>
+              <v-card-actions class="justify-center">
+                
                 <v-btn color="error" variant="flat" text @click="close2"> Cancelar </v-btn>
                 <v-btn :disabled="!(
                   nuevoequipo.nombre &&
@@ -271,33 +274,37 @@
 
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px" persistent>
-            <v-col cols="12">
-              <v-card class="pa-5"><v-select v-model="nuevaEtapa.etapaSeleccionada" :items="etapasDisponiblesPorRol"
-                  label="Etapa de Ingreso" required></v-select>
-                <!-- <v-textarea v-model="observaciones"></v-textarea> -->
-                <v-col cols="12">
+            <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar-title class="text-center font-weight-bold">
+                Gestion de Ingreso
+            </v-toolbar-title>
+        </v-toolbar>            
+              <v-card>              
+
+                <v-card-text style="max-height: 75vh; overflow-y: auto;">
+                  <v-select v-model="nuevaEtapa.etapaSeleccionada" :items="etapasDisponiblesPorRol"
+                    label="Etapa de Ingreso" required></v-select>
+
                   <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
                     :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente']"
                     :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
-                </v-col>
-                <v-col cols="12">
+
                   <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
-                    :rules="[v => !!v || 'El comentario es obligatorio']" required variant="outlined"></v-textarea>
-                </v-col>
-                <v-col cols="12">
+                    :rules="[v => !!v || 'El comentario es obligatorio']" required variant="outlined"
+                    rows="3"></v-textarea>
+
                   <h2 class="text-h6 text-primary text-center">Nueva Etapa</h2>
                   <v-divider class="mt-1 mb-4"></v-divider>
-                </v-col>
-                <v-col cols="12">
+
                   <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=listadeetapas
                     :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
-                </v-col>
 
-                <v-col cols="12">
                   <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
                     :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente', 'Dado de baja']"
                     :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
-                </v-col>
+
+                </v-card-text>
+
                 <v-card-actions class="justify-center">
                   <v-btn color="error" variant="flat" large @click="cancelarEtapa()">
                     Cancelar
@@ -308,7 +315,7 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
-            </v-col>
+            
           </v-dialog>
           <v-dialog v-model="esperaguardar" persistent width="500">
             <v-card color="c6" dark>
@@ -553,7 +560,7 @@ export default {
     etapaautorizada: "Desinfección",
     observaciones: "",
     listadeetapas: [],
-    listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo","Demostración", "Dado de Baja","Devuelto al Proveedor"],
+    listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Dado de Baja", "Devuelto al Proveedor"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
@@ -1412,87 +1419,87 @@ export default {
       }
     },
     async confirmarEtapa(m) {
-  // 1. Verificación de Autenticación (se mantiene igual)
-  this.$store.dispatch("autoLogin");
-  if (this.$store.state.existe === 0) {
-    this.$router.push({ name: "Login" });
-    return; // Usamos 'return' para salir de la función, eliminando el gran 'else'
-  }
-
-  // 2. Preparación de Datos (Mejora en la legibilidad de la fecha)
-  const today = new Date();
-  // Formato: (DD-MM-YYYY) usando padStart para 2 dígitos
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  const date = `(${day}-${month}-${year})`;
-
-  this.nuevaEtapa.responsable = this.$store.state.user.nombre;
-  this.nuevaEtapa.fecha = date;
-
-  // 3. Inicio del Proceso y Lógica Asíncrona con Try/Catch
-  this.esperaguardar = true;
-
-  try {
-    const token = this.$store.state.token;
-    const rutaBase = this.$store.state.ruta;
-
-    // A. API Call 1: Registrar la Etapa
-    // Usamos 'await' para esperar la respuesta antes de continuar.
-    await axios.post(
-      rutaBase + "api/ingreso/registrar",
-      {
-        equipo: this.editedItem,
-        etapa: this.nuevaEtapa,
-      },
-      {
-        headers: { token },
+      // 1. Verificación de Autenticación (se mantiene igual)
+      this.$store.dispatch("autoLogin");
+      if (this.$store.state.existe === 0) {
+        this.$router.push({ name: "Login" });
+        return; // Usamos 'return' para salir de la función, eliminando el gran 'else'
       }
-    );
 
-    // B. Lógica Condicional: Actualizar Estado del Equipo (Solo para rol 'bodega')
-    if (this.$store.state.user.rol === "bodega") {
-      // Usamos el método PUT o PATCH que es más semántico para actualizaciones parciales
-      const responseUpdate = await axios.patch( // Cambiado de POST a PATCH (semántica REST)
-        rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
-        {
-          nuevoEstado: "En soporte", // Cambiado 'estado' a 'nuevoEstado' para mayor claridad
-        },
-        {
-          headers: { token },
+      // 2. Preparación de Datos (Mejora en la legibilidad de la fecha)
+      const today = new Date();
+      // Formato: (DD-MM-YYYY) usando padStart para 2 dígitos
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+      const date = `(${day}-${month}-${year})`;
+
+      this.nuevaEtapa.responsable = this.$store.state.user.nombre;
+      this.nuevaEtapa.fecha = date;
+
+      // 3. Inicio del Proceso y Lógica Asíncrona con Try/Catch
+      this.esperaguardar = true;
+
+      try {
+        const token = this.$store.state.token;
+        const rutaBase = this.$store.state.ruta;
+
+        // A. API Call 1: Registrar la Etapa
+        // Usamos 'await' para esperar la respuesta antes de continuar.
+        await axios.post(
+          rutaBase + "api/ingreso/registrar",
+          {
+            equipo: this.editedItem,
+            etapa: this.nuevaEtapa,
+          },
+          {
+            headers: { token },
+          }
+        );
+
+        // B. Lógica Condicional: Actualizar Estado del Equipo (Solo para rol 'bodega')
+        if (this.$store.state.user.rol === "bodega") {
+          // Usamos el método PUT o PATCH que es más semántico para actualizaciones parciales
+          const responseUpdate = await axios.patch( // Cambiado de POST a PATCH (semántica REST)
+            rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
+            {
+              nuevoEstado: "En soporte", // Cambiado 'estado' a 'nuevoEstado' para mayor claridad
+            },
+            {
+              headers: { token },
+            }
+          );
+          console.log('Estado del equipo actualizado:', responseUpdate.data);
         }
-      );
-      console.log('Estado del equipo actualizado:', responseUpdate.data);
-    }
 
-    // C. Finalización Exitosa (Fuera de los condicionales)
-    this.esperaguardar = false;
-    this.dialogoetapa = false;
-    this.dialog = false;
-    this.limpiarNuevaEtapa();
-    this.close();
-    this.$router.push({ name: "ListarOrdenes" });
+        // C. Finalización Exitosa (Fuera de los condicionales)
+        this.esperaguardar = false;
+        this.dialogoetapa = false;
+        this.dialog = false;
+        this.limpiarNuevaEtapa();
+        this.close();
+        this.$router.push({ name: "ListarOrdenes" });
 
-  } catch (error) {
-    // D. Manejo de Errores
-    this.esperaguardar = false;
+      } catch (error) {
+        // D. Manejo de Errores
+        this.esperaguardar = false;
 
-    // Uso de encadenamiento opcional (?.) para prevenir errores si 'response' o 'data' no existen
-    if (error.response?.data?.error === `El equipo ya tiene un ingreso en estado "Abierto".`) {
-      this.textodialogo = error.response.data.error;
-      this.dialogoetapa = false;
-      this.dialog = false;
-      this.limpiarNuevaEtapa();
-      this.dialogo = true; // Muestra el diálogo de advertencia específica
-    } else {
-      // Manejar otros errores (p. ej., error de red, 404, 500 genérico)
-      console.error("Error al confirmar etapa:", error);
-      // Opcional: mostrar un mensaje de error genérico al usuario
-      // this.textodialogo = "Ocurrió un error desconocido. Intente de nuevo.";
-      // this.dialogo = true; 
-    }
-  }
-},
+        // Uso de encadenamiento opcional (?.) para prevenir errores si 'response' o 'data' no existen
+        if (error.response?.data?.error === `El equipo ya tiene un ingreso en estado "Abierto".`) {
+          this.textodialogo = error.response.data.error;
+          this.dialogoetapa = false;
+          this.dialog = false;
+          this.limpiarNuevaEtapa();
+          this.dialogo = true; // Muestra el diálogo de advertencia específica
+        } else {
+          // Manejar otros errores (p. ej., error de red, 404, 500 genérico)
+          console.error("Error al confirmar etapa:", error);
+          // Opcional: mostrar un mensaje de error genérico al usuario
+          // this.textodialogo = "Ocurrió un error desconocido. Intente de nuevo.";
+          // this.dialogo = true; 
+        }
+      }
+    },
     guardarReporte() {
       this.esperaguardar = true;
       axios
@@ -1663,7 +1670,9 @@ export default {
         'Dirección Ubicación': item.ubicacionDireccion,
         Estado: item.estado,
         'Placa de Inventario': item.placaDeInventario,
-        'Tipo de Contrato': item.tipoDeContrato
+        'Tipo de Contrato': item.tipoDeContrato,
+        'Estado': item.estado,
+        
       }));
 
       // Crear hoja y libro

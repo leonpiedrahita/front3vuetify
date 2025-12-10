@@ -10,7 +10,7 @@
             <v-toolbar-title class="text-center font-weight-bold">
                 Equipo: {{ ingreso.equipo.nombre }} &nbsp; | &nbsp;
                 Serie: {{ ingreso.equipo.serie }}&nbsp; | &nbsp;
-                Cliente: {{ ingreso.equipo.cliente.nombre }}
+                Cliente: {{ ingreso.equipo.cliente.nombre }} - {{ ingreso.equipo.ubicacionNombre}}
             </v-toolbar-title>
 
             <!-- Botón cerrar a la derecha -->

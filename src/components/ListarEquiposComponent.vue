@@ -1449,7 +1449,7 @@ export default {
         await axios.post(
           rutaBase + "api/ingreso/registrar",
           {
-            equipo: this.editedItem,
+            equipo: { id: this.editedItem.id },
             etapa: this.nuevaEtapa,
           },
           {

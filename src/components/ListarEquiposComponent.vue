@@ -1444,7 +1444,7 @@ export default {
         const token = this.$store.state.token;
         const rutaBase = this.$store.state.ruta;
 console.log("equipo", this.editedItem.id);
-        console.log("nuevaetapa", this.nuevaEtapa;
+        console.log("nuevaetapa", this.nuevaEtapa);
         // A. API Call 1: Registrar la Etapa
         // Usamos 'await' para esperar la respuesta antes de continuar.
         await axios.post(

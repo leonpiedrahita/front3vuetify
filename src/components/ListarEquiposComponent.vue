@@ -286,7 +286,7 @@
                     label="Etapa de Ingreso" required></v-select>
 
                   <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
-                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente']"
+                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería','Bodega Prado', 'Cliente']"
                     :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
                   <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
@@ -813,10 +813,10 @@ export default {
       if (userRol === 'bodega') {
         return ['Cuarentena'];
       } else if (userRol === 'cotizaciones') {
-        return ['Cotización aprobada'];
+        return ['Cotización aprobada','Instalación'];
       } else if (userRol === 'administrador') {
         // Devuelve todas las opciones si es administrador
-        return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación', 'Finalizado'];
+        return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación','Instalación', 'Finalizado'];
       }
 
       return ['Rol no autorizado'];

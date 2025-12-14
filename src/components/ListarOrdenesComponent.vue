@@ -96,9 +96,15 @@ export default {
                 key: "equipo.ubicacionNombre",
             },
             {
-                title: "Estado",
+                title: "Estado ingreso",
                 align: "center",
                 key: "estado",
+
+            },
+            {
+                title: "Estado equipo",
+                align: "center",
+                key: "equipo.estado",
 
             },
             {

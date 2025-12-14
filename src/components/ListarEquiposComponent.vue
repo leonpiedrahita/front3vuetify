@@ -106,6 +106,11 @@
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete v-model="nuevoequipo.estado" :items="listaestados"
+                        label="Estado" class="vs__search" required
+                        :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
                       <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
                         <template v-slot:activator="{ props }">
                           <v-text-field v-model="fechaDeMovimiento" label="Fecha de movimiento"
@@ -131,6 +136,7 @@
                   nuevoequipo.serie &&
                   nuevoequipo.placaDeInventario &&
                   nuevoequipo.tipoDeContrato &&
+                  nuevoequipo.estado &&
                   nuevoequipo.propietario.nombre &&
                   nuevoequipo.proveedor.nombre &&
                   nuevoequipo.cliente.id &&
@@ -192,6 +198,11 @@
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.tipoDeContrato" :items="listacontratos"
                         label="Tipo de contrato" class="vs__search" required
+                        :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" sm="12" md="12">
+                      <v-autocomplete v-model="equipomodificado.estado" :items="listaestados"
+                        label="Estado" class="vs__search" required
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                   </v-row>
@@ -561,6 +572,7 @@ export default {
     observaciones: "",
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Dado de Baja", "Devuelto al Proveedor"],
+    listaestados: ["Activo", "Nuevo","Disponible","Disponible Pdte. MP", "En Soporte"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
@@ -728,6 +740,7 @@ export default {
       serie: "",
       placaDeInventario: "",
       tipoDeContrato: "",
+      estado: "",
       propietario: {
         nombre: "",
         id: "",
@@ -1228,6 +1241,7 @@ export default {
         proveedorId: this.equipomodificado.proveedor.id,
         placaDeInventario: this.equipomodificado.placaDeInventario,
         tipoDeContrato: this.equipomodificado.tipoDeContrato,
+        estado: this.equipomodificado.estado,
       };
       console.log("payload", payload);
       // Llamada PATCH

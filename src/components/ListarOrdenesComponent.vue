@@ -27,8 +27,26 @@
                             </v-btn>
                         </v-col>
 
+                        <v-dialog v-model="ventanaSeguimiento" transition="dialog-bottom-transition" persistent height="90%" width="90%">
+                            <v-toolbar flat style="background-color: #52B69A; color: white;">
+                                <v-spacer></v-spacer>
+                                <!-- Botón cerrar flotando a la derecha -->
 
+
+
+                                <!-- Título centrado en negrilla -->
+                                <v-toolbar-title class="text-center font-weight-bold">
+                                    Seguimiento de ingreso
+                                </v-toolbar-title>
+                                <v-spacer></v-spacer>
+                                <!-- Botón cerrar a la derecha -->
+                                <v-btn icon="mdi-close" @click="ventanaSeguimiento = false; listarAbiertos();" variant="text" color="white"
+                                    class="ml-auto" />
+                            </v-toolbar>
+                            <SeguimientoIngresosComponent />
+                        </v-dialog>
                     </v-row>
+
                 </v-toolbar>
             </template>
             <template v-slot:item.createdAt="{ item }">
@@ -62,6 +80,7 @@
             </template>
         </v-data-table>
 
+
     </v-card>
     <!-- <pre>{{ ordenes }}</pre> -->
 </template>
@@ -70,10 +89,18 @@
 import axios from "axios";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+
+
+import SeguimientoIngresosComponent from "./SeguimientoIngresosComponent.vue";
+
 export default {
+    components: {
+        SeguimientoIngresosComponent
+    },
     name: "ListarOrdenesComponent",
-    components: {},
+
     data: () => ({
+        ventanaSeguimiento: false,
         cargando: true,
         ordenes: [],
         search: "",
@@ -200,7 +227,7 @@ export default {
             this.$store.dispatch("guardarOrdenesEquipo", {
                 ingreso: this.ordenseleccionada,
             });
-            this.$router.push({ name: "SeguimientoIngresos" })
+            this.ventanaSeguimiento = true;
         },
         exportarAExcel() {
             const exportData = this.ordenes.map(item => ({
@@ -208,7 +235,8 @@ export default {
                 Serie: item.equipo.serie,
                 Cliente: item.equipo.cliente.nombre,
                 Ciudad: item.equipo.ubicacionNombre,
-                Estado: item.estado,
+                EstadoIngreso: item.estado,
+                EstadoEquipo: item.equipo.estado,
                 ubicacion: item.etapas && item.etapas.length > 0
                     ? (item.etapas.at(-1)?.ubicacion ?? item.etapas[item.etapas.length - 1].ubicacion)
                     : 'N/A',

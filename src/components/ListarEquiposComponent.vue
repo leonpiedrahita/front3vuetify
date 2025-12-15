@@ -55,12 +55,12 @@
           </v-row>
           <v-dialog v-model="dialog2" max-width="500px" persistent>
             <v-toolbar flat style="background-color: #52B69A; color: white;">
-            <v-toolbar-title class="text-center font-weight-bold">
+              <v-toolbar-title class="text-center font-weight-bold">
                 {{ formTitle }}
-            </v-toolbar-title>
-        </v-toolbar>  
+              </v-toolbar-title>
+            </v-toolbar>
             <v-card>
-             
+
 
               <v-card-text>
                 <v-container>
@@ -106,9 +106,8 @@
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.estado" :items="listaestados"
-                        label="Estado" class="vs__search" required
-                        :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
+                      <v-autocomplete v-model="nuevoequipo.estado" :items="listaestados" label="Estado"
+                        class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-menu v-model="menu1" :close-on-content-click="false" min-width="auto">
@@ -129,7 +128,7 @@
               </v-card-text>
 
               <v-card-actions class="justify-center">
-                
+
                 <v-btn color="error" variant="flat" text @click="close2"> Cancelar </v-btn>
                 <v-btn :disabled="!(
                   nuevoequipo.nombre &&
@@ -201,9 +200,8 @@
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="equipomodificado.estado" :items="listaestados"
-                        label="Estado" class="vs__search" required
-                        :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
+                      <v-autocomplete v-model="equipomodificado.estado" :items="listaestados" label="Estado"
+                        class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -286,47 +284,47 @@
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px" persistent>
             <v-toolbar flat style="background-color: #52B69A; color: white;">
-            <v-toolbar-title class="text-center font-weight-bold">
+              <v-toolbar-title class="text-center font-weight-bold">
                 Gestion de Ingreso
-            </v-toolbar-title>
-        </v-toolbar>            
-              <v-card>              
+              </v-toolbar-title>
+            </v-toolbar>
+            <v-card>
 
-                <v-card-text style="max-height: 75vh; overflow-y: auto;">
-                  <v-select v-model="nuevaEtapa.etapaSeleccionada" :items="etapasDisponiblesPorRol"
-                    label="Etapa de Ingreso" required></v-select>
+              <v-card-text style="max-height: 75vh; overflow-y: auto;">
+                <v-select v-model="nuevaEtapa.etapaSeleccionada" :items="etapasDisponiblesPorRol"
+                  label="Etapa de Ingreso" required></v-select>
 
-                  <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
-                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería','Bodega Prado', 'Cliente']"
-                    :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
+                <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
+                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Bodega Prado', 'Cliente']"
+                  :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
-                  <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
-                    :rules="[v => !!v || 'El comentario es obligatorio']" required variant="outlined"
-                    rows="3"></v-textarea>
+                <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
+                  :rules="[v => !!v || 'El comentario es obligatorio']" required variant="outlined"
+                  rows="3"></v-textarea>
 
-                  <h2 class="text-h6 text-primary text-center">Nueva Etapa</h2>
-                  <v-divider class="mt-1 mb-4"></v-divider>
+                <h2 class="text-h6 text-primary text-center">Nueva Etapa</h2>
+                <v-divider class="mt-1 mb-4"></v-divider>
 
-                  <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=listadeetapas
-                    :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
+                <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=listadeetapas
+                  :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
 
-                  <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
-                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente', 'Dado de baja']"
-                    :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
+                <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
+                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente', 'Dado de baja']"
+                  :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
-                </v-card-text>
+              </v-card-text>
 
-                <v-card-actions class="justify-center">
-                  <v-btn color="error" variant="flat" large @click="cancelarEtapa()">
-                    Cancelar
-                  </v-btn>
-                  <v-btn color="c6" variant="flat" large @click="confirmarEtapa(0)"
-                    :disabled="!nuevaEtapa.etapaSeleccionada || !nuevaEtapa.ubicacionEtapaSeleccionada || !nuevaEtapa.comentario || !nuevaEtapa.nombre || !nuevaEtapa.ubicacion">
-                    Confirmar Ingreso
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            
+              <v-card-actions class="justify-center">
+                <v-btn color="error" variant="flat" large @click="cancelarEtapa()">
+                  Cancelar
+                </v-btn>
+                <v-btn color="c6" variant="flat" large @click="confirmarEtapa(0)"
+                  :disabled="!nuevaEtapa.etapaSeleccionada || !nuevaEtapa.ubicacionEtapaSeleccionada || !nuevaEtapa.comentario || !nuevaEtapa.nombre || !nuevaEtapa.ubicacion">
+                  Confirmar Ingreso
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+
           </v-dialog>
           <v-dialog v-model="esperaguardar" persistent width="500">
             <v-card color="c6" dark>
@@ -533,7 +531,6 @@ import { saveAs } from 'file-saver';
 import DetallesEquipoComponent from "./DetallesEquipoComponent.vue";
 export default {
   components: {
-
     DetallesEquipoComponent
   },
   name: "ListarEquipos",
@@ -572,7 +569,7 @@ export default {
     observaciones: "",
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Dado de Baja", "Devuelto al Proveedor"],
-    listaestados: ["Activo", "Nuevo","Disponible","Disponible Pdte. MP", "En Soporte"],
+    listaestados: ["Activo", "Nuevo", "Disponible", "Disponible Pdte. MP", "En Soporte"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
@@ -826,10 +823,10 @@ export default {
       if (userRol === 'bodega') {
         return ['Cuarentena'];
       } else if (userRol === 'cotizaciones') {
-        return ['Cotización aprobada','Instalación'];
+        return ['Cotización aprobada', 'Instalación'];
       } else if (userRol === 'administrador') {
         // Devuelve todas las opciones si es administrador
-        return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación','Instalación', 'Finalizado'];
+        return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación', 'Instalación', 'Finalizado'];
       }
 
       return ['Rol no autorizado'];
@@ -1457,7 +1454,7 @@ export default {
       try {
         const token = this.$store.state.token;
         const rutaBase = this.$store.state.ruta;
-console.log("equipo", this.editedItem.id);
+        console.log("equipo", this.editedItem.id);
         console.log("nuevaetapa", this.nuevaEtapa);
         // A. API Call 1: Registrar la Etapa
         // Usamos 'await' para esperar la respuesta antes de continuar.
@@ -1687,7 +1684,7 @@ console.log("equipo", this.editedItem.id);
         'Placa de Inventario': item.placaDeInventario,
         'Tipo de Contrato': item.tipoDeContrato,
         'Estado': item.estado,
-        
+
       }));
 
       // Crear hoja y libro

@@ -1,5 +1,5 @@
 <template>
-    <v-card class="pb-4 pl-2 pr-2 ml-2 mr-2 mt-2">
+    <v-card class="pb-4">
         <v-toolbar flat style="background-color: #52B69A; color: white;">
 
             <!-- Botón cerrar flotando a la derecha -->
@@ -303,7 +303,7 @@ export default {
             }
         },
         consultarEstado() {
-            if (this.nuevaEtapa.nombre === "Cancelado"||this.nuevaEtapa.nombre === "Despachado" || this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho") {
+            if (this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho") {
                 this.cambiarestado = true;
             }
             else {

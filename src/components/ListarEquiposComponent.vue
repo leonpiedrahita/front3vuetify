@@ -828,7 +828,7 @@ export default {
         return ['Soporte ingeniería', 'Soporte aplicaciones'];
       } else if (userRol === 'administrador') {
         // Devuelve todas las opciones si es administrador
-        return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación', 'Instalación', 'Finalizado'];
+        return ['Cuarentena', 'Soporte ingeniería', 'Soporte aplicaciones','Cotización aprobada', 'Instalación'];
       }
 
       return ['Rol no autorizado'];

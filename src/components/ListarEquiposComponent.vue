@@ -569,7 +569,7 @@ export default {
     observaciones: "",
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Dado de Baja", "Devuelto al Proveedor"],
-    listaestados: ["Activo", "Nuevo", "Disponible", "Disponible Pdte. MP", "En Soporte"],
+    listaestados: ["Nuevo","En servicio", "Disponible", "Disponible Pdte. MP", "En Soporte"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     buscar: {
@@ -631,7 +631,7 @@ export default {
         value: "generarorden",
         sortable: false,
         align: "center",
-        roles: ["administrador", "bodega", "cotizaciones"],
+        roles: ["administrador", "bodega", "cotizaciones","soporte"],
       },
       {
         title: "Crear Reporte",
@@ -824,6 +824,8 @@ export default {
         return ['Cuarentena'];
       } else if (userRol === 'cotizaciones') {
         return ['Cotización aprobada', 'Instalación'];
+        } else if (userRol === 'soporte') {
+        return ['Soporte ingeniería', 'Soporte aplicaciones'];
       } else if (userRol === 'administrador') {
         // Devuelve todas las opciones si es administrador
         return ['Cuarentena', 'Cotización aprobada', 'Aprobación de Licitación', 'Instalación', 'Finalizado'];
@@ -1404,11 +1406,8 @@ export default {
         ];
       } else if (this.$store.state.user.rol === "soporte") {
         this.listadeetapas = [
-          "Cotización solicitada",
-          "Repuestos solicitados",
-          "Soporte realizado",
-          "Equipo despachado",
-          "Entrenamiento realizado",
+          "Soporte ingeniería",
+          "Soporte aplicaciones"
         ];
       } else if (this.$store.state.user.rol === "bodega") {
         this.listadeetapas = [

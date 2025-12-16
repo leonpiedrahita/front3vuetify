@@ -165,7 +165,7 @@ export default {
         return {
             cambiarestado: false,
             nuevoestadoequipo: null,
-            listadeestadosequipo: ['Activo', 'En soporte', 'Disponible', 'Disp. Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
+            listadeestadosequipo: ['En soporte', 'Disponible', 'Disp. Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
             ingreso,
             dialogoNuevaEtapa: false, // Reemplaza ref(false)
             modeloEtapaInicial,

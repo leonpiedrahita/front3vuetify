@@ -1402,7 +1402,8 @@ export default {
     asignarLista() {
       if (this.$store.state.user.rol === "administrador") {
         this.listadeetapas = [
-          "Desinfección"
+          "Desinfección","Soporte ingeniería",
+          "Soporte aplicaciones"
         ];
       } else if (this.$store.state.user.rol === "soporte") {
         this.listadeetapas = [

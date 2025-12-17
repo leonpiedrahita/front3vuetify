@@ -735,7 +735,7 @@ export default {
       marca: null,
       id: "",
       serie: "",
-      placaDeInventario: "",
+      placaDeInventario: "N/A",
       tipoDeContrato: "",
       estado: "",
       propietario: {

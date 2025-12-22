@@ -442,7 +442,9 @@ export default {
                 this.listadeEtapas = [
                     "Soporte ingeniería",
                     "Soporte aplicaciones",
-                    "Cancelado"
+                    "Cancelado",
+                    "Cuarentena",
+                    "Despachado",
                 ];
 
             } else if (this.$store.state.user.rol === "comercial") {

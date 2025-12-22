@@ -34,20 +34,20 @@
                 </template>
                 <template v-slot:opposite>
                     <div class="d-flex flex-column align-end text-end">
-                        <div><strong class="me-4">{{ etapa.fecha || 'Sin fecha' }}</strong></div>
-                        <div><strong>{{ etapa.nombre }}</strong></div>
+                        <div class="text-subtitle-1"><strong class="me-4">{{ etapa.fecha || 'Sin fecha' }}</strong></div>
+                        <div class="text-h6"><strong>{{ etapa.nombre }}</strong></div>
                     </div>
                 </template>
                 <div>
-                    <div class="text-caption">
-                        Comentario: {{ etapa.comentario || 'Sin comentario' }}
-                    </div>
-                    <div class="text-caption">
-                        Ubicación: {{ etapa.ubicacion || 'Sin ubicación' }}
-                    </div>
-                    <div class="text-caption">
-                        Responsable: {{ etapa.responsable || 'No asignado' }}
-                    </div>
+                    <div class="text-body-1 mb-1">
+                <strong>Comentario:</strong> {{ etapa.comentario || 'Sin comentario' }}
+            </div>
+            <div class="text-body-1 mb-1">
+                <strong>Ubicación:</strong> {{ etapa.ubicacion || 'Sin ubicación' }}
+            </div>
+            <div class="text-body-1">
+                <strong>Responsable:</strong> {{ etapa.responsable || 'No asignado' }}
+            </div>
                 </div>
             </v-timeline-item>
         </v-timeline>

@@ -823,7 +823,7 @@ export default {
       if (userRol === 'bodega') {
         return ['Cuarentena'];
       } else if (userRol === 'cotizaciones') {
-        return ['Cotización aprobada', 'Instalación'];
+        return ['Cotización aprobada', 'Instalación','Cuarentena'];
         } else if (userRol === 'soporte') {
         return ['Soporte ingeniería', 'Soporte aplicaciones'];
       } else if (userRol === 'administrador') {
@@ -1417,7 +1417,7 @@ export default {
         ];
       } else if (this.$store.state.user.rol === "cotizaciones") {
         this.listadeetapas = ["Soporte ingeniería",
-          "Soporte aplicaciones"];
+          "Soporte aplicaciones","Desinfección"];
       } else if (this.$store.state.user.rol === "facturación") {
         this.listadeetapas = ["Repuestos aprobados para entrega"];
       } else if (this.$store.state.user.rol === "asesor") {

@@ -762,7 +762,7 @@ export default {
       marca: null,
       id: "",
       serie: "",
-      placaDeInventario: "",
+      placaDeInventario: "N/A",
       tipoDeContrato: "",
       propietario: {
         nombre: "",
@@ -792,7 +792,7 @@ export default {
       marca: null,
       id: "",
       serie: "",
-      placaDeInventario: "",
+      placaDeInventario: "N/A",
       tipoDeContrato: "",
       propietario: {
         nombre: "",
@@ -1033,7 +1033,7 @@ export default {
         this.nuevoequipo.marca = null;
         this.nuevoequipo.id = "";
         this.nuevoequipo.serie = "";
-        this.nuevoequipo.placaDeInventario = "";
+        this.nuevoequipo.placaDeInventario = "N/A";
         this.nuevoequipo.tipoDeContrato = "";
         this.nuevoequipo.propietario.nombre = "";
         this.nuevoequipo.propietario.id = "";
@@ -1148,7 +1148,7 @@ export default {
               this.nuevoequipo.marca = null;
               this.nuevoequipo.id = "";
               this.nuevoequipo.serie = "";
-              this.nuevoequipo.placaDeInventario = "";
+              this.nuevoequipo.placaDeInventario = "N/A";
               this.nuevoequipo.tipoDeContrato = "";
               this.nuevoequipo.propietario.nombre = "";
               this.nuevoequipo.propietario.id = "";

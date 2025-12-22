@@ -231,7 +231,7 @@ export default {
             estado: 1,
             password: ''
         },
-        rolesDisponibles: ["administrador", "calidad", "cotizaciones", "soporte", "comercial", "bodega"],
+        rolesDisponibles: ["administrador", "calidad", "cotizaciones", "soporte", "comercial", "bodega", "lumira"],
         estadoOpciones: [
             { text: 'Activo', value: 1 },
             { text: 'Bloqueado', value: 0 }

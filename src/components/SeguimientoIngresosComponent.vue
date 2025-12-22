@@ -165,7 +165,7 @@ export default {
         return {
             cambiarestado: false,
             nuevoestadoequipo: null,
-            listadeestadosequipo: ['En soporte', 'Disponible', 'Disp. Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
+            listadeestadosequipo: ['En soporte', 'En servicio', 'Disponible', 'Disp. Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
             ingreso,
             dialogoNuevaEtapa: false, // Reemplaza ref(false)
             modeloEtapaInicial,
@@ -417,7 +417,7 @@ export default {
                     ,
 
                 ];
-            } else if (this.$store.state.user.rol === "soporte") {
+            } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "lumira") {
                 this.listadeEtapas = [
                     "Soporte ingeniería",
                     "Soporte aplicaciones",

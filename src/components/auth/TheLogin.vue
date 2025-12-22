@@ -27,7 +27,7 @@
             <span class="separator"></span>
             Todos los derechos reservados 2025.
             <span class="separator"></span>
-            V.1.3.3
+            V.1.3.4
           </div>
         </v-row>
       </v-col>
@@ -82,7 +82,12 @@ export default {
   beforeCreate() {
     this.$store.dispatch("autoLogin")
     if (this.$store.state.existe === 1) {
-      this.$router.push({ name: 'ListarEquipos' })
+      if (this.$store.state.user.rol==="lumira") {
+        this.$router.push({ name: 'ListarOrdenes' })
+      }
+      else{this.$router.push({ name: 'ListarEquipos' })}
+
+      
     }
 
 

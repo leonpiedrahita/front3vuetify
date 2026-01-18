@@ -6,7 +6,7 @@
         <v-row align="center" style="height: 90vh">
           <v-col cols="12" md="10" lg="7" class="mx-auto">
             <v-card class="pa-10" color="transparent">
-              <v-img src="/src/imagenes/logo/GoMaintNavideno.png" max-width="550" class="mx-auto mb-1"></v-img>
+              <v-img src="/src/imagenes/logo/GoMaint.png" max-width="550" class="mx-auto mb-1"></v-img>
               <v-card-title title align="center"> Acceder a su cuenta </v-card-title>
               <v-form ref="form" lazy-validation @submit.prevent="loginUser">
                 <v-text-field v-model="login.email" label="E-mail" required></v-text-field>
@@ -27,7 +27,7 @@
             <span class="separator"></span>
             Todos los derechos reservados 2025.
             <span class="separator"></span>
-            V.1.3.4
+            V.1.3.5
           </div>
         </v-row>
       </v-col>
@@ -125,7 +125,7 @@ export default {
 <style scoped>
 .fondo-logo {
   min-height: 100vh;
-  background-image: url('/engrane medio sin fondo navideno.png');
+  background-image: url('/engrane medio sin fondo.png');
   background-repeat: no-repeat;
   background-color: #f5f5f5;
   /* gris claro */

@@ -80,7 +80,7 @@
 
 
     </v-card>
-     <pre>{{ ordenes }}</pre> 
+     <!-- <pre>{{ ordenes }}</pre>  -->
 </template>
 
 <script>

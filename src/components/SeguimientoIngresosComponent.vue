@@ -303,7 +303,7 @@ export default {
             }
         },
         consultarEstado() {
-            if (this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho") {
+            if (this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho" || this.nuevaEtapa.nombre === "Revisado") {
                 this.cambiarestado = true;
             }
             else {

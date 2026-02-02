@@ -135,6 +135,7 @@ export default {
             "Cuarentena",
             "Taller de ingeniería",
             "Bodega de equipos usados",
+            "Bodega de despachos",
             "Cliente"
         ],
         equipo: {},

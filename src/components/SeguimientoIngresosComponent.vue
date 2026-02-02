@@ -409,8 +409,10 @@ export default {
                     "Soporte aplicaciones",
                     "Listo para despacho",
                     "Cotización solicitada",
+                    "Cotización aprobada",
                     "Pdte. de repuestos",
                     "Pdte. de aprobación de repuestos",
+                    "Revisado",
                     "Despachado",
                     "Finalizado",
                     "Cancelado"
@@ -424,6 +426,7 @@ export default {
                     "Cotización solicitada",
                     "Pdte. de repuestos",
                     "Pdte. de aprobación de repuestos",
+                    "Revisado",
                     "Listo para despacho",
                     "Finalizado",
                     "Cancelado"
@@ -442,6 +445,7 @@ export default {
                 this.listadeEtapas = [
                     "Soporte ingeniería",
                     "Soporte aplicaciones",
+                    "Cotización aprobada",
                     "Cancelado",
                     "Cuarentena",
                     "Despachado",

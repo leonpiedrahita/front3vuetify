@@ -25,9 +25,9 @@
             LeoLab
             <v-icon left size="18">mdi-paw</v-icon>
             <span class="separator"></span>
-            Todos los derechos reservados 2025.
+            Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.1.3.5
+            V.1.4.0
           </div>
         </v-row>
       </v-col>
@@ -80,19 +80,33 @@ export default {
     };
   },
   beforeCreate() {
-    this.$store.dispatch("autoLogin")
+    this.$store.dispatch("autoLogin");
     if (this.$store.state.existe === 1) {
-      if (this.$store.state.user.rol==="lumira") {
-        this.$router.push({ name: 'ListarOrdenes' })
+      if (this.$store.state.user.rol === "lumira") {
+        this.$router.push({ name: 'ListarOrdenes' });
+      } else {
+        this.$router.push({ name: 'ListarEquipos' });
       }
-      else{this.$router.push({ name: 'ListarEquipos' })}
-
-      
     }
-
-
+  },
+  mounted() {
+// Si llegamos aquí, es que el usuario necesita loguearse.
+    // Limpiamos cookies por seguridad.
+    this.clearCookies();
   },
   methods: {
+    clearCookies() {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        
+        // Importante: Borrar con el path de la app
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+      console.log("Cookies de sesión previa limpiadas.");
+    },
     async loginUser() {
 
 

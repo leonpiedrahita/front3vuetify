@@ -56,22 +56,20 @@
             <template v-slot:item.updatedAt="{ item }">
                 {{ formatearFecha(item.updatedAt) }}
             </template>
-            <template v-slot:item.ubicacion="{ item }">
-                <span v-if="item.etapas && item.etapas.length > 0">
-                    {{ item.etapas.at(-1)?.ubicacion ?? item.etapas[item.etapas.length - 1].ubicacion }}
-                </span>
-                <span v-else>
-                    N/A
-                </span>
-            </template>
-            <template v-slot:item.nombreEtapaActual="{ item }">
-                <span v-if="item.etapas && item.etapas.length > 0">
-                    {{ item.etapas.at(-1)?.nombre ?? item.etapas[item.etapas.length - 1].nombre }}
-                </span>
-                <span v-else>
-                    N/A
-                </span>
-            </template>
+            <template v-slot:item.ubicacionFlat="{ item }">
+    {{ item.ubicacionFlat }}
+</template>
+            <template v-slot:item.etapaActualFlat="{ item }">
+    <v-chip
+        :color="getColorEtapa(item.etapaActualFlat)"
+        size="small"
+        label
+        class="font-weight-bold"
+        variant="outlined"
+    >
+        {{ item.etapaActualFlat }}
+    </v-chip>
+</template>
 
             <template v-slot:[`item.crear`]="{ item }">
                 <v-icon medium @click="abrirOrden(item)">
@@ -82,7 +80,7 @@
 
 
     </v-card>
-    <!-- <pre>{{ ordenes }}</pre> -->
+     <pre>{{ ordenes }}</pre> 
 </template>
 
 <script>
@@ -135,10 +133,11 @@ export default {
 
             },
             {
-                title: "Ubicación",
-                value: "ubicacion",
-                align: "center",
-            },
+    title: "Ubicación",
+    key: "ubicacionFlat", // Cambio aquí
+    align: "center",
+    sortable: true,
+},
             {
                 title: "Ingreso",
                 align: "center",
@@ -153,12 +152,11 @@ export default {
             },
 
             {
-                title: "Etapa Actual",
-                value: "nombreEtapaActual",
-                align: "center",
-                sortable: false,
-
-            },
+    title: "Etapa Actual",
+    key: "etapaActualFlat", // Cambio aquí
+    align: "center",
+    sortable: true,
+},
 
             {
                 title: "Ver / Editar",
@@ -170,6 +168,33 @@ export default {
     }),
 
     methods: {
+        getColorEtapa(etapa) {
+    if (!etapa || etapa === 'N/A') return 'grey-lighten-1';
+    
+    // Normalizamos el texto para la comparación
+    const e = etapa.toLowerCase().trim();
+
+    // --- GRUPO: ÉXITO / FINALIZADO ---
+    if (e.includes('finalizado') ) return '#71717B'; // Verde
+    if (e.includes('desinfección') ) return '#FB2C36'; // Verde
+    if (e.includes('listo para despacho') || e.includes('revisado')) return '#2196f3'; // Azul
+    if (e.includes('despachado') ) return '#28B463'; // Azul
+
+    // --- GRUPO: PROCESOS TÉCNICOS ---
+    if (e.includes('soporte ingeniería')) return '#155DFC'; // Púrpura
+    if (e.includes('soporte aplicaciones')) return '#E12AFB'; // Índigo
+    if (e.includes('cotización aprobada')) return '#FF692A'; // Cian
+
+    // --- GRUPO: ALERTAS / ESPERAS ---
+    if (e.includes('cuarentena')) return '#ff9800'; // Naranja
+    if (e.includes('pdte. de repuestos') || e.includes('pdte. de aprobación')) return '#ff5722'; // Naranja oscuro
+    if (e.includes('cotización solicitada')) return '#ffc107'; // Ámbar
+
+    // --- GRUPO: CANCELADOS / ERRORES ---
+    if (e.includes('cancelado')) return '#000000'; // Rojo
+
+    return '#71717B'; // Color por defecto
+},
         // --- NUEVA FUNCIÓN para formatear la fecha ---
         formatearFecha(fechaString) {
             if (!fechaString) return 'N/A';
@@ -186,42 +211,41 @@ export default {
         },
         // ---------------------------------------------
         listarTodos() {
-            //va a ir a mi backend y me traerá las peticiones de la base de datos
-            axios
-                .get(this.$store.state.ruta + "api/ingreso/ingresos",
-                    {
-                        headers: {
-                            token: this.$store.state.token,
-                        },
-                    }
-                )
-                .then((response) => {
-                    this.ordenes = response.data; //el this es porque no es propia de la funcion sino de l componente
-                    this.cargando = false
-                })
-                .catch((error) => {
-                    //console.log(error);
-                    return error;
-                });
-        },
+        this.cargando = true;
+        axios.get(this.$store.state.ruta + "api/ingreso/ingresos", {
+            headers: { token: this.$store.state.token }
+        })
+        .then((response) => {
+            // PROCESAMOS LOS DATOS AQUÍ
+            this.ordenes = response.data.map(orden => {
+                const ultimaEtapa = orden.etapas?.length > 0 ? orden.etapas.at(-1) : null;
+                return {
+                    ...orden,
+                    ubicacionFlat: ultimaEtapa?.ubicacion || 'N/A',
+                    etapaActualFlat: ultimaEtapa?.nombre || 'N/A'
+                };
+            });
+            this.cargando = false;
+        });
+    },
         listarAbiertos() {
-            axios
-                .get(this.$store.state.ruta + "api/ingreso/ingresosabiertos",
-                    {
-                        headers: {
-                            token: this.$store.state.token,
-                        },
-                    }
-                )
-                .then((response) => {
-                    this.ordenes = response.data; //el this es porque no es propia de la funcion sino de l componente
-                    this.cargando = false
-                })
-                .catch((error) => {
-                    //console.log(error);
-                    return error;
-                });
-        },
+        this.cargando = true;
+        axios.get(this.$store.state.ruta + "api/ingreso/ingresosabiertos", {
+            headers: { token: this.$store.state.token }
+        })
+        .then((response) => {
+            // PROCESAMOS LOS DATOS AQUÍ
+            this.ordenes = response.data.map(orden => {
+                const ultimaEtapa = orden.etapas?.length > 0 ? orden.etapas.at(-1) : null;
+                return {
+                    ...orden,
+                    ubicacionFlat: ultimaEtapa?.ubicacion || 'N/A',
+                    etapaActualFlat: ultimaEtapa?.nombre || 'N/A'
+                };
+            });
+            this.cargando = false;
+        });
+    },
         abrirOrden(item) {
             this.ordenseleccionada = Object.assign({}, item);
             this.$store.dispatch("guardarOrdenesEquipo", {

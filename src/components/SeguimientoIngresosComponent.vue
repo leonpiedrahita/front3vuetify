@@ -91,7 +91,7 @@
 
                             <v-col cols="12" md="6">
                                 <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
-                                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Bodega Prado','Cliente', 'Dado de baja']"
+                                    :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería','Bodega de despachos', 'Bodega Prado','Cliente', 'Dado de baja']"
                                     :rules="[v => !!v || 'La ubicación es obligatoria']" required
                                     variant="outlined"></v-select>
                             </v-col>

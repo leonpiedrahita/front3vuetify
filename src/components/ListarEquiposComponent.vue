@@ -1677,11 +1677,12 @@ export default {
         Marca: item.marca,
         Serie: item.serie,
         Cliente: item.cliente.nombre,
+        Proveedor: item.proveedor.nombre,
         Propietario: item.propietario.nombre,
         'Ubicación': item.ubicacionNombre,
         'Dirección Ubicación': item.ubicacionDireccion,
         Estado: item.estado,
-        'Placa de Inventario': item.placaDeInventario,
+        //'Placa de Inventario': item.placaDeInventario,
         'Tipo de Contrato': item.tipoDeContrato,
         'Estado': item.estado,
 

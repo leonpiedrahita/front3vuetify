@@ -516,6 +516,7 @@ export default {
       "Entrenamiento remoto",
       "Desinstalación",
       "Inspección",
+      "Evaluación de desempeño",
       "Actualización"
     ],
     fechadeiniciocalendario: null,

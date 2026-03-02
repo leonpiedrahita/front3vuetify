@@ -177,8 +177,9 @@ export default {
     // --- GRUPO: ÉXITO / FINALIZADO ---
     if (e.includes('finalizado') ) return '#71717B'; // Verde
     if (e.includes('desinfección') ) return '#FB2C36'; // Verde
-    if (e.includes('listo para despacho') || e.includes('revisado')) return '#2196f3'; // Azul
-    if (e.includes('despachado') ) return '#28B463'; // Azul
+    if (e.includes('revisado')) return '#28B463';
+    if (e.includes('listo para despacho') )return '#2196f3'; 
+    if (e.includes('despachado') ) return '#000000'; // Azul
 
     // --- GRUPO: PROCESOS TÉCNICOS ---
     if (e.includes('soporte ingeniería')) return '#155DFC'; // Púrpura

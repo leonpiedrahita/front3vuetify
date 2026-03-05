@@ -3,23 +3,6 @@
   <v-card class="pa-2">
     <!-- Fila de los campos de texto y botón -->
     <v-container fluid>
-      <v-row justify="space-around" align="center" dense>
-        <v-col cols="12" sm="6" md="2" class="pa-0">
-          <v-text-field v-model="buscar.nombreequipo" label="Nombre Equipo" variant="outlined" persistent-hint />
-        </v-col>
-        <v-col cols="12" sm="6" md="2" class="pa-0">
-          <v-text-field v-model="buscar.serie" label="Serie" variant="outlined" persistent-hint />
-        </v-col>
-        <v-col cols="12" sm="6" md="2" class="pa-0">
-          <v-text-field v-model="buscar.cliente" label="Cliente" variant="outlined" persistent-hint />
-        </v-col>
-        <v-col cols="12" sm="6" md="2" class="pa-0 d-flex justify-center justify-sm-center justify-md-start">
-          <v-btn class="mb-5" color="primary" min-width="228" size="large" variant="flat" @click="buscarEquipos">
-            Buscar Equipos
-          </v-btn>
-        </v-col>
-      </v-row>
-
       <v-row class="mt-2 flex-nowrap" justify="space-around">
         <v-col class="px-1" cols="auto">
           <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" class="my-1" color="c6" size="large"
@@ -29,7 +12,7 @@
         </v-col>
 
         <v-col class="px-1" cols="auto">
-          <v-btn class="my-1" color="primary" size="large" @click="VentanaCronograma = true">
+          <v-btn class="my-1" color="primary" size="large" @click="abrirCronograma">
             Cronograma
           </v-btn>
         </v-col>
@@ -42,8 +25,10 @@
       </v-row>
     </v-container>
 
-    <v-data-table :headers="headersfiltrados" :items="equipos" :search="search" class="elevation-1" :loading="cargando"
-      loading-text="Cargando ... por favor espere">
+    <v-data-table-server :headers="headersfiltrados" :items="equipos" :items-length="totalEquipos"
+      v-model:page="paginaActual" v-model:items-per-page="elementosPorPagina"
+      class="elevation-1" :loading="cargando" loading-text="Cargando ... por favor espere"
+      @update:options="cargarEquipos">
       <template v-slot:top>
         <v-toolbar flat>
           <v-row justify="space-around">
@@ -423,7 +408,7 @@
 
 
                 <!-- Tabla -->
-                <v-data-table :headers="headersCronograma" :items="equipos" :search="search" class="elevation-1">
+                <v-data-table :headers="headersCronograma" :items="equiposCronograma" :search="search" class="elevation-1">
                   <!-- PRÓXIMO MANTENIMIENTO -->
                   <template #item.proximoMantenimiento="{ item }">
                     <span v-if="calcularFechaVencimiento(item)">
@@ -502,7 +487,7 @@
           mdi-account-box-multiple-outline
         </v-icon>
       </template>
-    </v-data-table>
+    </v-data-table-server>
 
     <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionguardado">
       <v-card>
@@ -567,17 +552,16 @@ export default {
     esperaguardar: false,
     etapaautorizada: "Desinfección",
     observaciones: "",
+    totalEquipos: 0,
+    paginaActual: 1,
+    elementosPorPagina: 20,
+    debounceTimer: null,
+    equiposCronograma: [],
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Fuera de Servicio", "Devuelto al Proveedor"],
     listaestados: ["Nuevo","En servicio", "Disponible", "Disp. Pdte. MP.","Reservado", "En Soporte", "Dado de Baja"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
-    buscar: {
-      nombreequipo: "",
-      serie: "",
-      cliente: "",
-      contrato: "",
-    },
     ordenes: [
       {
         etapaactual: 1, // Paso actual
@@ -868,6 +852,13 @@ export default {
   },
 
   watch: {
+    search(newVal) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = setTimeout(() => {
+        this.paginaActual = 1;
+        this.buscarEquipos();
+      }, 500);
+    },
     dialog(val) {
       val || this.close();
     },
@@ -922,7 +913,7 @@ export default {
       this.$router.push({ name: "Login" });
     } else {
       this.asignarLista();
-
+      this.buscarEquipos();
     }
   },
 
@@ -956,49 +947,42 @@ export default {
         ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.` +
         `${pad(date.getMilliseconds(), 3)}`;
     },
-    listar() {
-      //va a ir a mi backend y me traerá las peticiones de la base de datos
-      axios
-        .get(this.$store.state.ruta + "api/equipo/listar", {
-
-          headers: {
-            token: this.$store.state.token,
-          },
-
-
-        })
-        .then((response) => {
-          this.equipos = response.data; //el this es porque no es propia de la funcion sino de l componente
-
-        })
-        .catch((error) => {
-          //console.log(error);
-          return error;
-        });
-    },
     buscarEquipos() {
-      // Va a ir a mi backend y realizará una consulta con filtros dinámicos
-      this.cargando = true; // Muestra el spinner de carga
+      this.cargando = true;
       axios
         .post(this.$store.state.ruta + "api/equipo/buscarequipos", {
-          // Aquí defines los filtros que deseas enviar al backend
-          nombre: this.buscar.nombreequipo, // Por ejemplo, un filtro basado en el nombre
-          serie: this.buscar.serie,   // Por ejemplo, un filtro basado en la serie
-          contrato: this.buscar.contrato, // Por ejemplo, un filtro basado en el estado
-          clienteNombre: this.buscar.cliente // Por ejemplo, un filtro basado en el nombre del propietario
-
+          texto: this.search,
+          page: this.paginaActual,
+          limit: this.elementosPorPagina,
         }, {
-          headers: {
-            token: this.$store.state.token,
-          },
+          headers: { token: this.$store.state.token },
         })
         .then((response) => {
-          this.equipos = response.data; // El `this` es porque `equipos` pertenece al componente
+          this.equipos = response.data.equipos;
+          this.totalEquipos = response.data.total;
           this.cargando = false;
         })
         .catch((error) => {
           console.error("Error al buscar equipos:", error);
-          return error;
+          this.cargando = false;
+        });
+    },
+    cargarEquipos({ page, itemsPerPage }) {
+      this.paginaActual = page;
+      this.elementosPorPagina = itemsPerPage;
+      this.buscarEquipos();
+    },
+    abrirCronograma() {
+      this.VentanaCronograma = true;
+      axios
+        .get(this.$store.state.ruta + "api/equipo/listartodos", {
+          headers: { token: this.$store.state.token },
+        })
+        .then((response) => {
+          this.equiposCronograma = response.data;
+        })
+        .catch((error) => {
+          console.error("Error al cargar cronograma:", error);
         });
     },
 
@@ -1094,26 +1078,7 @@ export default {
         this.nuevoequipo.ubicacion.direccion = "";
       }
 
-      // Verificar duplicados: serie e inventario
-      const encontrarserie = this.equipos.find(
-        (registro) => registro.serie === this.nuevoequipo.serie
-      );
-
-      const encontrarinventario =
-        this.nuevoequipo.placaDeInventario !== "N/A"
-          ? this.equipos.find(
-            (registro) =>
-              registro.placaDeInventario === this.nuevoequipo.placaDeInventario
-          )
-          : null;
-
-      if (encontrarserie) {
-        this.textodialogo = "El número de serie ya se encuentra registrado";
-        this.dialogo = true;
-      } else if (encontrarinventario) {
-        this.textodialogo = "El número de inventario ya se encuentra registrado";
-        this.dialogo = true;
-      } else {
+      {
         // Convertir fecha a ISO antes de enviar
         const fechaISO = this.fechadecalendario
           ? new Date(this.fechadecalendario).toISOString()
@@ -1169,8 +1134,12 @@ export default {
             this.buscarEquipos();
           })
           .catch((error) => {
-            console.log(error);
-            return error;
+            if (error.response?.status === 409) {
+              this.textodialogo = "El número de serie ya se encuentra registrado";
+              this.dialogo = true;
+            } else {
+              console.error(error);
+            }
           });
 
       }
@@ -1210,25 +1179,6 @@ export default {
         );
         this.equipomodificado.ubicacionNombre = "";
         this.equipomodificado.ubicacionDireccion = "";
-      }
-
-      // Verificar inventario duplicado solo si cambió
-      if (this.inventarioactual !== this.equipomodificado.placaDeInventario) {
-        const encontrarinventario =
-          this.equipomodificado.placaDeInventario !== "N/A"
-            ? this.equipos.find(
-              (registro) =>
-                registro.placaDeInventario ===
-                this.equipomodificado.placaDeInventario
-            )
-            : null;
-
-        if (encontrarinventario) {
-          this.textodialogo =
-            "El número de inventario ya se encuentra registrado";
-          this.dialogo = true;
-          return;
-        }
       }
 
       // Payload para el PATCH
@@ -1386,12 +1336,19 @@ export default {
       }
 
     },
-    detallesEquipo(item) {
-      this.$store.dispatch("guardarDetallesEquipo", {
-        detallesequipo: Object.assign({}, item),
-      });
-      /* this.$router.push({ name: "DetallesEquipo" }); */
-      this.ventanaDetallesEquipo = true;
+    async detallesEquipo(item) {
+      try {
+        const response = await axios.get(
+          this.$store.state.ruta + `api/equipo/listaruno/${item.id}`,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.$store.dispatch("guardarDetallesEquipo", {
+          detallesequipo: response.data,
+        });
+        this.ventanaDetallesEquipo = true;
+      } catch (err) {
+        console.error("Error al cargar detalles del equipo:", err);
+      }
     },
     mostrarHistorialClientes(item) {
 
@@ -1670,38 +1627,36 @@ export default {
 
       }
     },
-    exportToExcel() {
-      // Campos que quieres exportar (orden y nombres personalizados si deseas)
-      const exportData = this.equipos.map(item => ({
-        Nombre: item.nombre,
-        Marca: item.marca,
-        Serie: item.serie,
-        Cliente: item.cliente.nombre,
-        Proveedor: item.proveedor.nombre,
-        Propietario: item.propietario.nombre,
-        'Ubicación': item.ubicacionNombre,
-        'Dirección Ubicación': item.ubicacionDireccion,
-        Estado: item.estado,
-        //'Placa de Inventario': item.placaDeInventario,
-        'Tipo de Contrato': item.tipoDeContrato,
-        'Estado': item.estado,
-
-      }));
-
-      // Crear hoja y libro
-      const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
-
-      // Escribir y guardar
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-      saveAs(blob, 'Equipos.xlsx');
+    async exportToExcel() {
+      try {
+        const response = await axios.get(
+          this.$store.state.ruta + "api/equipo/listartodos",
+          { headers: { token: this.$store.state.token } }
+        );
+        const exportData = response.data.map(item => ({
+          Nombre: item.nombre,
+          Marca: item.marca,
+          Serie: item.serie,
+          Cliente: item.cliente.nombre,
+          Proveedor: item.proveedor.nombre,
+          Propietario: item.propietario.nombre,
+          'Ubicación': item.ubicacionNombre,
+          'Dirección Ubicación': item.ubicacionDireccion,
+          Estado: item.estado,
+          'Tipo de Contrato': item.tipoDeContrato,
+        }));
+        const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(blob, 'Equipos.xlsx');
+      } catch (err) {
+        console.error("Error al exportar a Excel:", err);
+      }
     },
     exportarAExcel() {
-      const encabezados = this.equipos.map(h => h.text);
-
-      const exportData = this.equipos.map(item => ({
+      const exportData = this.equiposCronograma.map(item => ({
         Serie: item.serie,
         Nombre: item.nombre,
         Propietario: item.propietario.nombre,
@@ -1712,15 +1667,11 @@ export default {
         ProximoMantenimiento: this.calcularFechaVencimiento(item),
         DiasRestantes: this.calcularDiferencia(item),
       }));
-      // Crear hoja y libro
       const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
-
-      // Escribir y guardar
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
       saveAs(blob, 'Cronograma MP.xlsx');
     },
 

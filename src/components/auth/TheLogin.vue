@@ -76,8 +76,8 @@ export default {
       },
     };
   },
-  beforeCreate() {
-    this.$store.dispatch("autoLogin");
+  async beforeCreate() {
+    await this.$store.dispatch("autoLogin");
     if (this.$store.state.existe === 1) {
       if (this.$store.state.user.rol === "lumira") {
         this.$router.push({ name: 'ListarOrdenes' });
@@ -111,7 +111,7 @@ export default {
       return response.data;
     })
     .then((data) => {
-      this.$store.dispatch("guardarToken", data.tokenReturn);
+      this.$store.dispatch("guardarToken", { accessToken: data.tokenReturn, refreshToken: data.refreshToken });
       this.nombre = this.$store.state.user.nombre;
       this.confirmacionlogin = true;
 

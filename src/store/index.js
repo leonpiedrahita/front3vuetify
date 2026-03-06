@@ -8,7 +8,7 @@ const store = createStore({
 
 
     state: { //Creo las variables que son solo de lectura
-        token: '',
+        token: '',       // access token (solo en memoria, nunca en localStorage)
         user: '',
         existe: 0,
         ubicacion: '',
@@ -64,61 +64,68 @@ const store = createStore({
         }
 
     },
-    actions: {//Las acciones hacen los llamados a las mutaciones
-        guardarToken({ commit }, token) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
-            commit("setToken", token);
-            commit("setUsuario", jwtdecode(token));
-            localStorage.setItem('token', token);
-        },
-autoLogin({ commit }) {
-    // 1. Obtiene el token
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        // No hay token, forzamos el cierre de sesión/desactivamos el token
-        commit("setExistetoken", 0);
-        return false;
-    }
-
-    try {
-        // Decodifica el token para obtener sus datos (payload)
-        const payload = jwtdecode(token); 
-        
-        // Convertimos los timestamps de JWT (en segundos) a objetos Date (en milisegundos)
-        const horaExpiracion = new Date(payload.exp * 1000);
-        const horaActual = new Date();
-        
-        // Comprobación de la expiración:
-        // Si la hora actual es MENOR que la hora de expiración, el token es VÁLIDO.
-        if (horaActual < horaExpiracion) {
-            
-            // 2. Token Válido: Establece los datos de la sesión
-            commit("setToken", token);
-            commit("setUsuario", payload); // Usamos el payload decodificado
+    actions: {
+        // Guarda el access token en estado (memoria) y el refresh token en localStorage
+        guardarToken({ commit }, { accessToken, refreshToken }) {
+            commit("setToken", accessToken);
+            commit("setUsuario", jwtdecode(accessToken));
             commit("setExistetoken", 1);
-            return true;
-            
-        } else {
-            
-            // 3. Token Expirado: Limpiamos la sesión
-            localStorage.removeItem('token'); // Opcional pero recomendado
-            commit("setExistetoken", 0);
-            return false;
-            
-        }
-    } catch (error) {
-        // Captura errores si el token está malformado o es ilegible
-        console.error("Error decodificando el token:", error);
-        localStorage.removeItem('token');
-        commit("setExistetoken", 0);
-        return false;
-    }
-},
-        salir({ commit }) {//para borrar los datos y devolver el usuario a Home
-            commit("setToken", null);
-            commit("setUsuario", null);
-            localStorage.removeItem('token');
-            router.push({ name: 'Login' });
+            localStorage.setItem('refreshToken', refreshToken);
+        },
+
+        // Al reabrir la app: usa el refresh token para obtener un nuevo access token
+        async autoLogin({ commit, state }) {
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            if (!refreshToken) {
+                commit("setExistetoken", 0);
+                return false;
+            }
+
+            try {
+                const response = await fetch(`${apiUrl}api/usuario/refresh`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken }),
+                });
+
+                if (!response.ok) {
+                    localStorage.removeItem('refreshToken');
+                    commit("setExistetoken", 0);
+                    return false;
+                }
+
+                const { accessToken } = await response.json();
+                commit("setToken", accessToken);
+                commit("setUsuario", jwtdecode(accessToken));
+                commit("setExistetoken", 1);
+                return true;
+            } catch (error) {
+                console.error("Error en autoLogin:", error);
+                localStorage.removeItem('refreshToken');
+                commit("setExistetoken", 0);
+                return false;
+            }
+        },
+
+        async salir({ commit }) {
+            const refreshToken = localStorage.getItem('refreshToken');
+            try {
+                if (refreshToken) {
+                    await fetch(`${apiUrl}api/usuario/salir`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken }),
+                    });
+                }
+            } catch (err) {
+                console.error('Error al cerrar sesión en servidor:', err);
+            } finally {
+                commit("setToken", null);
+                commit("setUsuario", null);
+                localStorage.removeItem('refreshToken');
+                router.push({ name: 'Login' });
+            }
         },
        
         guardarUbicacion({ commit }, { ubicacion, icono, color }) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones

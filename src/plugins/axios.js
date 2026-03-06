@@ -1,32 +1,52 @@
 import axios from 'axios';
+import jwtdecode from 'jwt-decode';
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const axiosPlugin = {
   install: (app) => {
-    // Set up Axios instance with custom configurations if needed
-    const instance = axios.create({
-     /*  baseURL: 'https://api.example.com', // Replace with your API base URL
-      timeout: 5000, // Set a timeout for requests (optional) */
-    });
+    const instance = axios.create();
 
-    // Add the instance to the app as a global property
     app.config.globalProperties.$axios = instance;
 
-    // You can also set up interceptors, etc. here if needed
+    // Interceptor de respuesta: renueva el access token automáticamente en 403
+    instance.interceptors.response.use(
+      response => response,
+      async (error) => {
+        const original = error.config;
 
-    // Example interceptor for request logging
-    instance.interceptors.request.use((config) => {
-      console.log('Making request with Axios:', config);
-      return config;
-    });
+        // Solo actúa en 403 y evita bucles infinitos
+        if (error.response?.status === 403 && !original._retry) {
+          original._retry = true;
 
-    // Example interceptor for response logging
-    instance.interceptors.response.use((response) => {
-      console.log('Received response with Axios:', response);
-      return response;
-    }, (error) => {
-      console.error('Error with Axios request:', error);
-      return Promise.reject(error);
-    });
+          const refreshToken = localStorage.getItem('refreshToken');
+          if (!refreshToken) {
+            // Sin refresh token → redirige al login
+            app.config.globalProperties.$store.dispatch('salir');
+            return Promise.reject(error);
+          }
+
+          try {
+            const { data } = await axios.post(`${apiUrl}api/usuario/refresh`, { refreshToken });
+
+            // Actualiza el store con el nuevo access token
+            const store = app.config.globalProperties.$store;
+            store.commit('setToken', data.accessToken);
+            store.commit('setUsuario', jwtdecode(data.accessToken));
+
+            // Reintenta el request original con el nuevo token
+            original.headers['token'] = data.accessToken;
+            return instance(original);
+          } catch (refreshError) {
+            // El refresh token también es inválido/expirado → cierra sesión
+            app.config.globalProperties.$store.dispatch('salir');
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
   },
 };
 

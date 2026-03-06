@@ -4,18 +4,14 @@
             loading-text="Cargando ... por favor espere">
             <template v-slot:top>
 
-                <v-toolbar flat>
-
+                <div class="pa-3">
                     <v-row align="center">
                         <v-col cols="12" sm="6" md="6" lg="6">
                             <v-text-field v-model="search" append-icon="mdi-magnify"
                                 label="Buscar: Equipo/Serie/Cliente/Estado" single-line hide-details></v-text-field>
                         </v-col>
 
-                        <v-spacer></v-spacer>
-
-                        <v-col cols="12" sm="6" md="6" lg="6" class="d-flex justify-space-around">
-
+                        <v-col cols="12" sm="6" md="6" lg="6" class="d-flex flex-column flex-sm-row justify-sm-space-around ga-2">
                             <v-btn size="large" color="primary" variant="flat" @click="listarAbiertos()">
                                 Listar Abiertos
                             </v-btn>
@@ -30,10 +26,6 @@
                         <v-dialog v-model="ventanaSeguimiento" transition="dialog-bottom-transition" persistent height="90%" width="90%">
                             <v-toolbar flat style="background-color: #52B69A; color: white;">
                                 <v-spacer></v-spacer>
-                                <!-- Botón cerrar flotando a la derecha -->
-
-
-
                                 <!-- Título centrado en negrilla -->
                                 <v-toolbar-title class="text-center font-weight-bold">
                                     Seguimiento de ingreso
@@ -46,8 +38,7 @@
                             <SeguimientoIngresosComponent />
                         </v-dialog>
                     </v-row>
-
-                </v-toolbar>
+                </div>
             </template>
             <template v-slot:item.createdAt="{ item }">
                 {{ formatearFecha(item.createdAt) }}

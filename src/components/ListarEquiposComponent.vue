@@ -1,44 +1,33 @@
 <template>
 
   <v-card class="pa-2">
-    <!-- Fila de los campos de texto y botón -->
-    <v-container fluid>
-      <v-row class="mt-2 flex-nowrap" justify="space-around">
-        <v-col class="px-1" cols="auto">
-          <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" class="my-1" color="c6" size="large"
-            variant="flat" @click="nuevoEquipo()">
-            Nuevo Equipo
-          </v-btn>
-        </v-col>
-
-        <v-col class="px-1" cols="auto">
-          <v-btn class="my-1" color="primary" size="large" @click="abrirCronograma">
-            Cronograma
-          </v-btn>
-        </v-col>
-
-        <v-col class="px-1" cols="auto">
-          <v-btn class="my-1" color="primary" size="large" @click="exportToExcel">
-            Exportar a Excel
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-
     <v-data-table-server :headers="headersfiltrados" :items="equipos" :items-length="totalEquipos"
       v-model:page="paginaActual" v-model:items-per-page="elementosPorPagina"
       class="elevation-1" :loading="cargando" loading-text="Cargando ... por favor espere"
       @update:options="cargarEquipos">
       <template v-slot:top>
-        <v-toolbar flat>
-          <v-row justify="space-around">
+        <div class="pa-3">
+          <v-row align="center">
             <v-col cols="12" sm="6">
               <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar: Cliente / Nombre / Serie"
                 single-line hide-details></v-text-field>
             </v-col>
 
+            <v-col cols="12" sm="6" class="d-flex flex-column flex-sm-row justify-sm-space-around ga-2">
+              <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" color="c6" size="large"
+                variant="flat" @click="nuevoEquipo()">
+                Nuevo Equipo
+              </v-btn>
+              <v-btn color="primary" size="large" @click="abrirCronograma">
+                Cronograma
+              </v-btn>
+              <v-btn color="primary" size="large" @click="exportToExcel">
+                Exportar a Excel
+              </v-btn>
+            </v-col>
           </v-row>
-          <v-dialog v-model="dialog2" max-width="500px" persistent>
+        </div>
+        <v-dialog v-model="dialog2" max-width="500px" persistent>
             <v-toolbar flat style="background-color: #52B69A; color: white;">
               <v-toolbar-title class="text-center font-weight-bold">
                 {{ formTitle }}
@@ -453,7 +442,6 @@
             </v-toolbar>
             <DetallesEquipoComponent />
           </v-dialog>
-        </v-toolbar>
       </template>
 
       <template v-slot:[`item.detalles`]="{ item }">

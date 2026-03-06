@@ -10,10 +10,70 @@
       <v-toolbar-title class="mostrar">
         {{ this.$store.state.user.nombre }}</v-toolbar-title>
 
-      <v-btn icon class="mr-5 ml-5" @click="salir()">
-        <v-icon> mdi-logout</v-icon>
-        <span> </span>
-      </v-btn>
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn icon class="mr-5 ml-5" v-bind="props">
+            <v-icon size="x-large">mdi-account-circle</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item prepend-icon="mdi-account" title="Información del usuario" @click="dialogoUsuario = true" />
+          <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" @click="salir()" />
+        </v-list>
+      </v-menu>
+
+      <!-- Modal información del usuario -->
+      <v-dialog v-model="dialogoUsuario" width="75%" persistent>
+        <v-card>
+          <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar-title class="font-weight-bold">Mi cuenta</v-toolbar-title>
+            <v-spacer />
+            <v-btn icon="mdi-close" variant="text" color="white" @click="cerrarDialogoUsuario" />
+          </v-toolbar>
+
+          <v-card-text class="pa-6">
+            <v-row>
+              <!-- Información del usuario -->
+              <v-col cols="12" md="6">
+                <div class="text-h6 mb-4">Información</div>
+                <v-list lines="two">
+                  <v-list-item prepend-icon="mdi-account" title="Nombre" :subtitle="$store.state.user.nombre" />
+                  <v-list-item prepend-icon="mdi-email" title="Correo" :subtitle="$store.state.user.email" />
+                  <v-list-item prepend-icon="mdi-badge-account" title="Rol" :subtitle="$store.state.user.rol" />
+                </v-list>
+              </v-col>
+
+              <!-- Cambiar contraseña -->
+              <v-col cols="12" md="6">
+                <div class="text-h6 mb-4">Cambiar contraseña</div>
+                <v-text-field
+                  v-model="nuevaContrasena"
+                  label="Nueva contraseña"
+                  :type="mostrarContrasena ? 'text' : 'password'"
+                  :append-inner-icon="mostrarContrasena ? 'mdi-eye-off' : 'mdi-eye'"
+                  @click:append-inner="mostrarContrasena = !mostrarContrasena"
+                  variant="outlined"
+                  :error="!!errorContrasena"
+                />
+                <v-text-field
+                  v-model="confirmarContrasena"
+                  label="Confirmar contraseña"
+                  :type="mostrarContrasena ? 'text' : 'password'"
+                  variant="outlined"
+                  :error-messages="errorConfirmar"
+                />
+                <p :class="errorContrasena ? 'text-red text-caption mb-3' : 'text-black text-caption mb-3'">
+                  La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.
+                </p>
+                <v-alert v-if="mensajeExito" type="success" class="mt-2 mb-4">{{ mensajeExito }}</v-alert>
+                <v-btn color="primary" variant="flat" :loading="guardandoContrasena" @click="cambiarContrasena">
+                  Guardar contraseña
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" fixed temporary>
       <v-card class="mx-auto" max-width="300" tile>
@@ -78,7 +138,14 @@ export default {
     return {
       drawer: null,
       selectedItem: 1,
-     
+      dialogoUsuario: false,
+      nuevaContrasena: "",
+      confirmarContrasena: "",
+      mostrarContrasena: false,
+      guardandoContrasena: false,
+      errorContrasena: "",
+      errorConfirmar: "",
+      mensajeExito: "",
     };
   },
   beforeCreate() {
@@ -87,10 +154,48 @@ export default {
       this.$router.push({ name: "Login" });
     }
   },
-
   methods: {
     salir() {
       this.$store.dispatch("salir");
+    },
+    cerrarDialogoUsuario() {
+      this.dialogoUsuario = false;
+      this.nuevaContrasena = "";
+      this.confirmarContrasena = "";
+      this.errorContrasena = "";
+      this.errorConfirmar = "";
+      this.mensajeExito = "";
+    },
+    async cambiarContrasena() {
+      this.errorContrasena = "";
+      this.errorConfirmar = "";
+      this.mensajeExito = "";
+
+      const regexContrasena = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$/;
+      if (!this.nuevaContrasena || !regexContrasena.test(this.nuevaContrasena)) {
+        this.errorContrasena = "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.";
+        return;
+      }
+      if (this.nuevaContrasena !== this.confirmarContrasena) {
+        this.errorConfirmar = "Las contraseñas no coinciden";
+        return;
+      }
+
+      this.guardandoContrasena = true;
+      try {
+        await this.$axios.patch(
+          `${this.$store.state.ruta}api/usuario/cambiarcontrasena`,
+          { newPassword: this.nuevaContrasena },
+          { headers: { token: this.$store.state.token } }
+        );
+        this.mensajeExito = "Contraseña actualizada correctamente";
+        this.nuevaContrasena = "";
+        this.confirmarContrasena = "";
+      } catch (err) {
+        this.errorContrasena = err.response?.data?.message || "Error al actualizar la contraseña";
+      } finally {
+        this.guardandoContrasena = false;
+      }
     },
   },
 };

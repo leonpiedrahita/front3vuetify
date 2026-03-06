@@ -470,6 +470,7 @@ export default {
     },
     // La tabla de reglas: 1 = hacer pregunta, 0 = no hacer.
     reglas: {
+      "Preinstalación": { remoto: 1, campo: 1, cronograma: 0 },
       "Instalación": { remoto: 1, campo: 1, cronograma: 1 },
       "Entrenamiento": { remoto: 1, campo: 1, cronograma: 0 },
       "Instalación y entrenamiento": { remoto: 1, campo: 1, cronograma: 1 },
@@ -506,6 +507,7 @@ export default {
     items: ["Item 1", "Item 2", "Item 3", "Item 4"],
     tipodeasistenciaseleccionado: null,
     tipodeasistencia: [
+      "Preinstalación",
       "Instalación",
       "Entrenamiento",
       "Instalación y entrenamiento",

@@ -560,31 +560,35 @@ export default {
       },
     ],
     headers: [
-      { title: "Serie", value: "serie", align: "center" },
-      { title: "Nombre", key: "nombre", align: "center" },
+      { title: "Serie", value: "serie", align: "center", sortable: false },
+      { title: "Nombre", key: "nombre", align: "center", sortable: false },
       /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
         title: "Propietario",
         align: "center",
         key: "propietario.nombre",
+        sortable: false,
       },
       {
         title: "Proveedor",
         align: "center",
         key: "proveedor.nombre",
+        sortable: false,
       },
       {
         title: "Cliente asignado",
         align: "center",
         key: "cliente.nombre",
+        sortable: false,
       },
       {
         title: "Ubicacion",
         align: "center",
         key: "ubicacionNombre",
+        sortable: false,
       },
-      { title: "Contrato", key: "tipoDeContrato", align: "center" },
-      { title: "Estado", key: "estado", align: "center" },
+      { title: "Contrato", key: "tipoDeContrato", align: "center", sortable: false },
+      { title: "Estado", key: "estado", align: "center", sortable: false },
       {
         title: "Detalles",
         value: "detalles",

@@ -134,12 +134,6 @@
         </div>
       </div>
     </div>
-    <pre>
-         <!-- <pre> -->
-          <!-- {{$data.reporte}} --> <!-- para imprimir las categorias en pantalla -->
-      <!-- </pre> -->
-
-    </pre>
   </div>
 
 </template>

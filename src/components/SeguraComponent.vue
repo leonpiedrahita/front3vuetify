@@ -127,7 +127,7 @@
     </v-navigation-drawer>
 
     <v-main class="margen">
-      <router-view />
+      <router-view v-if="ready" />
     </v-main>
   </v-app>
 </template>
@@ -138,6 +138,7 @@ export default {
     return {
       drawer: null,
       selectedItem: 1,
+      ready: false,
       dialogoUsuario: false,
       nuevaContrasena: "",
       confirmarContrasena: "",
@@ -148,10 +149,12 @@ export default {
       mensajeExito: "",
     };
   },
-  beforeCreate() {
-    this.$store.dispatch("autoLogin");
+  async beforeCreate() {
+    await this.$store.dispatch("autoLogin");
     if (this.$store.state.existe === 0) {
       this.$router.push({ name: "Login" });
+    } else {
+      this.ready = true;
     }
   },
   methods: {

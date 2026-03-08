@@ -215,7 +215,7 @@ beforeMount() {
   methods: {
     listar() {
       const id = localStorage.getItem("idreporte");
-      const token = localStorage.getItem("token"); // asegúrate que existe
+      const token = this.$store.state.token;
 
       if (!id || !token) {
         console.error("Falta ID de reporte o token.");
@@ -228,7 +228,7 @@ beforeMount() {
   axios
     .get(this.$store.state.ruta + `api/reporte/listaruno/${id}`, {
       headers: {
-        token: token, // aquí envías el token
+        token: token,
       },
     })
     .then((response) => {

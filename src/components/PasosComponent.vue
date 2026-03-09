@@ -87,7 +87,7 @@
                     <v-textarea v-model="observaciones"
                         :rules="[(v) => !!v || 'Campo requerido para confirmar etapa, bloquear o desbloquear orden']"
                         placeholder="Información importante como: Estado del equipo, repuestos pendientes, repuestos devueltos, compañía y número de guía con la que se recibe o entrega, nombre de quién recibe o entrega. Motivo de bloqueo o desbloqueo"></v-textarea>
-                    <v-card-actions><v-btn class="primary" color="c6" text @click="confirmarEtapa()"
+                    <v-card-actions><v-btn color="success" text @click="confirmarEtapa()"
                             :disabled="!(this.observaciones && this.etapaautorizada && this.ubicacionseleccionada)">Confirmar
                             Etapa</v-btn>
                         <!-- <v-btn v-if="bloqueodesbloqueo && ordenes.estado === 'Abierta'" class="error" text
@@ -112,8 +112,8 @@
                     <v-card-title>
                         <span class="headline">¿Desea finalizar la orden se servicio?</span>
                     </v-card-title>
-                    <v-card-actions><v-btn class="primary" text @click="finalizaretapas()">Finalizar</v-btn>
-                        <v-btn class="primary" text @click="cancelarFinalizar()">Cancelar</v-btn>
+                    <v-card-actions><v-btn color="success" text @click="finalizaretapas()">Finalizar</v-btn>
+                        <v-btn color="error" text @click="cancelarFinalizar()">Cancelar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-col>

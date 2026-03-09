@@ -79,7 +79,7 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error darken-1" text @click="cerrareditar">
+                <v-btn color="error" text @click="cerrareditar">
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(
@@ -89,7 +89,7 @@
                   editedItem.nombre && editedItem.sedePrincipal.ciudad &&
                   editedItem.sedePrincipal.direccion
                 )
-                  " color="primary darken-1" text @click="editar" v-if="Editarcliente">
+                  " color="success" text @click="editar" v-if="Editarcliente">
                   Editar
                 </v-btn>
                 <v-btn :disabled="!(
@@ -100,7 +100,7 @@
                   editedItem.sedePrincipal.direccion
 
                 )
-                  " color="primary darken-1" text @click="agregarCliente" v-if="Agregarcliente">
+                  " color="success" text @click="agregarCliente" v-if="Agregarcliente">
                   Agregar
                 </v-btn>
               </v-card-actions>
@@ -131,11 +131,11 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error darken-1" text @click="cerraragregarsede">
+                <v-btn color="error" text @click="cerraragregarsede">
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(editedItem2.sedePrincipal.ciudad && editedItem2.sedePrincipal.direccion)"
-                  color="primary darken-1" text @click="agregarnuevasede">
+                  color="success" text @click="agregarnuevasede">
                   Agregar
                 </v-btn>
               </v-card-actions>
@@ -147,8 +147,8 @@
               <v-card-title class="text-h5">¿Desea eliminar la sede?</v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="error darken-1" text @click="cerrareliminarsede">Cancelar</v-btn>
-                <v-btn color="primary darken-1" text @click="save3">Aceptar</v-btn>
+                <v-btn color="error" text @click="cerrareliminarsede">Cancelar</v-btn>
+                <v-btn color="success" text @click="save3">Aceptar</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -183,7 +183,7 @@
             </div>
           </v-card-text>
           <v-card-actions class="justify-center">
-            <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
+            <v-btn color="error" text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
           </v-card-actions>
         </v-card>
 
@@ -206,7 +206,7 @@
           </div>
         </v-card-text>
         <v-card-actions class="justify-center">
-          <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+          <v-btn color="success" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

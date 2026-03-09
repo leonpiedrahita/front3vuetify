@@ -544,6 +544,7 @@ export default {
     paginaActual: 1,
     elementosPorPagina: 20,
     debounceTimer: null,
+    _abortController: null,
     equiposCronograma: [],
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Fuera de Servicio", "Devuelto al Proveedor"],
@@ -940,14 +941,21 @@ export default {
         `${pad(date.getMilliseconds(), 3)}`;
     },
     buscarEquipos() {
+      // Cancela la petición anterior si aún está en vuelo
+      if (this._abortController) {
+        this._abortController.abort();
+      }
+      this._abortController = new AbortController();
+
       this.cargando = true;
-      axios
+      this.$axios
         .post(this.$store.state.ruta + "api/equipo/buscarequipos", {
           texto: this.search,
           page: this.paginaActual,
           limit: this.elementosPorPagina,
         }, {
           headers: { token: this.$store.state.token },
+          signal: this._abortController.signal,
         })
         .then((response) => {
           this.equipos = response.data.equipos;
@@ -955,6 +963,7 @@ export default {
           this.cargando = false;
         })
         .catch((error) => {
+          if (error.code === 'ERR_CANCELED') return; // Ignorar peticiones canceladas (AbortController)
           console.error("Error al buscar equipos:", error);
           this.cargando = false;
         });

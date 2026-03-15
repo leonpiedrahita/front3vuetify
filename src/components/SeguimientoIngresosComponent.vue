@@ -465,11 +465,7 @@ export default {
         } else {
             this.consultarEquipo();
             this.asignarLista();
-            this.$store.dispatch("guardarUbicacion", {
-                ubicacion: "Etapas del ingreso",
-                icono: "mdi-vector-polyline",
-                color: "c6",
-            });
+            
         }
 
     },

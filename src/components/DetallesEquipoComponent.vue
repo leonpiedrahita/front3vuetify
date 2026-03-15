@@ -515,11 +515,7 @@ export default {
     if (this.$store.state.existe === 0) {
       this.$router.push({ name: "Login" });
     }
-    this.$store.dispatch("guardarUbicacion", {
-      ubicacion: "Detalles Equipo",
-      icono: "mdi-amplifier",
-      color: "c6",
-    });
+    
   },
   methods: {
 

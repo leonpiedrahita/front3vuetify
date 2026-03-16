@@ -244,7 +244,8 @@
     <v-row>
       <!-- se crea la data table prinecipal para listar los clientes -->
       <v-data-table :headers="headers" :items="historial" class="tabla-normal elevation-1"
-        loading-text="Cargando ... por favor espere">
+        loading-text="Cargando ... por favor espere"
+        :sort-by="[{ key: 'fechaDeFinalizacion', order: 'desc' }]">
         <template v-slot:[`item.soportes`]="{ item }">
           <div class="columna-imprimir">
             <div>

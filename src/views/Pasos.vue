@@ -1,8 +1,7 @@
 <template>
-    <PasosComponent  />
+    <SeguimientoIngresosComponent />
 </template>
 
 <script setup>
-import  PasosComponent  from '@/components/PasosComponent.vue'
-
+import SeguimientoIngresosComponent from '@/components/SeguimientoIngresosComponent.vue'
 </script>

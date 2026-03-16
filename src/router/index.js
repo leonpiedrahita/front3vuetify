@@ -96,16 +96,6 @@ const routes = [
         }
       },
       {
-        path: '/imprimirreporte',
-        name: 'ImprimirReporte',
-        component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/ImprimirReporte.vue'),
-        meta: {
-          auth: true
-        },
-
-        props: true,
-      },
-      {
         path: '/adminusuarios',
         name: 'AdministracionUsuarios',
         component: () => import(/* webpackChunkName: "formulariogenerarorden" */ '../views/AdministracionUsuarios.vue'),
@@ -127,6 +117,12 @@ const routes = [
       }
 
     ]
+  },
+  {
+    path: '/imprimirreporte',
+    name: 'ImprimirReporte',
+    component: () => import('../views/ImprimirReporte.vue'),
+    meta: { public: true },
   },
   {
     path: '/:pathMatch(.*)*',

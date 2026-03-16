@@ -209,18 +209,16 @@ beforeMount() {
   methods: {
     listar() {
       const id = localStorage.getItem("idreporte");
-      const token = this.$store.state.token;
+      const token = sessionStorage.getItem("printToken") || this.$store.state.token;
+      const ruta = sessionStorage.getItem("printRuta") || this.$store.state.ruta;
 
       if (!id || !token) {
         console.error("Falta ID de reporte o token.");
         return;
       }
 
-      console.log("Consultando reporte con ID:", id);
-      console.log("Ruta de consulta:", this.$store.state.ruta + `api/reporte/listaruno/${id}`);
-
   axios
-    .get(this.$store.state.ruta + `api/reporte/listaruno/${id}`, {
+    .get(ruta + `api/reporte/listaruno/${id}`, {
       headers: {
         token: token,
       },

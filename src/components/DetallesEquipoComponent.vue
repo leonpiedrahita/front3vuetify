@@ -615,6 +615,8 @@ export default {
       console.log(typeof (this.reporte.identificacionDeReporte))
       if (this.reporte.reporteExterno === 0) {
         localStorage.setItem("idreporte", this.reporte.identificacionDeReporte);
+        sessionStorage.setItem("printToken", this.$store.state.token);
+        sessionStorage.setItem("printRuta", this.$store.state.ruta);
         const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte' }).href;
         window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
       }

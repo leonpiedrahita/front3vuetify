@@ -75,6 +75,11 @@ const store = createStore({
 
         // Al reabrir la app: usa el refresh token para obtener un nuevo access token
         async autoLogin({ commit, state }) {
+            // Si ya hay token en Vuex (autenticado en esta sesión), no hacer nada
+            if (state.token && state.existe === 1) {
+                return true;
+            }
+
             const refreshToken = localStorage.getItem('refreshToken');
 
             if (!refreshToken) {

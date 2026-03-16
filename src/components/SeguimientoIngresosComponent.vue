@@ -243,6 +243,7 @@ export default {
                 ultimaEtapa: this.ingreso.ultimaEtapa,
                 ubicacion: this.nuevaEtapa.ubicacion,
                 estado: nuevoEstado,
+                nuevoestadoequipo: this.cambiarestado ? this.nuevoestadoequipo : null,
             };
 
             try {

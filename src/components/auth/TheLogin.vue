@@ -27,7 +27,7 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.1.4.6
+            V.2.0.0
           </div>
         </v-row>
       </v-col>

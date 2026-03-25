@@ -24,7 +24,7 @@
                         </v-col>
 
                         <v-dialog v-model="ventanaSeguimiento" transition="dialog-bottom-transition" persistent height="90%" width="90%">
-                            <v-toolbar flat style="background-color: #52B69A; color: white;">
+                            <v-toolbar flat color="primary">
                                 <v-spacer></v-spacer>
                                 <!-- Título centrado en negrilla -->
                                 <v-toolbar-title class="text-center font-weight-bold">

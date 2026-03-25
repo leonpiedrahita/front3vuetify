@@ -50,7 +50,7 @@
             </div>
           </v-card-text>
           <v-card-actions class="pa-3 justify-center">
-            <v-btn class="error" @click="errorlogin = false">Aceptar</v-btn>
+            <v-btn color="success" @click="errorlogin = false">Aceptar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

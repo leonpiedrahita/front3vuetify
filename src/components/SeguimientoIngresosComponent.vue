@@ -1,6 +1,6 @@
 <template>
     <v-card class="pb-4">
-        <v-toolbar flat style="background-color: #52B69A; color: white;">
+        <v-toolbar flat color="primary">
 
             <!-- Botón cerrar flotando a la derecha -->
 
@@ -53,7 +53,7 @@
         </v-timeline>
     </v-card>
     <v-dialog v-model="dialogoNuevaEtapa" transition="dialog-bottom-transition" persistent max-width="800">
-        <v-toolbar flat style="background-color: #52B69A; color: white;">
+        <v-toolbar flat color="primary">
             <v-toolbar-title class="text-center font-weight-bold">
                 Añadir nueva etapa
             </v-toolbar-title>
@@ -102,8 +102,8 @@
 
             <v-card-actions class="pa-4 bg-grey-lighten-4">
                 <v-spacer></v-spacer>
-                <v-btn color="error darken-1" variant="flat" @click="cerrarDialogoNuevaEtapa">Cancelar</v-btn>
-                <v-btn color="primary darken-1" variant="flat" @click="consultarEstado">Guardar Etapa</v-btn>
+                <v-btn color="error" variant="flat" @click="cerrarDialogoNuevaEtapa">Cancelar</v-btn>
+                <v-btn color="success" variant="flat" @click="consultarEstado">Guardar Etapa</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -117,7 +117,7 @@
     </v-dialog>
     <v-dialog v-model="cambiarestado" persistent width="500">
         <v-card>
-            <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar flat color="primary">
                 <v-toolbar-title class="text-center font-weight-bold">
                     Nuevo estado del equipo
                 </v-toolbar-title>
@@ -134,7 +134,7 @@
                 <v-btn :disabled="!(
                     nuevoestadoequipo
                 )
-                    " color="primary darken-1" variant="flat" text @click="guardarNuevaEtapa">
+                    " color="success" variant="flat" text @click="guardarNuevaEtapa">
                     Aceptar
                 </v-btn>
             </v-card-actions>
@@ -243,6 +243,7 @@ export default {
                 ultimaEtapa: this.ingreso.ultimaEtapa,
                 ubicacion: this.nuevaEtapa.ubicacion,
                 estado: nuevoEstado,
+                nuevoestadoequipo: this.cambiarestado ? this.nuevoestadoequipo : null,
             };
 
             try {

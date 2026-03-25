@@ -54,6 +54,11 @@
                                 item-value="value" label="Estado*" :rules="[v => !!v || 'Campo obligatorio']" />
                         </v-col>
 
+                        <v-col cols="12">
+                            <v-text-field v-model="usuario.telefono" label="Teléfono WhatsApp (formato +57XXXXXXXXXX)"
+                                placeholder="+57XXXXXXXXXX" />
+                        </v-col>
+
                         <!-- Solo para nuevo usuario -->
                        <v-col cols="12" v-if="esNuevo">
     <v-text-field 
@@ -87,8 +92,8 @@
                 <v-divider />
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn text="Cerrar" variant="plain" @click="dialogoEditarUsuario = false" />
-                    <v-btn color="primary" text="Guardar" variant="tonal" @click="guardarUsuario" />
+                    <v-btn color="error" text="Cerrar" variant="plain" @click="dialogoEditarUsuario = false" />
+                    <v-btn color="success" text="Guardar" variant="tonal" @click="guardarUsuario" />
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -96,12 +101,12 @@
         <!-- Confirmación -->
         <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoConfirmacion">
             <v-card>
-                <v-toolbar class="text-h4 text-center justify-center" :color="esExito ? 'green' : 'red'" dark>
+                <v-toolbar class="text-h4 text-center justify-center" :color="esExito ? 'primary' : 'error'" dark>
                     {{ esExito ? '¡Genial!' : '¡Error!' }}
                 </v-toolbar>
                 <v-card-text class="text-h5 pa-5">{{ mensajeConfirmacion }}</v-card-text>
                 <v-card-actions class="justify-center">
-                    <v-btn color="primary" @click="dialogoConfirmacion = false">Aceptar</v-btn>
+                    <v-btn color="success" @click="dialogoConfirmacion = false">Aceptar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -131,8 +136,8 @@
                 <!-- Botones distribuidos -->
                 <v-card-actions class="d-flex justify-space-between px-4">
                     <v-btn color="c1" variant="tonal" @click="undo">Deshacer</v-btn>
-                    <v-btn color="grey" variant="tonal" @click="dialogoFirma = false">Cancelar</v-btn>
-                    <v-btn color="primary darken-1" variant="tonal" @click="save">Guardar</v-btn>
+                    <v-btn color="error" variant="tonal" @click="dialogoFirma = false">Cancelar</v-btn>
+                    <v-btn color="success" variant="tonal" @click="save">Guardar</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -171,17 +176,18 @@
         <v-divider />
         <v-card-actions>
             <v-spacer />
-            <v-btn 
-                text="Cancelar" 
-                variant="plain" 
-                @click="dialogoContrasena = false" 
+            <v-btn
+                color="error"
+                text="Cancelar"
+                variant="plain"
+                @click="dialogoContrasena = false"
                 :disabled="cargandoActualizacion"
             />
-            <v-btn 
-                color="primary" 
-                text="Guardar" 
-                variant="tonal" 
-                @click="actualizarContrasena" 
+            <v-btn
+                color="success"
+                text="Guardar contraseña"
+                variant="tonal"
+                @click="actualizarContrasena"
                 :loading="cargandoActualizacion"
                 :disabled="!nuevaContrasena || nuevaContrasena !== confirmarNuevaContrasena || !validarPassword(nuevaContrasena) || cargandoActualizacion"
             />
@@ -229,7 +235,8 @@ export default {
             email: '',
             rol: '',
             estado: 1,
-            password: ''
+            password: '',
+            telefono: ''
         },
         rolesDisponibles: ["administrador", "calidad", "cotizaciones", "soporte", "comercial", "bodega", "lumira"],
         estadoOpciones: [
@@ -240,12 +247,10 @@ export default {
             { title: "Nombre", value: "nombre", align: "center" },
             { title: "Email", value: "email", align: "center" },
             { title: "Rol", value: "rol", align: "center" },
+            { title: "Teléfono (WhatsApp)", value: "telefono", align: "center" },
             { title: "Estado", value: "estado", align: "center" },
-
             { title: "Editar usuario", value: "actions", sortable: false, align: "center" },
-            // Nueva columna para la acción de actualizar la contraseña
             { title: "Actualizar Contraseña", value: "updatePassword", sortable: false, align: "center" },
-
             { title: "Firma", value: "accionfirma", sortable: false, align: "center" }
         ],
     }),
@@ -276,7 +281,7 @@ export default {
         },
 
         abrirCrearUsuario() {
-            this.usuario = { nombre: '', email: '', rol: '', estado: 1, password: '' };
+            this.usuario = { nombre: '', email: '', rol: '', estado: 1, password: '', telefono: '' };
             this.confirmarPassword = '';
             this.esNuevo = true;
             this.dialogoEditarUsuario = true;
@@ -321,6 +326,7 @@ export default {
                 nombre: this.usuario.nombre,
                 email: this.usuario.email,
                 rol: this.usuario.rol,
+                telefono: this.usuario.telefono || null,
                 ...(this.esNuevo ? { password: this.usuario.password } : { estado: this.usuario.estado })
             };
 
@@ -362,7 +368,7 @@ export default {
 
             if (isEmpty) {
                 this.mensajeConfirmacion = "La firma está vacía. Por favor, firma antes de guardar.";
-                this.colorDialogo = "red";
+                this.colorDialogo = "error";
                 this.esExito = false;
                 this.dialogoConfirmacion = true;
                 return;
@@ -372,11 +378,8 @@ export default {
 
             try {
                 const response = await axios.patch(
-                    this.$store.state.ruta + "api/usuario/actualizarfirma/",
-                    {
-                        email: this.usuarioSeleccionado.email,
-                        firma: data,
-                    },
+                    this.$store.state.ruta + `api/usuario/actualizarfirma/${this.usuarioSeleccionado.id}`,
+                    { firma: data },
                     {
                         headers: {
                             token: localStorage.getItem("token"),
@@ -385,7 +388,7 @@ export default {
                 );
 
                 this.mensajeConfirmacion = "Firma actualizada exitosamente";
-                this.colorDialogo = "green";
+                this.colorDialogo = "primary";
                 this.esExito = true;
                 this.dialogoFirma = false;
                 this.listar(); // refrescar tabla
@@ -393,7 +396,7 @@ export default {
                 this.mensajeConfirmacion =
                     "Error al actualizar la firma: " +
                     (error.response?.data?.error || error.message);
-                this.colorDialogo = "red";
+                this.colorDialogo = "error";
                 this.esExito = false;
             } finally {
                 this.dialogoEsperar = false;

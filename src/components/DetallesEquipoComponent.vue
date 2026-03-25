@@ -52,7 +52,7 @@
             files &&
             nombredocumentoseleccionado
           )
-            " color="primary darken-1" text @click="guardarDocumento">
+            " color="success" text @click="guardarDocumento">
             Guardar
           </v-btn>
         </v-card-actions>
@@ -95,7 +95,7 @@
             files &&
             nombresoporteseleccionado
           )
-            " color="primary darken-1" text @click="guardarSoporte">
+            " color="success" text @click="guardarSoporte">
             Guardar
           </v-btn>
         </v-card-actions>
@@ -234,7 +234,7 @@
           </div>
         </v-card-text>
         <v-card-actions class="justify-center">
-          <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+          <v-btn color="success" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -286,7 +286,7 @@
       <v-card>
 
         <!-- TOOLBAR CON COLOR Y ESTILO -->
-        <v-toolbar flat style="background-color: #52B69A; color: white;">
+        <v-toolbar flat color="primary">
           <v-spacer></v-spacer>
 
           <!-- Título centrado en negrilla -->

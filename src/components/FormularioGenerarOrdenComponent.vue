@@ -249,7 +249,7 @@
         v-model="dialogoPreguntarCronogramaInterno">
         <v-card>
           <!-- Encabezado con color y texto centrado -->
-          <v-toolbar color="secondary" dark>
+          <v-toolbar color="primary" dark>
             <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
           </v-toolbar>
 
@@ -261,7 +261,7 @@
 
           <v-card-actions class="d-flex justify-space-evenly">
             <!-- Botones con color de fondo y letra blanca -->
-            <v-btn color="c6" size="large" variant="flat" @click="guardarReporteInternoCronograma">
+            <v-btn color="success" size="large" variant="flat" @click="guardarReporteInternoCronograma">
               Actualizar
             </v-btn>
             <v-spacer></v-spacer>
@@ -373,14 +373,14 @@
             </div>
           </v-card-text>
           <v-card-actions class="justify-center">
-            <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+            <v-btn color="success" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
       <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronograma">
         <v-card>
           <!-- Encabezado con color y texto centrado -->
-          <v-toolbar color="secondary" dark>
+          <v-toolbar color="primary" dark>
             <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
           </v-toolbar>
 

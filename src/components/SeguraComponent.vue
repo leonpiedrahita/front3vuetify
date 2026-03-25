@@ -25,7 +25,7 @@
       <!-- Modal información del usuario -->
       <v-dialog v-model="dialogoUsuario" width="75%" persistent>
         <v-card>
-          <v-toolbar flat style="background-color: #52B69A; color: white;">
+          <v-toolbar flat color="primary">
             <v-toolbar-title class="font-weight-bold">Mi cuenta</v-toolbar-title>
             <v-spacer />
             <v-btn icon="mdi-close" variant="text" color="white" @click="cerrarDialogoUsuario" />
@@ -66,7 +66,7 @@
                   La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.
                 </p>
                 <v-alert v-if="mensajeExito" type="success" class="mt-2 mb-4">{{ mensajeExito }}</v-alert>
-                <v-btn color="primary" variant="flat" :loading="guardandoContrasena" @click="cambiarContrasena">
+                <v-btn color="success" variant="flat" :loading="guardandoContrasena" @click="cambiarContrasena">
                   Guardar contraseña
                 </v-btn>
               </v-col>

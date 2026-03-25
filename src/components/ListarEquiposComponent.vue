@@ -3,6 +3,7 @@
   <v-card class="pa-2">
     <v-data-table-server :headers="headersfiltrados" :items="equipos" :items-length="totalEquipos"
       v-model:page="paginaActual" v-model:items-per-page="elementosPorPagina"
+      :items-per-page-options="[{value:10,title:'10'},{value:25,title:'25'},{value:50,title:'50'}]"
       class="elevation-1" :loading="cargando" loading-text="Cargando ... por favor espere"
       @update:options="cargarEquipos">
       <template v-slot:top>
@@ -28,7 +29,7 @@
           </v-row>
         </div>
         <v-dialog v-model="dialog2" max-width="500px" persistent>
-            <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar flat color="primary">
               <v-toolbar-title class="text-center font-weight-bold">
                 {{ formTitle }}
               </v-toolbar-title>
@@ -116,7 +117,7 @@
                   nuevoequipo.ubicacion.id &&
                   fechaDeMovimiento
                 )
-                  " color="primary darken-1" variant="flat" text @click="save2">
+                  " color="success" variant="flat" text @click="save2">
                   Crear
                 </v-btn>
               </v-card-actions>
@@ -183,7 +184,7 @@
 
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn variant="flat" color="error darken-1" text @click="close2">
+                <v-btn variant="flat" color="error" text @click="close2">
                   Cancelar
                 </v-btn>
                 <v-btn :disabled="!(
@@ -196,7 +197,7 @@
                   equipomodificado.clienteId &&
                   equipomodificado.ubicacionId
                 )
-                  " color="primary darken-1" text variant="flat" @click="actualizarequipo">
+                  " color="success" text variant="flat" @click="actualizarequipo">
                   Modificar
                 </v-btn>
               </v-card-actions>
@@ -231,10 +232,10 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="error" variant="flat" text @click="close"> Cancelar </v-btn>
-                <v-btn color="primary darken-1" variant="flat" text @click="save" v-if="generarreporteseleccionado">
+                <v-btn color="success" variant="flat" text @click="save" v-if="generarreporteseleccionado">
                   Crear reporte
                 </v-btn>
-                <v-btn color="primary darken-1" variant="flat" text @click="guardarGenerarOrden"
+                <v-btn color="success" variant="flat" text @click="guardarGenerarOrden"
                   v-if="generarordenseleccionado">
                   Nuevo ingreso
                 </v-btn>
@@ -251,13 +252,13 @@
                 </div>
               </v-card-text>
               <v-card-actions class="justify-center">
-                <v-btn text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
+                <v-btn color="error" text @click="(dialogo = false), (textodialogo = '')">Cerrar</v-btn>
               </v-card-actions>
             </v-card>
 
           </v-dialog>
           <v-dialog v-model="dialogoetapa" max-width="500px" persistent>
-            <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar flat color="primary">
               <v-toolbar-title class="text-center font-weight-bold">
                 Gestion de Ingreso
               </v-toolbar-title>
@@ -292,7 +293,7 @@
                 <v-btn color="error" variant="flat" large @click="cancelarEtapa()">
                   Cancelar
                 </v-btn>
-                <v-btn color="c6" variant="flat" large @click="confirmarEtapa(0)"
+                <v-btn color="success" variant="flat" large @click="confirmarEtapa(0)"
                   :disabled="!nuevaEtapa.etapaSeleccionada || !nuevaEtapa.ubicacionEtapaSeleccionada || !nuevaEtapa.comentario || !nuevaEtapa.nombre || !nuevaEtapa.ubicacion">
                   Confirmar Ingreso
                 </v-btn>
@@ -312,7 +313,7 @@
             <v-card>
 
               <!-- TOOLBAR CON COLOR Y ESTILO -->
-              <v-toolbar flat style="background-color: #52B69A; color: white;">
+              <v-toolbar flat color="primary">
                 <v-spacer></v-spacer>
                 <!-- Botón cerrar flotando a la derecha -->
 
@@ -354,7 +355,7 @@
             <v-card>
 
               <!-- TOOLBAR CON COLOR Y ESTILO -->
-              <v-toolbar flat style="background-color: #52B69A; color: white;">
+              <v-toolbar flat color="primary">
                 <v-spacer></v-spacer>
                 <!-- Botón cerrar flotando a la derecha -->
 
@@ -425,7 +426,7 @@
             </v-card>
           </v-dialog>
           <v-dialog v-model="ventanaDetallesEquipo" transition="dialog-bottom-transition" persistent>
-            <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-toolbar flat color="primary">
               <v-spacer></v-spacer>
               <!-- Botón cerrar flotando a la derecha -->
 

@@ -1,0 +1,141 @@
+<template>
+  <v-card class="pa-2">
+    <v-toolbar flat style="background-color: #52B69A; color: white;" class="mb-4">
+      <v-icon class="ml-2 mr-3">mdi-file-document-edit-outline</v-icon>
+      <v-toolbar-title class="font-weight-bold">Mis Borradores</v-toolbar-title>
+    </v-toolbar>
+
+    <v-progress-linear v-if="cargando" indeterminate color="teal" class="mb-2" />
+
+    <v-data-table
+      :headers="headers"
+      :items="borradores"
+      :loading="cargando"
+      loading-text="Cargando ... por favor espere"
+      class="elevation-1"
+      hide-default-footer
+      :items-per-page="-1"
+    >
+      <template v-slot:no-data>
+        <div class="text-center pa-4 text-medium-emphasis">
+          No tienes borradores guardados
+        </div>
+      </template>
+
+      <template v-slot:item.equipo="{ item }">
+        {{ item.equipo.nombre }}
+      </template>
+
+      <template v-slot:item.serie="{ item }">
+        {{ item.equipo.serie }}
+      </template>
+
+      <template v-slot:item.propietario="{ item }">
+        {{ item.equipo.propietario ? item.equipo.propietario.nombre : '—' }}
+      </template>
+
+      <template v-slot:item.cliente="{ item }">
+        {{ item.equipo.cliente ? item.equipo.cliente.nombre : '—' }}
+      </template>
+
+      <template v-slot:item.actualizadoEn="{ item }">
+        {{ formatearFecha(item.actualizadoEn) }}
+      </template>
+
+      <template v-slot:item.acciones="{ item }">
+        <v-btn
+          icon
+          variant="text"
+          color="primary"
+          size="small"
+          title="Continuar borrador"
+          @click="continuarBorrador(item)"
+        >
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn
+          icon
+          variant="text"
+          color="error"
+          size="small"
+          title="Eliminar borrador"
+          :loading="eliminandoId === item.id"
+          @click="eliminarBorrador(item)"
+        >
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+  </v-card>
+</template>
+
+<script>
+export default {
+  name: 'MisBorradores',
+
+  data: () => ({
+    cargando: false,
+    eliminandoId: null,
+    borradores: [],
+    headers: [
+      { title: 'Equipo', key: 'equipo', sortable: true },
+      { title: 'Serie', key: 'serie', sortable: true },
+      { title: 'Propietario', key: 'propietario', sortable: true },
+      { title: 'Cliente', key: 'cliente', sortable: true },
+      { title: 'Última modificación', key: 'actualizadoEn', sortable: true },
+      { title: 'Acciones', key: 'acciones', sortable: false, align: 'center' },
+    ],
+  }),
+
+  mounted() {
+    this.cargarBorradores();
+  },
+
+  methods: {
+    async cargarBorradores() {
+      this.cargando = true;
+      try {
+        const ruta = this.$store.state.ruta;
+        const token = this.$store.state.token;
+        const { data } = await this.$axios.get(`${ruta}api/borrador/listar`, {
+          headers: { token },
+        });
+        this.borradores = data;
+      } catch (error) {
+        console.error('Error al cargar borradores:', error);
+      } finally {
+        this.cargando = false;
+      }
+    },
+
+    continuarBorrador(borrador) {
+      sessionStorage.setItem(
+        'borradorEditar',
+        JSON.stringify({ id: borrador.id, datos: borrador.datos })
+      );
+      this.$router.push({ name: 'FormularioGenerarOrden' });
+    },
+
+    async eliminarBorrador(borrador) {
+      this.eliminandoId = borrador.id;
+      try {
+        const ruta = this.$store.state.ruta;
+        const token = this.$store.state.token;
+        await this.$axios.delete(`${ruta}api/borrador/eliminar/${borrador.id}`, {
+          headers: { token },
+        });
+        this.borradores = this.borradores.filter((b) => b.id !== borrador.id);
+      } catch (error) {
+        console.error('Error al eliminar borrador:', error);
+      } finally {
+        this.eliminandoId = null;
+      }
+    },
+
+    formatearFecha(valor) {
+      if (!valor) return '—';
+      return new Date(valor).toLocaleDateString('es-CO');
+    },
+  },
+};
+</script>

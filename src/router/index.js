@@ -114,6 +114,12 @@ const routes = [
         },
 
         props: true,
+      },
+      {
+        path: '/misborradores',
+        name: 'MisBorradores',
+        component: () => import('../views/MisBorradores.vue'),
+        meta: { auth: true },
       }
 
     ]

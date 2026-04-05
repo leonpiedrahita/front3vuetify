@@ -62,12 +62,45 @@
     </v-chip>
 </template>
 
+            <template v-slot:[`item.clientes`]="{ item }">
+                <v-icon medium @click="mostrarHistorialClientes(item)">
+                    mdi-account-box-multiple-outline
+                </v-icon>
+            </template>
+
             <template v-slot:[`item.crear`]="{ item }">
                 <v-icon medium @click="abrirOrden(item)">
                     mdi-vector-polyline-edit
                 </v-icon>
             </template>
         </v-data-table>
+
+        <!-- Dialog Historial Clientes -->
+        <v-dialog v-model="dialogoclientes" transition="dialog-bottom-transition" persistent fullscreen>
+            <v-card>
+                <v-toolbar flat color="primary">
+                    <v-spacer></v-spacer>
+                    <v-toolbar-title class="text-center wrap-text">
+                        Nombre: {{ historialclientes.nombre }}<br>
+                        Serie: {{ historialclientes.serie }}
+                    </v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-btn icon="mdi-close" @click="dialogoclientes = false" variant="text" color="white" class="ml-auto" />
+                </v-toolbar>
+                <v-card-text>
+                    <v-data-table :headers="headersHistorialClientes" :items="historialclientes.historialPropietarios"
+                        class="elevation-1" :items-per-page="-1">
+                        <template #item.fecha="{ item }">
+                            {{
+                                new Date(item.fecha).toLocaleDateString('es-CO', {
+                                    day: '2-digit', month: '2-digit', year: 'numeric'
+                                }).replace(/\//g, '-')
+                            }}
+                        </template>
+                    </v-data-table>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
 
 
     </v-card>
@@ -150,11 +183,28 @@ export default {
 },
 
             {
+                title: "Historial Clientes",
+                key: "clientes",
+                sortable: false,
+                align: "center",
+            },
+            {
                 title: "Ver / Editar",
                 key: "crear",
                 sortable: false,
                 align: "center",
             },
+        ],
+        dialogoclientes: false,
+        historialclientes: {},
+        headersHistorialClientes: [
+            { title: "Fecha (dd-mm-aaaa)", key: "fecha", align: "center" },
+            { title: "Propietario", key: "propietario.nombre", align: "center" },
+            { title: "Proveedor", key: "proveedor.nombre", align: "center" },
+            { title: "Cliente", key: "cliente.nombre", align: "center" },
+            { title: "Ciudad", key: "ubicacionNombre", align: "center" },
+            { title: "Dirección", key: "ubicacionDireccion", align: "center" },
+            { title: "Tipo de Contrato", key: "tipoDeContrato", align: "center" },
         ],
     }),
 
@@ -238,6 +288,10 @@ export default {
             this.cargando = false;
         });
     },
+        mostrarHistorialClientes(item) {
+            this.historialclientes = Object.assign({}, item.equipo);
+            this.dialogoclientes = true;
+        },
         abrirOrden(item) {
             this.ordenseleccionada = Object.assign({}, item);
             this.$store.dispatch("guardarOrdenesEquipo", {

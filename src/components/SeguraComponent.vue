@@ -25,7 +25,7 @@
       <!-- Modal información del usuario -->
       <v-dialog v-model="dialogoUsuario" width="75%" persistent>
         <v-card>
-          <v-toolbar flat color="primary">
+          <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-toolbar-title class="font-weight-bold">Mi cuenta</v-toolbar-title>
             <v-spacer />
             <v-btn icon="mdi-close" variant="text" color="white" @click="cerrarDialogoUsuario" />
@@ -66,7 +66,7 @@
                   La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.
                 </p>
                 <v-alert v-if="mensajeExito" type="success" class="mt-2 mb-4">{{ mensajeExito }}</v-alert>
-                <v-btn color="success" variant="flat" :loading="guardandoContrasena" @click="cambiarContrasena">
+                <v-btn color="primary" variant="flat" :loading="guardandoContrasena" @click="cambiarContrasena">
                   Guardar contraseña
                 </v-btn>
               </v-col>
@@ -108,8 +108,10 @@
           </v-list-group>
           <v-list-item :to="{ name: 'ListarOrdenes' }">
             <v-list-item prepend-icon="mdi-vector-circle" title="Ingresos" />
+          </v-list-item>
 
-
+          <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'MisBorradores' }">
+            <v-list-item prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
           </v-list-item>
 
           <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>

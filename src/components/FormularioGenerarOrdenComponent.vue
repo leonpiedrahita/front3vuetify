@@ -217,9 +217,13 @@
           </div>
           <v-text-field v-model="reporte.ingeniero" readonly class="centered-input"></v-text-field>
           <p readonly class="centered-input">Responsable del soporte</p>
-          <v-card-actions>
-            <v-col cols="12" lg="12" align="center">
-              <v-btn color="c6" min-width="228" size="large" variant="flat" large @click="iniciarCuestionario"
+          <v-card-actions class="justify-center gap-3">
+              <v-btn color="secondary" min-width="200" size="large" variant="outlined"
+                @click="guardarBorrador" :loading="guardandoBorrador"
+                prepend-icon="mdi-content-save-edit-outline">
+                {{ borradorId ? 'Actualizar borrador' : 'Guardar borrador' }}
+              </v-btn>
+              <v-btn color="c6" min-width="200" size="large" variant="flat" @click="iniciarCuestionario"
                 :disabled="!(
                   this.reporte.tipodeasistencia &&
                   this.reporte.duracion &&
@@ -234,22 +238,22 @@
                   this.reporte.observaciones &&
                   this.reporte.firmaingeniero &&
                   this.reporte.ingeniero
-                )
-                  ">
+                )">
                 Guardar y finalizar
               </v-btn>
-              <!--               <v-btn class="blue darken-1 ma-1" @click="save">
-                  Guardar y Finalizar
-                </v-btn> -->
-            </v-col>
           </v-card-actions>
+
+          <!-- Snackbar confirmación borrador -->
+          <v-snackbar v-model="snackbarBorrador" :color="snackbarColor" timeout="3000" location="bottom">
+            {{ snackbarMensaje }}
+          </v-snackbar>
         </v-col>
       </v-row>
       <v-dialog transition="dialog-bottom-transition" max-width="600" persistent
         v-model="dialogoPreguntarCronogramaInterno">
         <v-card>
           <!-- Encabezado con color y texto centrado -->
-          <v-toolbar color="primary" dark>
+          <v-toolbar color="secondary" dark>
             <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
           </v-toolbar>
 
@@ -261,7 +265,7 @@
 
           <v-card-actions class="d-flex justify-space-evenly">
             <!-- Botones con color de fondo y letra blanca -->
-            <v-btn color="success" size="large" variant="flat" @click="guardarReporteInternoCronograma">
+            <v-btn color="c6" size="large" variant="flat" @click="guardarReporteInternoCronograma">
               Actualizar
             </v-btn>
             <v-spacer></v-spacer>
@@ -373,14 +377,14 @@
             </div>
           </v-card-text>
           <v-card-actions class="justify-center">
-            <v-btn color="success" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
+            <v-btn class="c6" @click="AceptarConfirmacionGuardado">Aceptar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
       <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="dialogoPreguntarCronograma">
         <v-card>
           <!-- Encabezado con color y texto centrado -->
-          <v-toolbar color="primary" dark>
+          <v-toolbar color="secondary" dark>
             <v-toolbar-title class="text-h5 text-center w-100">Atencion!</v-toolbar-title>
           </v-toolbar>
 
@@ -457,6 +461,11 @@ export default {
   },
 
   data: () => ({
+    borradorId: null,
+    guardandoBorrador: false,
+    snackbarBorrador: false,
+    snackbarMensaje: '',
+    snackbarColor: 'success',
     respuestapreguntas: 0,
     dialogoAbierto: false,
     cuestionarioCompleto: false,
@@ -482,6 +491,7 @@ export default {
       "Desinstalación": { remoto: 1, campo: 1, cronograma: 0 },
       "Inspección": { remoto: 0, campo: 1, cronograma: 0 },
       "Actualización": { remoto: 1, campo: 1, cronograma: 0 },
+      "Asesoría": { remoto: 1, campo: 1, cronograma: 0 },
     },
 
     // Texto que se mostrará en el diálogo para cada pregunta
@@ -519,7 +529,8 @@ export default {
       "Desinstalación",
       "Inspección",
       "Evaluación de desempeño",
-      "Actualización"
+      "Actualización",
+      "Asesoría",
     ],
     fechadeiniciocalendario: null,
     menu1: false,
@@ -638,6 +649,15 @@ export default {
     this.buscarfirma();
     this.reporte.ingeniero = this.$store.state.user.nombre;
     this.reporte.firmaingeniero = this.$store.state.user.firma;
+
+    // Si venimos desde "Mis Borradores", cargamos el borrador
+    const borradorGuardado = sessionStorage.getItem('borradorEditar');
+    if (borradorGuardado) {
+      const { id, datos } = JSON.parse(borradorGuardado);
+      this.borradorId = id;
+      Object.assign(this.reporte, datos);
+      sessionStorage.removeItem('borradorEditar');
+    }
   },
   beforeCreate() {
     this.$store.dispatch("autoLogin");
@@ -652,6 +672,41 @@ export default {
   },
   methods: {
 
+
+    async guardarBorrador() {
+      this.guardandoBorrador = true;
+      try {
+        const payload = {
+          equipoId: this.equipo.id,
+          datos: { ...this.reporte },
+        };
+        if (this.borradorId) payload.id = this.borradorId;
+
+        const response = await axios.post(
+          this.$store.state.ruta + 'api/borrador/guardar',
+          payload,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.borradorId = response.data.borrador.id;
+        this.snackbarMensaje = 'Borrador guardado correctamente';
+        this.snackbarColor = 'success';
+      } catch (error) {
+        console.error(error);
+        this.snackbarMensaje = 'Error al guardar el borrador';
+        this.snackbarColor = 'error';
+      } finally {
+        this.guardandoBorrador = false;
+        this.snackbarBorrador = true;
+      }
+    },
+
+    eliminarBorradorSiExiste() {
+      if (!this.borradorId) return;
+      axios.delete(
+        this.$store.state.ruta + `api/borrador/eliminar/${this.borradorId}`,
+        { headers: { token: this.$store.state.token } }
+      ).catch(() => {});
+    },
 
     changeDuration(step) {
       // 1. Calcula el nuevo valor
@@ -779,6 +834,7 @@ export default {
         .then((response) => {
           localStorage.setItem("idreporte", response.data.identificacion);
 
+          this.eliminarBorradorSiExiste();
           this.esperaguardar = false;
           const identificacion = response.data.identificacion;
           console.log(response);
@@ -828,6 +884,7 @@ export default {
         const identificacion = response.data.identificacion;
         localStorage.setItem("idreporte", identificacion);
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+        this.eliminarBorradorSiExiste();
 
         const nuevaVentanaURL = this.$router.resolve({
           name: 'ImprimirReporte',
@@ -871,6 +928,7 @@ export default {
           this.$store.dispatch("guardarIdentificacion", {
             id: identificacion
           });
+          this.eliminarBorradorSiExiste();
           console.log(identificacion)
           const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
           window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
@@ -914,6 +972,7 @@ export default {
         const identificacion = response.data.identificacion;
         localStorage.setItem("idreporte", identificacion);
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+        this.eliminarBorradorSiExiste();
 
         const nuevaVentanaURL = this.$router.resolve({
           name: 'ImprimirReporte',
@@ -957,6 +1016,7 @@ export default {
           this.$store.dispatch("guardarIdentificacion", {
             id: identificacion
           });
+          this.eliminarBorradorSiExiste();
           console.log(identificacion)
           const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
           window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
@@ -1000,6 +1060,7 @@ export default {
         const identificacion = response.data.identificacion;
         localStorage.setItem("idreporte", identificacion);
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+        this.eliminarBorradorSiExiste();
 
         const nuevaVentanaURL = this.$router.resolve({
           name: 'ImprimirReporte',
@@ -1130,6 +1191,7 @@ export default {
         this.confirmacionguardado = true;
         // Despachar acción al store
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
+        this.eliminarBorradorSiExiste();
 
 
 
@@ -1176,6 +1238,7 @@ export default {
 
         console.log("Reporte creado:", response);
         console.log("Fecha actualizada:", responsePatch);
+        this.eliminarBorradorSiExiste();
         this.confirmacionguardado = true;
 
       } catch (error) {

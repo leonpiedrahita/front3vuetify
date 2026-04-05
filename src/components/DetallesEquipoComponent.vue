@@ -245,7 +245,8 @@
       <!-- se crea la data table prinecipal para listar los clientes -->
       <v-data-table :headers="headers" :items="historial" class="tabla-normal elevation-1"
         loading-text="Cargando ... por favor espere"
-        :sort-by="[{ key: 'fechaDeFinalizacion', order: 'desc' }]">
+        :sort-by="[{ key: 'fechaDeFinalizacion', order: 'desc' }]"
+        :custom-key-sort="{ fechaDeFinalizacion: sortFechaDdMmYyyy }">
         <template v-slot:[`item.soportes`]="{ item }">
           <div class="columna-imprimir">
             <div>
@@ -520,6 +521,14 @@ export default {
   },
   methods: {
 
+    sortFechaDdMmYyyy(a, b) {
+      const parse = (s) => {
+        if (!s) return 0;
+        const [d, m, y] = s.split('-');
+        return new Date(`${y}-${m}-${d}`).getTime();
+      };
+      return parse(a) - parse(b);
+    },
     nuevoDocumento() {
       this.$store.dispatch("autoLogin");
 

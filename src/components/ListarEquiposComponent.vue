@@ -22,7 +22,7 @@
               <v-btn color="primary" size="large" @click="abrirCronograma">
                 Cronograma
               </v-btn>
-              <v-btn color="primary" size="large" @click="exportToExcel">
+              <v-btn v-if="this.$store.state.user.rol !== 'lumira'" color="primary" size="large" @click="exportToExcel">
                 Exportar a Excel
               </v-btn>
             </v-col>

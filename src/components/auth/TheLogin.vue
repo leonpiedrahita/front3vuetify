@@ -27,10 +27,48 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.2.0.0
+            V.2.1.0
           </div>
         </v-row>
       </v-col>
+
+      <!-- Dialog Novedades -->
+      <v-dialog v-model="dialogNovedades" max-width="560" persistent>
+        <v-card>
+          <v-toolbar flat style="background-color: #52B69A; color: white;">
+            <v-icon class="ml-3 mr-2">mdi-new-box</v-icon>
+            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.0</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text class="pt-4 pb-2">
+            <v-list density="compact">
+              <v-list-subheader class="font-weight-bold text-teal">Nuevas funcionalidades</v-list-subheader>
+              <v-list-item prepend-icon="mdi-calendar-clock">
+                <div class="novedad-titulo">Calendario de Mantenimientos Preventivos</div>
+                <div class="novedad-desc">Visualiza todos los preventivos programados en vista mensual y lista anual, con colores según los dias restantes.</div>
+              </v-list-item>
+              <v-list-item prepend-icon="mdi-file-document-edit-outline">
+                <div class="novedad-titulo">Borradores de reportes de servicio</div>
+                <div class="novedad-desc">Guarda un reporte que no puedas finalizar y retómalo cuando quieras desde la sección "Mis Borradores".</div>
+              </v-list-item>
+              <v-list-item prepend-icon="mdi-account-box-multiple-outline">
+                <div class="novedad-titulo">Historial de clientes en ingresos</div>
+                <div class="novedad-desc">Ahora puedes consultar el historial de clientes de un equipo directamente desde el listado de ingresos.</div>
+              </v-list-item>
+              <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
+              <v-list-item prepend-icon="mdi-account-eye">
+                <div class="novedad-titulo">Calendario visible por rol</div>
+                <div class="novedad-desc">El Calendario de Preventivos está disponible para: Administrador, Soporte, Comercial, Cotizaciones y Lumira.</div>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+          <v-card-actions class="pa-4 pt-0 justify-end">
+            <v-btn color="#52B69A" variant="flat" style="color:white;" @click="dialogNovedades = false">
+              Entendido
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-dialog transition="dialog-bottom-transition" max-width="600" persistent v-model="confirmacionlogin">
   <v-card>
     <v-toolbar class="text-h4" color="primary" dark>¡Bienvenid@!</v-toolbar>
@@ -67,6 +105,7 @@ export default {
   data() {
 
     return {
+      dialogNovedades: false,
       confirmacionlogin: false,
       errorlogin: false,
       nombre: "",
@@ -87,9 +126,8 @@ export default {
     }
   },
   mounted() {
-// Si llegamos aquí, es que el usuario necesita loguearse.
-    // Limpiamos cookies por seguridad.
     this.clearCookies();
+    this.dialogNovedades = true;
   },
   methods: {
     clearCookies() {
@@ -153,6 +191,20 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.novedad-titulo {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+.novedad-desc {
+  font-size: 0.82rem;
+  color: #666;
+  line-height: 1.5;
+  white-space: normal;
+  margin-top: 2px;
 }
 
 .separator {

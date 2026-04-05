@@ -217,6 +217,10 @@
           </div>
           <v-text-field v-model="reporte.ingeniero" readonly class="centered-input"></v-text-field>
           <p readonly class="centered-input">Responsable del soporte</p>
+          <div v-if="ultimoAutoguardado" class="text-center text-caption text-medium-emphasis mb-1">
+            <v-icon size="14" class="mr-1">mdi-cloud-check-outline</v-icon>
+            Autoguardado a las {{ ultimoAutoguardado }}
+          </div>
           <v-card-actions class="justify-center gap-3">
               <v-btn color="secondary" min-width="200" size="large" variant="outlined"
                 @click="guardarBorrador" :loading="guardandoBorrador"
@@ -466,6 +470,7 @@ export default {
     snackbarBorrador: false,
     snackbarMensaje: '',
     snackbarColor: 'success',
+    ultimoAutoguardado: null,
     respuestapreguntas: 0,
     dialogoAbierto: false,
     cuestionarioCompleto: false,
@@ -658,7 +663,17 @@ export default {
       Object.assign(this.reporte, datos);
       sessionStorage.removeItem('borradorEditar');
     }
+
+    // Autoguardado cada 60 segundos
+    this._autoGuardadoInterval = setInterval(() => {
+      this._autoGuardar();
+    }, 60000);
   },
+
+  beforeUnmount() {
+    clearInterval(this._autoGuardadoInterval);
+  },
+
   beforeCreate() {
     this.$store.dispatch("autoLogin");
     if (this.$store.state.existe === 0) {
@@ -672,6 +687,27 @@ export default {
   },
   methods: {
 
+
+    async _autoGuardar() {
+      if (!this.equipo?.id) return;
+      try {
+        const payload = {
+          equipoId: this.equipo.id,
+          datos: { ...this.reporte },
+        };
+        if (this.borradorId) payload.id = this.borradorId;
+        const response = await axios.post(
+          this.$store.state.ruta + 'api/borrador/guardar',
+          payload,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.borradorId = response.data.borrador.id;
+        const hora = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+        this.ultimoAutoguardado = hora;
+      } catch (_) {
+        // silencioso
+      }
+    },
 
     async guardarBorrador() {
       this.guardandoBorrador = true;

@@ -120,6 +120,12 @@ const routes = [
         name: 'MisBorradores',
         component: () => import('../views/MisBorradores.vue'),
         meta: { auth: true },
+      },
+      {
+        path: '/calendariopreventivos',
+        name: 'CalendarioPreventivos',
+        component: () => import('../views/CalendarioPreventivos.vue'),
+        meta: { auth: true },
       }
 
     ]

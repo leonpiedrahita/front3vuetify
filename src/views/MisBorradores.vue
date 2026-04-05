@@ -60,12 +60,31 @@
           size="small"
           title="Eliminar borrador"
           :loading="eliminandoId === item.id"
-          @click="eliminarBorrador(item)"
+          @click="confirmarEliminar(item)"
         >
           <v-icon>mdi-delete</v-icon>
         </v-btn>
       </template>
     </v-data-table>
+
+    <!-- Diálogo de confirmación -->
+    <v-dialog v-model="dialogConfirmar" max-width="400" persistent>
+      <v-card>
+        <v-toolbar flat color="error" class="text-white">
+          <v-icon class="ml-3 mr-2">mdi-alert</v-icon>
+          <v-toolbar-title class="font-weight-bold">Eliminar borrador</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text class="pt-4">
+          ¿Estás seguro de que deseas eliminar el borrador de
+          <strong>{{ borradorAEliminar?.equipo?.nombre }}</strong>?
+          Esta acción no se puede deshacer.
+        </v-card-text>
+        <v-card-actions class="pa-4 pt-0 justify-end ga-2">
+          <v-btn variant="outlined" @click="dialogConfirmar = false">Cancelar</v-btn>
+          <v-btn color="error" variant="flat" @click="eliminarBorrador">Eliminar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
@@ -77,6 +96,8 @@ export default {
     cargando: false,
     eliminandoId: null,
     borradores: [],
+    dialogConfirmar: false,
+    borradorAEliminar: null,
     headers: [
       { title: 'Equipo', key: 'equipo', sortable: true },
       { title: 'Serie', key: 'serie', sortable: true },
@@ -116,7 +137,14 @@ export default {
       this.$router.push({ name: 'FormularioGenerarOrden' });
     },
 
-    async eliminarBorrador(borrador) {
+    confirmarEliminar(borrador) {
+      this.borradorAEliminar = borrador;
+      this.dialogConfirmar = true;
+    },
+
+    async eliminarBorrador() {
+      const borrador = this.borradorAEliminar;
+      this.dialogConfirmar = false;
       this.eliminandoId = borrador.id;
       try {
         const ruta = this.$store.state.ruta;
@@ -129,6 +157,7 @@ export default {
         console.error('Error al eliminar borrador:', error);
       } finally {
         this.eliminandoId = null;
+        this.borradorAEliminar = null;
       }
     },
 

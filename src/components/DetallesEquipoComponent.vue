@@ -337,6 +337,102 @@
       </v-card>
     </v-dialog>
 
+    <!-- Audit Log — solo administrador -->
+    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4">
+      <v-toolbar flat style="background-color: #37474F; color: white;" class="mb-3 rounded">
+        <v-icon class="ml-3 mr-2">mdi-history</v-icon>
+        <v-toolbar-title class="font-weight-bold">Historial de cambios</v-toolbar-title>
+      </v-toolbar>
+
+      <v-data-table
+        :headers="headersAuditLog"
+        :items="auditLog"
+        :loading="auditLogCargando"
+        loading-text="Cargando historial..."
+        class="elevation-1"
+        :items-per-page="10"
+      >
+        <template v-slot:no-data>
+          <div class="text-center pa-3 text-medium-emphasis">Sin registros de cambios</div>
+        </template>
+
+        <template v-slot:item.timestamp="{ item }">
+          {{ formatearFechaAudit(item.timestamp) }}
+        </template>
+
+        <template v-slot:item.action="{ item }">
+          <v-chip
+            :color="item.action === 'CREATE' ? '#4CAF50' : item.action === 'DELETE' ? '#F44336' : '#FF9800'"
+            size="small"
+            variant="outlined"
+            class="font-weight-bold"
+          >
+            {{ item.action }}
+          </v-chip>
+        </template>
+
+        <template v-slot:item.userId="{ item }">
+          {{ item.userId || '—' }}
+        </template>
+
+        <template v-slot:item.detalle="{ item }">
+          <v-btn
+            icon
+            variant="text"
+            size="small"
+            color="primary"
+            title="Ver detalle"
+            @click="verDetalleAudit(item)"
+          >
+            <v-icon>mdi-eye-outline</v-icon>
+          </v-btn>
+        </template>
+      </v-data-table>
+    </div>
+
+    <!-- Dialog detalle audit -->
+    <v-dialog v-model="dialogAuditDetalle" width="75vw" scrollable>
+      <v-card v-if="auditLogDetalle">
+        <v-toolbar flat style="background-color: #37474F; color: white;">
+          <v-icon class="ml-3 mr-2">mdi-file-search-outline</v-icon>
+          <v-toolbar-title class="font-weight-bold">
+            {{ auditLogDetalle.action }} — {{ formatearFechaAudit(auditLogDetalle.timestamp) }}
+          </v-toolbar-title>
+          <v-spacer />
+          <v-btn icon variant="text" color="white" @click="dialogAuditDetalle = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-toolbar>
+        <v-card-text class="pa-4">
+          <div class="text-caption text-medium-emphasis mb-3">
+            <v-icon size="14" class="mr-1">mdi-account</v-icon>
+            Usuario: {{ auditLogDetalle.userId || '—' }}
+          </div>
+          <v-data-table
+            :headers="[
+              { title: 'Campo', key: 'campo', sortable: false },
+              { title: 'Antes', key: 'antes', sortable: false },
+              { title: 'Después', key: 'despues', sortable: false },
+            ]"
+            :items="calcularFilasAudit(auditLogDetalle)"
+            hide-default-footer
+            :items-per-page="-1"
+            class="elevation-1"
+          >
+            <template v-slot:item.campo="{ item }">
+              <span class="font-weight-medium">{{ item.campo }}</span>
+            </template>
+            <template v-slot:item.antes="{ item }">
+              <span :class="item.cambio ? 'text-error' : ''">{{ item.antes }}</span>
+            </template>
+            <template v-slot:item.despues="{ item }">
+              <span :class="item.cambio ? 'text-success font-weight-medium' : ''">{{ item.despues }}</span>
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
   </v-card>
   <!-- <pre>
 
@@ -388,6 +484,16 @@ export default {
     equipo: [],
     historial: [],
     soportes: [],
+    auditLog: [],
+    auditLogCargando: false,
+    auditLogDetalle: null,
+    dialogAuditDetalle: false,
+    headersAuditLog: [
+      { title: 'Fecha', key: 'timestamp', align: 'center', sortable: true },
+      { title: 'Acción', key: 'action', align: 'center', sortable: true },
+      { title: 'Usuario', key: 'userId', align: 'center', sortable: true },
+      { title: 'Detalle', key: 'detalle', align: 'center', sortable: false },
+    ],
     url: '',
     error: '',
     reporte: {
@@ -511,6 +617,9 @@ export default {
     this.equipo = this.$store.state.detallesequipo;
     this.historial = this.equipo.historialDeServicios;
     this.documentosLegales = this.equipo.documentosLegales;
+    if (this.$store.state.user.rol === 'administrador') {
+      this.cargarAuditLog();
+    }
   },
   beforeCreate() {
     this.$store.dispatch("autoLogin");
@@ -520,6 +629,50 @@ export default {
     
   },
   methods: {
+
+    async cargarAuditLog() {
+      this.auditLogCargando = true;
+      try {
+        const { data } = await axios.get(
+          this.$store.state.ruta + `api/equipo/auditlog/${this.equipo.id}`,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.auditLog = data;
+      } catch (err) {
+        console.error('Error al cargar audit log:', err);
+      } finally {
+        this.auditLogCargando = false;
+      }
+    },
+
+    verDetalleAudit(item) {
+      this.auditLogDetalle = item;
+      this.dialogAuditDetalle = true;
+    },
+
+    calcularFilasAudit(log) {
+      const antes = log.beforeData || {};
+      const despues = log.afterData || {};
+      const campos = new Set([...Object.keys(antes), ...Object.keys(despues)]);
+      return [...campos].map((campo) => {
+        const valAntes = antes[campo] !== undefined ? String(antes[campo]) : '—';
+        const valDespues = despues[campo] !== undefined ? String(despues[campo]) : '—';
+        return {
+          campo,
+          antes: valAntes,
+          despues: valDespues,
+          cambio: valAntes !== valDespues,
+        };
+      });
+    },
+
+    formatearFechaAudit(valor) {
+      if (!valor) return '—';
+      return new Date(valor).toLocaleString('es-CO', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+    },
 
     sortFechaDdMmYyyy(a, b) {
       const parse = (s) => {
@@ -977,6 +1130,17 @@ button.disabled {
     overflow: visible !important;
     margin: 0;
     padding: 0;
+  }
+
+  .audit-json {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
   }
 
   /* Evitar cortes de tabla en la impresión */

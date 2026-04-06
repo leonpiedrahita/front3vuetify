@@ -57,7 +57,7 @@
               <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
               <v-list-item prepend-icon="mdi-account-eye">
                 <div class="novedad-titulo">Calendario visible por rol</div>
-                <div class="novedad-desc">El Calendario de Preventivos está disponible para: Administrador, Soporte, Comercial, Cotizaciones y Lumira.</div>
+                <div class="novedad-desc">El Calendario de Preventivos está disponible para: Ingeniería, aplicaciones, cotizaciones y comercial.</div>
               </v-list-item>
             </v-list>
           </v-card-text>

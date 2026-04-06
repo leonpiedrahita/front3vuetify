@@ -270,7 +270,7 @@
                   label="Etapa de Ingreso" required></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
-                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Bodega Prado', 'Cliente']"
+                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Bodega Prado', 'Cliente']"
                   :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
                 <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
@@ -284,7 +284,7 @@
                   :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
-                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Cliente', 'Dado de baja']"
+                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Cliente', 'Dado de baja']"
                   :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
               </v-card-text>
@@ -596,6 +596,7 @@ export default {
         value: "detalles",
         sortable: false,
         align: "center",
+        roles: ["administrador", "soporte", "comercial", "cotizaciones", "calidad", "bodega"],
       },
       {
         title: "Editar",

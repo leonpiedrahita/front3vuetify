@@ -78,39 +78,34 @@
     <v-navigation-drawer v-model="drawer" fixed temporary>
       <v-card class="mx-auto" max-width="300" tile>
         <v-list nav>
-          <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'ListarEquipos' }" exact><!-- uando doy clic en incicio me envía a Segura -->
+          <v-list-item :to="{ name: 'ListarEquipos' }" exact>
             <v-list-item prepend-icon="mdi-home" title="Inicio" />
-
-
-
           </v-list-item>
 
           <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'ListarClientes' }">
             <v-list-item prepend-icon="mdi-account-box-multiple" title="Clientes" />
-
           </v-list-item>
-          <v-list-group v-if="this.$store.state.user.rol !== 'lumira'">
+
+          <v-list-group>
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" prepend-icon="mdi-amplifier" title="Equipos" />
-
             </template>
             <v-list-item :to="{ name: 'ListarEquipos' }">
               <v-list-item-subtitle>
                 <v-list-item-title> Existentes </v-list-item-title>
               </v-list-item-subtitle>
             </v-list-item>
-            <v-list-item :to="{ name: 'ListarRefEquipos' }">
+            <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'ListarRefEquipos' }">
               <v-list-item-subtitle>
                 <v-list-item-title> Referencias </v-list-item-title>
               </v-list-item-subtitle>
             </v-list-item>
-
           </v-list-group>
           <v-list-item :to="{ name: 'ListarOrdenes' }">
             <v-list-item prepend-icon="mdi-vector-circle" title="Ingresos" />
           </v-list-item>
 
-          <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'MisBorradores' }">
+          <v-list-item v-if="['administrador','soporte','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }">
             <v-list-item prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
           </v-list-item>
 

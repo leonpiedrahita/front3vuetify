@@ -130,6 +130,9 @@ export default {
     },
 
     continuarBorrador(borrador) {
+      // Sobreescribir el equipo en localStorage con el del borrador,
+      // para que consultarequipo() no cargue el equipo de la sesión anterior
+      localStorage.setItem('equipo', JSON.stringify(borrador.equipo));
       sessionStorage.setItem(
         'borradorEditar',
         JSON.stringify({ id: borrador.id, datos: borrador.datos })

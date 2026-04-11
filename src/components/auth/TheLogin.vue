@@ -127,7 +127,7 @@ export default {
   },
   mounted() {
     this.clearCookies();
-    this.dialogNovedades = true;
+    // this.dialogNovedades = true; // desactivado temporalmente — reactivar en próxima versión
   },
   methods: {
     clearCookies() {

@@ -11,19 +11,15 @@ import ImprimirReporteComponent from "@/components/ImprimirReporteComponent.vue"
     ImprimirReporteComponent
 },
     mounted() {
-      setTimeout(() => {  this.imprimir(); },2000);
-         
+      setTimeout(() => { this.imprimir(); }, 2000);
     },
     methods: {
-      
       imprimir() {
-        var printContents = document.getElementById("body").innerHTML;
-        
-  
+        const el = document.getElementById("body");
+        if (!el) return; // reporte aún cargando o falló
+        var printContents = el.innerHTML;
         document.body.innerHTML = printContents;
-  
         window.print();
-        
       },
       
     },

@@ -660,6 +660,11 @@ export default {
     if (borradorGuardado) {
       const { id, datos } = JSON.parse(borradorGuardado);
       this.borradorId = id;
+      // Restaurar fechacalendariodefinalizacion (no está dentro de reporte)
+      if (datos._fechacalendariodefinalizacion) {
+        this.fechacalendariodefinalizacion = new Date(datos._fechacalendariodefinalizacion);
+        delete datos._fechacalendariodefinalizacion;
+      }
       Object.assign(this.reporte, datos);
       sessionStorage.removeItem('borradorEditar');
     }
@@ -693,7 +698,10 @@ export default {
       try {
         const payload = {
           equipoId: this.equipo.id,
-          datos: { ...this.reporte },
+          datos: {
+            ...this.reporte,
+            _fechacalendariodefinalizacion: this.fechacalendariodefinalizacion || null,
+          },
         };
         if (this.borradorId) payload.id = this.borradorId;
         const response = await axios.post(
@@ -714,7 +722,10 @@ export default {
       try {
         const payload = {
           equipoId: this.equipo.id,
-          datos: { ...this.reporte },
+          datos: {
+            ...this.reporte,
+            _fechacalendariodefinalizacion: this.fechacalendariodefinalizacion || null,
+          },
         };
         if (this.borradorId) payload.id = this.borradorId;
 
@@ -879,6 +890,8 @@ export default {
           });
           console.log(identificacion)
           const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          localStorage.setItem('printToken', this.$store.state.token);
+          localStorage.setItem('printRuta', this.$store.state.ruta);
           window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
           this.$router.push({ name: "ListarEquipos" });
         })
@@ -967,6 +980,8 @@ export default {
           this.eliminarBorradorSiExiste();
           console.log(identificacion)
           const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          localStorage.setItem('printToken', this.$store.state.token);
+          localStorage.setItem('printRuta', this.$store.state.ruta);
           window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
           this.$router.push({ name: "ListarEquipos" });
         })
@@ -1055,6 +1070,8 @@ export default {
           this.eliminarBorradorSiExiste();
           console.log(identificacion)
           const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
+          localStorage.setItem('printToken', this.$store.state.token);
+          localStorage.setItem('printRuta', this.$store.state.ruta);
           window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
           this.$router.push({ name: "ListarEquipos" });
         })

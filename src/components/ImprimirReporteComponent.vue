@@ -209,13 +209,17 @@ beforeMount() {
   methods: {
     listar() {
       const id = localStorage.getItem("idreporte");
-      const token = sessionStorage.getItem("printToken") || this.$store.state.token;
-      const ruta = sessionStorage.getItem("printRuta") || this.$store.state.ruta;
+      const token = localStorage.getItem("printToken") || sessionStorage.getItem("printToken") || this.$store.state.token;
+      const ruta = localStorage.getItem("printRuta") || sessionStorage.getItem("printRuta") || this.$store.state.ruta;
 
       if (!id || !token) {
         console.error("Falta ID de reporte o token.");
         return;
       }
+
+      // Limpiar tokens temporales tras leerlos
+      localStorage.removeItem("printToken");
+      localStorage.removeItem("printRuta");
 
   axios
     .get(ruta + `api/reporte/listaruno/${id}`, {

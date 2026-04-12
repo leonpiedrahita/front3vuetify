@@ -126,6 +126,12 @@ const routes = [
         name: 'CalendarioPreventivos',
         component: () => import('../views/CalendarioPreventivos.vue'),
         meta: { auth: true },
+      },
+      {
+        path: '/importararchivos',
+        name: 'ImportarArchivos',
+        component: () => import('../views/ImportarArchivos.vue'),
+        meta: { auth: true },
       }
 
     ]

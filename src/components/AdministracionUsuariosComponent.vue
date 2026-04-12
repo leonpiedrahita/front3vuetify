@@ -382,7 +382,7 @@ export default {
                     { firma: data },
                     {
                         headers: {
-                            token: localStorage.getItem("token"),
+                            token: this.$store.state.token,
                         },
                     }
                 );

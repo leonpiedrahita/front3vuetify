@@ -56,7 +56,7 @@
 
                         <v-col cols="12">
                             <v-text-field v-model="usuario.telefono" label="Teléfono WhatsApp (formato +57XXXXXXXXXX)"
-                                placeholder="+57XXXXXXXXXX" />
+                                placeholder="+57XXXXXXXXXX" autocomplete="tel" />
                         </v-col>
 
                         <!-- Solo para nuevo usuario -->

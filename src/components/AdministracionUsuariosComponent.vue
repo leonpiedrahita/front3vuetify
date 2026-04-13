@@ -56,7 +56,8 @@
 
                         <v-col cols="12">
                             <v-text-field v-model="usuario.telefono" label="Teléfono WhatsApp (formato +57XXXXXXXXXX)"
-                                placeholder="+57XXXXXXXXXX" autocomplete="tel" />
+                                placeholder="+57XXXXXXXXXX" autocomplete="tel"
+                                :rules="[v => !v || /^\+\d{7,15}$/.test(v) || 'Formato inválido. Usa +57XXXXXXXXXX']" />
                         </v-col>
 
                         <!-- Solo para nuevo usuario -->

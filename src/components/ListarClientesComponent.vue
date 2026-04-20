@@ -34,7 +34,7 @@
             </v-col>
 
             <v-col cols="6" sm="2">
-              <v-btn v-permission="['administrador', 'cotizaciones']" color="c6" min-width="228" size="large"
+              <v-btn v-permission="['administrador', 'cotizaciones', 'ventas', 'ingresos']" color="c6" min-width="228" size="large"
                 variant="flat" large @click="nuevoCliente()"> Nuevo Cliente
               </v-btn>
             </v-col>
@@ -256,7 +256,7 @@ export default {
         sortable: false,
         class: "titulo--text font-weight-bold ",
         width: "50%",
-        roles: ["administrador", "cotizaciones"],
+        roles: ["administrador", "cotizaciones", "ventas", "ingresos"],
       },
     ],
     headers: [
@@ -291,7 +291,7 @@ export default {
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
-        roles: ["administrador", "cotizaciones"],
+        roles: ["administrador", "cotizaciones", "ventas", "ingresos"],
       },
       {
         title: "Agregar Sede",
@@ -299,7 +299,7 @@ export default {
         sortable: false,
         align: "center",
         class: "titulo--text font-weight-bold",
-        roles: ["administrador", "cotizaciones"],
+        roles: ["administrador", "cotizaciones", "ventas", "ingresos"],
       },
     ],
 

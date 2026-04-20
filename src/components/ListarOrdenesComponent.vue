@@ -1,10 +1,44 @@
 <template>
     <v-card class="pa-2 ">
-        <v-data-table :headers="encabezado" :items="ordenes" :search="search" class="elevation-1" :loading="cargando"
+        <v-data-table :headers="encabezado" :items="ordenesFiltradas" :search="search" class="elevation-1" :loading="cargando"
             loading-text="Cargando ... por favor espere">
             <template v-slot:top>
 
                 <div class="pa-3">
+                    <!-- Chips de ubicación -->
+                    <v-row class="mb-1" v-if="ubicacionesDisponibles.length">
+                        <v-col cols="12">
+                            <div class="d-flex flex-wrap ga-2 align-center">
+                                <span class="text-body-1 font-weight-bold mr-2">Ubicaciones:</span>
+                                <v-chip
+                                    v-for="ub in ubicacionesDisponibles"
+                                    :key="ub.nombre"
+                                    :color="ubicacionesFiltro.includes(ub.nombre) ? 'primary' : 'default'"
+                                    :variant="ubicacionesFiltro.includes(ub.nombre) ? 'flat' : 'outlined'"
+                                    class="font-weight-medium text-body-1"
+                                    size="large"
+                                    label
+                                    clickable
+                                    @click="toggleUbicacion(ub.nombre)"
+                                >
+                                    {{ ub.nombre }}
+                                    <span class="ml-2 font-weight-bold text-black">{{ ub.count }}</span>
+                                </v-chip>
+                                <v-chip
+                                    v-if="ubicacionesFiltro.length"
+                                    color="error"
+                                    variant="text"
+                                    size="large"
+                                    prepend-icon="mdi-close-circle"
+                                    clickable
+                                    @click="ubicacionesFiltro = []"
+                                >
+                                    Limpiar
+                                </v-chip>
+                            </div>
+                        </v-col>
+                    </v-row>
+
                     <v-row align="center">
                         <v-col cols="12" sm="6" md="6" lg="6">
                             <v-text-field v-model="search" append-icon="mdi-magnify"
@@ -125,6 +159,7 @@ export default {
         ventanaSeguimiento: false,
         cargando: true,
         ordenes: [],
+        ubicacionesFiltro: [],
         search: "",
         ordenseleccionada: {},
         encabezado: [
@@ -208,7 +243,40 @@ export default {
         ],
     }),
 
+    computed: {
+        ubicacionesDisponibles() {
+            const UBICACIONES = [
+                'Cuarentena',
+                'Bodega de equipos usados',
+                'Taller de ingeniería',
+                'Taller Snibe',
+                'Bodega Prado',
+                'Bodega de despachos',
+                'Cliente',
+                'Dado de baja',
+            ];
+            return UBICACIONES.map(nombre => ({
+                nombre,
+                count: this.ordenes.filter(o => o.ubicacionFlat === nombre).length,
+            })).filter(u => u.count > 0);
+        },
+        ordenesFiltradas() {
+            if (!this.ubicacionesFiltro.length) return this.ordenes;
+            return this.ordenes.filter(o =>
+                this.ubicacionesFiltro.includes(o.ubicacionFlat || 'N/A')
+            );
+        },
+    },
+
     methods: {
+        toggleUbicacion(nombre) {
+            const idx = this.ubicacionesFiltro.indexOf(nombre);
+            if (idx === -1) {
+                this.ubicacionesFiltro.push(nombre);
+            } else {
+                this.ubicacionesFiltro.splice(idx, 1);
+            }
+        },
         getColorEtapa(etapa) {
     if (!etapa || etapa === 'N/A') return 'grey-lighten-1';
     
@@ -267,6 +335,7 @@ export default {
                     etapaActualFlat: ultimaEtapa?.nombre || 'N/A'
                 };
             });
+            this.ubicacionesFiltro = [];
             this.cargando = false;
         });
     },
@@ -285,6 +354,7 @@ export default {
                     etapaActualFlat: ultimaEtapa?.nombre || 'N/A'
                 };
             });
+            this.ubicacionesFiltro = [];
             this.cargando = false;
         });
     },

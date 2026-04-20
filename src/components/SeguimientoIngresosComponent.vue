@@ -129,12 +129,10 @@
                     :rules="[v => !!v || 'El estado es obligatorio']" required>
                 </v-select>
             </v-card-text>
-            <v-card-actions>
-
-                <v-btn :disabled="!(
-                    nuevoestadoequipo
-                )
-                    " color="success" variant="flat" text @click="guardarNuevaEtapa">
+            <v-card-actions class="pa-4 bg-grey-lighten-4">
+                <v-spacer></v-spacer>
+                <v-btn color="error" variant="flat" @click="cancelarCambioEstado">Cancelar</v-btn>
+                <v-btn :disabled="!nuevoestadoequipo" color="success" variant="flat" @click="guardarNuevaEtapa">
                     Aceptar
                 </v-btn>
             </v-card-actions>
@@ -189,6 +187,11 @@ export default {
 
         cerrarDialogoNuevaEtapa() {
             this.dialogoNuevaEtapa = false;
+        },
+
+        cancelarCambioEstado() {
+            this.cambiarestado = false;
+            this.nuevoestadoequipo = null;
         },
 
         async guardarNuevaEtapa() {
@@ -304,7 +307,7 @@ export default {
             }
         },
         consultarEstado() {
-            if (this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho" || this.nuevaEtapa.nombre === "Revisado") {
+            if (this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho") {
                 this.cambiarestado = true;
             }
             else {
@@ -413,21 +416,19 @@ export default {
                     "Cotización aprobada",
                     "Pdte. de repuestos",
                     "Pdte. de aprobación de repuestos",
-                    "Revisado",
                     "Despachado",
                     "Finalizado",
                     "Cancelado"
                     ,
 
                 ];
-            } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "lumira") {
+            } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones" || this.$store.state.user.rol === "lumira") {
                 this.listadeEtapas = [
                     "Soporte ingeniería",
                     "Soporte aplicaciones",
                     "Cotización solicitada",
                     "Pdte. de repuestos",
                     "Pdte. de aprobación de repuestos",
-                    "Revisado",
                     "Listo para despacho",
                     "Finalizado",
                     "Cancelado"
@@ -442,7 +443,7 @@ export default {
                 ];
 
             }
-            else if (this.$store.state.user.rol === "cotizaciones") {
+            else if (["cotizaciones", "ventas", "ingresos"].includes(this.$store.state.user.rol)) {
                 this.listadeEtapas = [
                     "Soporte ingeniería",
                     "Soporte aplicaciones",

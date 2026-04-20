@@ -27,38 +27,47 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.2.1.1
+            V.2.1.2
           </div>
         </v-row>
       </v-col>
 
       <!-- Dialog Novedades -->
-      <v-dialog v-model="dialogNovedades" max-width="560" persistent>
+      <v-dialog v-model="dialogNovedades" max-width="580" persistent scrollable>
         <v-card>
           <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-icon class="ml-3 mr-2">mdi-new-box</v-icon>
-            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.0</v-toolbar-title>
+            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.2</v-toolbar-title>
           </v-toolbar>
-          <v-card-text class="pt-4 pb-2">
+          <v-card-text class="pt-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
             <v-list density="compact">
+
               <v-list-subheader class="font-weight-bold text-teal">Nuevas funcionalidades</v-list-subheader>
-              <v-list-item prepend-icon="mdi-calendar-clock">
-                <div class="novedad-titulo">Calendario de Mantenimientos Preventivos</div>
-                <div class="novedad-desc">Visualiza todos los preventivos programados en vista mensual y lista anual, con colores según los dias restantes.</div>
+
+              <v-list-item prepend-icon="mdi-file-remove-outline">
+                <div class="novedad-titulo">Eliminación de documentos legales</div>
+                <div class="novedad-desc">El rol de Cotizaciones puede eliminar documentos legales de equipos y referencias.</div>
               </v-list-item>
-              <v-list-item prepend-icon="mdi-file-document-edit-outline">
-                <div class="novedad-titulo">Borradores de reportes de servicio</div>
-                <div class="novedad-desc">Guarda un reporte que no puedas finalizar y retómalo cuando quieras desde la sección "Mis Borradores".</div>
+
+              <v-list-item prepend-icon="mdi-filter-variant">
+                <div class="novedad-titulo">Filtro de ubicación en lista de ingresos</div>
+                <div class="novedad-desc">Chips interactivos para filtrar ingresos por ubicación actual del equipo: Cuarentena, Taller, Bodega, Cliente, etc.</div>
               </v-list-item>
-              <v-list-item prepend-icon="mdi-account-box-multiple-outline">
-                <div class="novedad-titulo">Historial de clientes en ingresos</div>
-                <div class="novedad-desc">Ahora puedes consultar el historial de clientes de un equipo directamente desde el listado de ingresos.</div>
-              </v-list-item>
+
               <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
-              <v-list-item prepend-icon="mdi-account-eye">
-                <div class="novedad-titulo">Calendario visible por rol</div>
-                <div class="novedad-desc">El Calendario de Preventivos está disponible para: Ingeniería, aplicaciones, cotizaciones y comercial.</div>
+
+              <v-list-item prepend-icon="mdi-alert-circle-outline">
+                <div class="novedad-titulo">Estado "Fuera de servicio"</div>
+                <div class="novedad-desc">Se incorporó este estado para identificar equipos que serán dados de baja o que el cliente ha notificado que ya no utiliza.</div>
               </v-list-item>
+
+              <v-list-subheader class="font-weight-bold text-teal mt-2">Correcciones</v-list-subheader>
+
+              <v-list-item prepend-icon="mdi-delete-sweep-outline">
+                <div class="novedad-titulo">Etapa "Revisado" eliminada</div>
+                <div class="novedad-desc">La etapa Revisado fue retirada de todas las listas de opciones disponibles para los usuarios.</div>
+              </v-list-item>
+
             </v-list>
           </v-card-text>
           <v-card-actions class="pa-4 pt-0 justify-end">
@@ -127,7 +136,7 @@ export default {
   },
   mounted() {
     this.clearCookies();
-    // this.dialogNovedades = true; // desactivado temporalmente — reactivar en próxima versión
+    this.dialogNovedades = true;
   },
   methods: {
     clearCookies() {

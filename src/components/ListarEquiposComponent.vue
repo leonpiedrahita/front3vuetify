@@ -15,7 +15,7 @@
             </v-col>
 
             <v-col cols="12" sm="6" class="d-flex flex-column flex-sm-row justify-sm-space-around ga-2">
-              <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" color="c6" size="large"
+              <v-btn v-permission="['administrador', 'calidad', 'cotizaciones', 'ventas', 'ingresos']" color="c6" size="large"
                 variant="flat" @click="nuevoEquipo()">
                 Nuevo Equipo
               </v-btn>
@@ -141,7 +141,7 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-text-field v-model="equipomodificado.placaDeInventario" label="Número de placa de inventario"
-                        required :rules="[(v) => !!v || 'Campo Requerido']"></v-text-field>
+                        :disabled="esAplicaciones" required :rules="[(v) => !!v || 'Campo Requerido']"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-text-field v-model="equipomodificado.serie" label="Número de Serie" disabled
@@ -149,20 +149,19 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.propietario.nombre" :items="nombresclientes"
-                        label="Propietario" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
-                          nuevopropietariomodificado }}</v-autocomplete>
+                        label="Propietario" class="vs__search" :disabled="esAplicaciones" required
+                        :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevopropietariomodificado }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.proveedor.nombre" :items="nombresclientes"
-                        label="Proveedor" class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']">{{
-                          nuevoproveedormodificado }}</v-autocomplete>
+                        label="Proveedor" class="vs__search" :disabled="esAplicaciones" required
+                        :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevoproveedormodificado }}</v-autocomplete>
                     </v-col>
 
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.clienteId" :items="clientes" item-title="nombreciudad"
                         item-value="id" label="Seleccione un cliente" required
-                        :rules="[(v) => !!v || 'Campo Requerido']">{{
-                          nuevoclientemodificado }}</v-autocomplete>
+                        :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevoclientemodificado }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.ubicacionId" :items="ubicacionclientesmodificado"
@@ -171,12 +170,13 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.tipoDeContrato" :items="listacontratos"
-                        label="Tipo de contrato" class="vs__search" required
+                        label="Tipo de contrato" class="vs__search" :disabled="esAplicaciones" required
                         :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
                       <v-autocomplete v-model="equipomodificado.estado" :items="listaestados" label="Estado"
-                        class="vs__search" required :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
+                        class="vs__search" :disabled="esAplicaciones" required
+                        :rules="[(v) => !!v || 'Campo Requerido']"></v-autocomplete>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -187,16 +187,18 @@
                 <v-btn variant="flat" color="error" text @click="close2">
                   Cancelar
                 </v-btn>
-                <v-btn :disabled="!(
-                  equipomodificado.nombre &&
-                  equipomodificado.serie &&
-                  equipomodificado.placaDeInventario &&
-                  equipomodificado.tipoDeContrato &&
-                  equipomodificado.propietario.nombre &&
-                  equipomodificado.proveedor.nombre &&
-                  equipomodificado.clienteId &&
-                  equipomodificado.ubicacionId
-                )
+                <v-btn :disabled="esAplicaciones
+                    ? !(equipomodificado.clienteId && equipomodificado.ubicacionId)
+                    : !(
+                        equipomodificado.nombre &&
+                        equipomodificado.serie &&
+                        equipomodificado.placaDeInventario &&
+                        equipomodificado.tipoDeContrato &&
+                        equipomodificado.propietario.nombre &&
+                        equipomodificado.proveedor.nombre &&
+                        equipomodificado.clienteId &&
+                        equipomodificado.ubicacionId
+                      )
                   " color="success" text variant="flat" @click="actualizarequipo">
                   Modificar
                 </v-btn>
@@ -398,7 +400,7 @@
 
 
                 <!-- Tabla -->
-                <v-data-table :headers="headersCronograma" :items="equiposCronograma" :search="search" class="elevation-1">
+                <v-data-table :headers="headersCronograma" :items="equiposCronogramaConDias" :search="search" class="elevation-1" :sort-by="[{ key: 'diasRestantesNum', order: 'asc' }]">
                   <!-- PRÓXIMO MANTENIMIENTO -->
                   <template #item.proximoMantenimiento="{ item }">
                     <span v-if="calcularFechaVencimiento(item)">
@@ -407,8 +409,8 @@
                     <span v-else>-</span>
                   </template>
 
-                  <!-- FECHA DE PREVENTIVO -->
-                  <template #item.fechaDePreventivo="{ item }">
+                  <!-- DÍAS RESTANTES -->
+                  <template #item.diasRestantesNum="{ item }">
                     <v-chip v-if="calcularDiferencia(item) !== 'Libre'" :style="getChipStyle(item)" size="small"
                       class="font-weight-bold" variant="outlined">
                       <v-icon :icon="getChipStyle(item).icon" :color="getChipStyle(item).color" start />
@@ -549,7 +551,7 @@ export default {
     equiposCronograma: [],
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Fuera de Servicio", "Devuelto al Proveedor"],
-    listaestados: ["Nuevo","En servicio", "Disponible", "Disp. Pdte. MP.","Reservado", "En Soporte", "Dado de Baja"],
+    listaestados: ["Nuevo","En servicio", "Disponible", "Disp. Pdte. MP.","Reservado", "En Soporte", "Fuera de servicio", "Dado de Baja"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     ordenes: [
@@ -596,28 +598,28 @@ export default {
         value: "detalles",
         sortable: false,
         align: "center",
-        roles: ["administrador", "soporte", "comercial", "cotizaciones", "calidad", "bodega"],
+        roles: ["administrador", "soporte", "aplicaciones", "comercial", "cotizaciones", "ventas", "ingresos", "calidad", "bodega"],
       },
       {
         title: "Editar",
         value: "editar",
         sortable: false,
         align: "center",
-        roles: ["administrador", "cotizaciones", "calidad"],
+        roles: ["administrador", "cotizaciones", "ventas", "ingresos", "calidad", "aplicaciones"],
       },
       {
         title: "Nuevo Ingreso",
         value: "generarorden",
         sortable: false,
         align: "center",
-        roles: ["administrador", "bodega", "cotizaciones","soporte"],
+        roles: ["administrador", "bodega", "cotizaciones", "ventas", "ingresos", "soporte", "aplicaciones"],
       },
       {
         title: "Crear Reporte",
         value: "crear",
         sortable: false,
         align: "center",
-        roles: ["administrador", "soporte", "comercial"],
+        roles: ["administrador", "soporte", "aplicaciones", "comercial"],
       },
       {
         title: "Historial Clientes",
@@ -652,7 +654,7 @@ export default {
       },
       { title: "Contrato", key: "tipoDeContrato", align: "center" },
       { title: 'Próximo mantenimiento', value: 'proximoMantenimiento', align: "center" },
-      { title: "Días restates", key: "fechaDePreventivo", align: "center" },
+      { title: "Días restantes", key: "diasRestantesNum", align: "center" },
 
 
     ],
@@ -796,14 +798,42 @@ export default {
   }),
 
   computed: {
+    equiposCronogramaConDias() {
+      return this.equiposCronograma.map(item => {
+        const periodicidad = item.referencia?.periodicidadmantenimiento;
+        let diasRestantesNum;
+
+        if (periodicidad === 'Libre de mantenimiento') {
+          diasRestantesNum = Infinity; // va al final en orden asc
+        } else if (!item.fechaDePreventivo) {
+          diasRestantesNum = Infinity;
+        } else {
+          const fechaLimite = new Date(item.fechaDePreventivo);
+          switch (periodicidad) {
+            case 'Anual':      fechaLimite.setMonth(fechaLimite.getMonth() + 12); break;
+            case 'Semestral':  fechaLimite.setMonth(fechaLimite.getMonth() + 6);  break;
+            case 'Trimestral': fechaLimite.setMonth(fechaLimite.getMonth() + 3);  break;
+            default:           diasRestantesNum = Infinity;
+          }
+          if (diasRestantesNum === undefined) {
+            diasRestantesNum = Math.floor((fechaLimite - new Date()) / (1000 * 60 * 60 * 24));
+          }
+        }
+
+        return { ...item, diasRestantesNum };
+      });
+    },
+    esAplicaciones() {
+      return this.$store.state.user.rol === 'aplicaciones';
+    },
     etapasDisponiblesPorRol() {
       const userRol = this.$store.state.user.rol;
 
       if (userRol === 'bodega') {
         return ['Cuarentena'];
-      } else if (userRol === 'cotizaciones') {
+      } else if (['cotizaciones', 'ventas', 'ingresos'].includes(userRol)) {
         return ['Cotización aprobada', 'Instalación','Cuarentena'];
-        } else if (userRol === 'soporte') {
+        } else if (userRol === 'soporte' || userRol === 'aplicaciones') {
         return ['Soporte ingeniería', 'Soporte aplicaciones'];
       } else if (userRol === 'administrador') {
         // Devuelve todas las opciones si es administrador
@@ -1365,7 +1395,7 @@ export default {
           "Desinfección","Soporte ingeniería",
           "Soporte aplicaciones"
         ];
-      } else if (this.$store.state.user.rol === "soporte") {
+      } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones") {
         this.listadeetapas = [
           "Soporte ingeniería",
           "Soporte aplicaciones"
@@ -1375,7 +1405,7 @@ export default {
           "Desinfección",
 
         ];
-      } else if (this.$store.state.user.rol === "cotizaciones") {
+      } else if (["cotizaciones", "ventas", "ingresos"].includes(this.$store.state.user.rol)) {
         this.listadeetapas = ["Soporte ingeniería",
           "Soporte aplicaciones","Desinfección"];
       } else if (this.$store.state.user.rol === "facturación") {
@@ -1430,7 +1460,7 @@ export default {
         );
 
         // B. Lógica Condicional: Actualizar Estado del Equipo (Solo para rol 'bodega')
-        if (this.$store.state.user.rol === "bodega"|| this.$store.state.user.rol === "soporte"|| this.$store.state.user.rol === "administrador") {
+        if (this.$store.state.user.rol === "bodega" || this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones" || this.$store.state.user.rol === "administrador") {
           // Usamos el método PUT o PATCH que es más semántico para actualizaciones parciales
           const responseUpdate = await axios.patch( // Cambiado de POST a PATCH (semántica REST)
             rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,

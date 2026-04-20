@@ -105,12 +105,12 @@
             <v-list-item prepend-icon="mdi-vector-circle" title="Ingresos" />
           </v-list-item>
 
-          <v-list-item v-if="['administrador','soporte','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }">
+          <v-list-item v-if="['administrador','soporte','aplicaciones','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }">
             <v-list-item prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
           </v-list-item>
 
           <v-list-item
-            v-if="['administrador','soporte','comercial','cotizaciones','lumira'].includes(this.$store.state.user.rol)"
+            v-if="['administrador','soporte','aplicaciones','comercial','cotizaciones','ventas','ingresos','lumira'].includes(this.$store.state.user.rol)"
             :to="{ name: 'CalendarioPreventivos' }"
           >
             <v-list-item prepend-icon="mdi-calendar-clock" title="Calendario Preventivos" />

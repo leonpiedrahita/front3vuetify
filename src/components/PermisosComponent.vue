@@ -1,6 +1,6 @@
 <template>
   <v-card class="pa-4">
-    <v-card-title class="text-h6 font-weight-bold mb-2 text-center">
+    <v-card-title class="text-h6 font-weight-bold mb-1 text-center">
       Permisos de notificaciones WhatsApp
     </v-card-title>
     <v-card-subtitle class="mb-4 text-center">
@@ -9,61 +9,96 @@
 
     <v-progress-linear v-if="cargando" indeterminate color="primary" class="mb-4" />
 
-    <v-table v-else density="comfortable" class="elevation-1">
-      <thead>
-        <tr>
-          <th class="text-center font-weight-bold">Rol</th>
-          <th class="text-center font-weight-bold">Nuevo Ingreso</th>
-          <th class="text-center font-weight-bold">Cambio de Etapa</th>
-          <th class="text-center font-weight-bold">Despachado</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="rol in roles" :key="rol.nombre">
-          <td class="font-weight-medium text-capitalize text-center">{{ rol.nombre }}</td>
-          <td class="text-center">
-            <v-switch
-              v-model="configuracion[rol.nombre].ingreso"
-              color="success"
-              hide-details
-              density="compact"
-              class="d-flex justify-center"
-            />
-          </td>
-          <td class="text-center">
-            <v-switch
-              v-model="configuracion[rol.nombre].etapa"
-              color="success"
-              hide-details
-              density="compact"
-              class="d-flex justify-center"
-            />
-          </td>
-          <td class="text-center">
-            <v-switch
-              v-model="configuracion[rol.nombre].etapa_despachado"
-              color="success"
-              hide-details
-              density="compact"
-              class="d-flex justify-center"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <template v-else>
+      <v-tabs v-model="tab" color="c6" align-tabs="center" class="mb-4">
+        <v-tab value="ingreso">
+          <v-icon start>mdi-inbox-arrow-down</v-icon>
+          Nuevo Ingreso
+        </v-tab>
+        <v-tab value="etapas">
+          <v-icon start>mdi-state-machine</v-icon>
+          Por Etapa
+        </v-tab>
+      </v-tabs>
 
-    <v-card-actions v-if="!cargando" class="justify-center mt-4">
-      <v-btn
-        color="primary"
-        variant="flat"
-        size="large"
-        :loading="guardando"
-        :disabled="!hayCambios"
-        @click="guardarTodo"
-      >
-        Guardar cambios
-      </v-btn>
-    </v-card-actions>
+      <v-window v-model="tab">
+
+        <!-- ── Tab: Nuevo Ingreso ─────────────────────────────────── -->
+        <v-window-item value="ingreso">
+          <v-table density="comfortable" class="elevation-1">
+            <thead>
+              <tr>
+                <th class="text-center font-weight-bold">Rol</th>
+                <th class="text-center font-weight-bold">Notificar al registrar un nuevo ingreso</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="rol in roles" :key="rol.nombre">
+                <td class="font-weight-medium text-capitalize text-center">{{ rol.nombre }}</td>
+                <td class="text-center">
+                  <v-switch
+                    v-model="configuracion[rol.nombre].ingreso"
+                    color="success"
+                    hide-details
+                    density="compact"
+                    class="d-flex justify-center"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-window-item>
+
+        <!-- ── Tab: Por Etapa ─────────────────────────────────────── -->
+        <v-window-item value="etapas">
+          <div style="overflow-x: auto;">
+            <v-table density="comfortable" class="elevation-1" style="min-width: 900px;">
+              <thead>
+                <tr>
+                  <th class="text-center font-weight-bold" style="min-width:120px;">Rol</th>
+                  <th
+                    v-for="etapa in tiposEtapa"
+                    :key="etapa.key"
+                    class="text-center font-weight-bold"
+                    style="min-width:110px; font-size:0.78rem;"
+                  >
+                    {{ etapa.label }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="rol in roles" :key="rol.nombre">
+                  <td class="font-weight-medium text-capitalize text-center">{{ rol.nombre }}</td>
+                  <td v-for="etapa in tiposEtapa" :key="etapa.key" class="text-center">
+                    <v-switch
+                      v-model="configuracion[rol.nombre][etapa.key]"
+                      color="success"
+                      hide-details
+                      density="compact"
+                      class="d-flex justify-center"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </div>
+        </v-window-item>
+
+      </v-window>
+
+      <v-card-actions class="justify-center mt-4">
+        <v-btn
+          color="primary"
+          variant="flat"
+          size="large"
+          :loading="guardando"
+          :disabled="!hayCambios"
+          @click="guardarTodo"
+        >
+          Guardar cambios
+        </v-btn>
+      </v-card-actions>
+    </template>
 
     <v-snackbar v-model="snackbar.visible" :color="snackbar.color" timeout="3000" location="top center">
       <div class="w-100 text-center">{{ snackbar.mensaje }}</div>
@@ -86,7 +121,21 @@ const ROLES = [
   { nombre: 'ingresos' },
 ];
 
-const TIPOS = ['ingreso', 'etapa', 'etapa_despachado'];
+const TIPOS_ETAPA = [
+  { key: 'etapa_cuarentena',            label: 'Cuarentena' },
+  { key: 'etapa_soporte_ingenieria',    label: 'Sop. Ingeniería' },
+  { key: 'etapa_soporte_aplicaciones',  label: 'Sop. Aplicaciones' },
+  { key: 'etapa_listo_despacho',        label: 'Listo p. despacho' },
+  { key: 'etapa_cotizacion_solicitada', label: 'Cot. solicitada' },
+  { key: 'etapa_cotizacion_aprobada',   label: 'Cot. aprobada' },
+  { key: 'etapa_pdte_repuestos',        label: 'Pdte. repuestos' },
+  { key: 'etapa_pdte_aprobacion',       label: 'Pdte. aprobación' },
+  { key: 'etapa_despachado',            label: 'Despachado' },
+  { key: 'etapa_finalizado',            label: 'Finalizado' },
+  { key: 'etapa_cancelado',             label: 'Cancelado' },
+];
+
+const TIPOS = ['ingreso', ...TIPOS_ETAPA.map(t => t.key)];
 
 function clonar(cfg) {
   return Object.fromEntries(
@@ -94,16 +143,25 @@ function clonar(cfg) {
   );
 }
 
+function configuracionInicial() {
+  return Object.fromEntries(
+    ROLES.map(r => [
+      r.nombre,
+      Object.fromEntries(TIPOS.map(t => [t, false])),
+    ])
+  );
+}
+
 export default {
   name: 'PermisosComponent',
   data() {
     return {
+      tab: 'ingreso',
       cargando: true,
       guardando: false,
       roles: ROLES,
-      configuracion: Object.fromEntries(
-        ROLES.map(r => [r.nombre, { ingreso: false, etapa: false, etapa_despachado: false }])
-      ),
+      tiposEtapa: TIPOS_ETAPA,
+      configuracion: configuracionInicial(),
       original: null,
       snackbar: { visible: false, color: 'success', mensaje: '' },
     };
@@ -128,7 +186,7 @@ export default {
           { headers: { token: this.$store.state.token } }
         );
         data.forEach(({ rol, tipoNotificacion, habilitado }) => {
-          if (this.configuracion[rol]) {
+          if (this.configuracion[rol] && tipoNotificacion in this.configuracion[rol]) {
             this.configuracion[rol][tipoNotificacion] = habilitado;
           }
         });

@@ -1,10 +1,5 @@
 <template>
   <v-card class="pa-2">
-    <v-toolbar flat style="background-color: #52B69A; color: white;" class="mb-4">
-      <v-icon class="ml-2 mr-3">mdi-file-document-edit-outline</v-icon>
-      <v-toolbar-title class="font-weight-bold">Mis Borradores</v-toolbar-title>
-    </v-toolbar>
-
     <v-progress-linear v-if="cargando" indeterminate color="teal" class="mb-2" />
 
     <v-data-table
@@ -107,6 +102,15 @@ export default {
       { title: 'Acciones', key: 'acciones', sortable: false, align: 'center' },
     ],
   }),
+
+  created() {
+    this.$store.dispatch('autoLogin');
+    this.$store.dispatch('guardarUbicacion', {
+      ubicacion: 'Mis Borradores',
+      icono: 'mdi-file-document-edit-outline',
+      color: 'c6',
+    });
+  },
 
   mounted() {
     this.cargarBorradores();

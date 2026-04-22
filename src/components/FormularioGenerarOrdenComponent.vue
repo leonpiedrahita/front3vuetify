@@ -288,6 +288,22 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="errorGuardar" persistent width="500">
+        <v-card>
+          <v-toolbar color="error" dark flat>
+            <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+            <v-toolbar-title class="font-weight-bold">Error al guardar</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text class="text-body-1 pt-5 pb-3">
+            No se ha podido guardar el reporte. Por favor verifique su conexión e intente nuevamente.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Aceptar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-card-actions> </v-card-actions>
     </v-container>
     <v-container v-if="archivo">
@@ -368,6 +384,22 @@
             Por favor espere...
             <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
           </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="errorGuardar" persistent width="500">
+        <v-card>
+          <v-toolbar color="error" dark flat>
+            <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+            <v-toolbar-title class="font-weight-bold">Error al guardar</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text class="text-body-1 pt-5 pb-3">
+            No se ha podido guardar el reporte. Por favor verifique su conexión e intente nuevamente.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Aceptar</v-btn>
+          </v-card-actions>
         </v-card>
       </v-dialog>
 
@@ -543,6 +575,7 @@ export default {
     menu2: false,
     checkbox: false,
     esperaguardar: false,
+    errorGuardar: false,
     equipo: {
       cliente: {
         sede: [
@@ -773,9 +806,13 @@ export default {
       }
     },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
-
-      this.reporte.fechadeinicio = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
-
+      const fechaStr = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear();
+      this.reporte.fechadeinicio = fechaStr;
+      if (!this.reporte.fechadefinalizacion) {
+        this.reporte.fechadefinalizacion = fechaStr;
+        this.fechadefinalizacioncalendario = fechaseleccionadaincio;
+        this.fechacalendariodefinalizacion = fechaseleccionadaincio;
+      }
       this.menu1 = !this.menu1;
     },
     cambiarEstadoDeMenu2(fechaseleccionadafinalizacion) {
@@ -897,8 +934,8 @@ export default {
         })
         .catch((error) => {
           this.esperaguardar = false;
+          this.errorGuardar = true;
           console.log(error);
-          return error;
         });
     },
     async guardarReporteInternoTallerCronograma() {
@@ -947,6 +984,7 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.errorGuardar = true;
       } finally {
         this.esperaguardar = false;
       }
@@ -987,8 +1025,8 @@ export default {
         })
         .catch((error) => {
           this.esperaguardar = false;
+          this.errorGuardar = true;
           console.log(error);
-          return error;
         });
     },
     async guardarReporteInternoCampoCronograma() {
@@ -1037,6 +1075,7 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.errorGuardar = true;
       } finally {
         this.esperaguardar = false;
       }
@@ -1077,8 +1116,8 @@ export default {
         })
         .catch((error) => {
           this.esperaguardar = false;
+          this.errorGuardar = true;
           console.log(error);
-          return error;
         });
     },
     async guardarReporteInternoRemotoCronograma() {
@@ -1127,6 +1166,7 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.errorGuardar = true;
       } finally {
         this.esperaguardar = false;
       }
@@ -1251,6 +1291,7 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.errorGuardar = true;
       } finally {
         this.esperaguardar = false;
       }
@@ -1296,6 +1337,7 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.errorGuardar = true;
       } finally {
         this.esperaguardar = false;
       }

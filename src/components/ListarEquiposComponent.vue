@@ -551,7 +551,7 @@ export default {
     equiposCronograma: [],
     listadeetapas: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Fuera de Servicio", "Devuelto al Proveedor"],
-    listaestados: ["Nuevo","En servicio", "Disponible", "Disp. Pdte. MP.","Reservado", "En Soporte", "Fuera de servicio", "Dado de Baja"],
+    listaestados: ["Nuevo","En servicio", "Disponible", "Disponible Pdte. MP.","Reservado", "En Soporte", "Fuera de servicio", "Dado de Baja"],
     nombreUbicacionesCliente: [],
     nombreUbicacionesClienteModificado: [],
     ordenes: [

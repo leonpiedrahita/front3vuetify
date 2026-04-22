@@ -317,7 +317,7 @@
             <v-toolbar class="text-h4" color="primary" dark>¡Genial!</v-toolbar>
             <v-card-text>
               <div class="text-h5 pa-5">
-                Carga exitosa!
+                {{ nuevareferencia ? 'Referencia guardada con éxito' : 'Referencia actualizada con éxito' }}
               </div>
             </v-card-text>
             <v-card-actions class="justify-center">
@@ -428,7 +428,7 @@ export default {
   created() {
     this.equipo = this.$store.state.referenciaequipo;
     this.nuevareferencia = this.$store.state.nuevareferencia;
-    this.documentosLegales = this.equipo.documentosLegales;
+    this.documentosLegales = this.equipo.documentosLegales ?? [];
   },
   beforeCreate() {
     this.$store.dispatch("autoLogin");
@@ -627,7 +627,7 @@ export default {
     },
     AceptarConfirmacionGuardado() {
       this.confirmacionguardado = false;
-
+      this.$router.push({ name: 'ListarRefEquipos' });
     },
     imprimirVCard() {
   const equipo = this.equipo;

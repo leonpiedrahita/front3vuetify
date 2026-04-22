@@ -118,12 +118,18 @@
 
           <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" prepend-icon="mdi-badge-account-outline" title="Usuarios" />
+              <v-list-item v-bind="props" prepend-icon="mdi-badge-account-outline" title="Administración" />
             </template>
 
             <v-list-item :to="{ name: 'AdministracionUsuarios' }">
               <v-list-item-subtitle>
                 <v-list-item-title> Usuarios </v-list-item-title>
+              </v-list-item-subtitle>
+            </v-list-item>
+
+            <v-list-item :to="{ name: 'Permisos' }">
+              <v-list-item-subtitle>
+                <v-list-item-title> Permisos </v-list-item-title>
               </v-list-item-subtitle>
             </v-list-item>
           </v-list-group>

@@ -420,7 +420,7 @@ export default {
             this.$router.push({ name: "Login" });
         }
         this.$store.dispatch("guardarUbicacion", {
-            ubicacion: "Lista de ingresos",
+            ubicacion: "Ingresos",
             icono: "mdi-vector-circle",
             color: "c6",
         });

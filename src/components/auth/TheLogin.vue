@@ -27,7 +27,7 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.2.1.2
+            V.2.1.3
           </div>
         </v-row>
       </v-col>
@@ -37,35 +37,45 @@
         <v-card>
           <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-icon class="ml-3 mr-2">mdi-new-box</v-icon>
-            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.2</v-toolbar-title>
+            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.3</v-toolbar-title>
           </v-toolbar>
           <v-card-text class="pt-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
             <v-list density="compact">
 
               <v-list-subheader class="font-weight-bold text-teal">Nuevas funcionalidades</v-list-subheader>
 
-              <v-list-item prepend-icon="mdi-file-remove-outline">
-                <div class="novedad-titulo">Eliminación de documentos legales</div>
-                <div class="novedad-desc">El rol de Cotizaciones puede eliminar documentos legales de equipos y referencias.</div>
+              <v-list-item prepend-icon="mdi-whatsapp">
+                <div class="novedad-titulo">Administración de permisos de notificaciones WhatsApp</div>
+                <div class="novedad-desc">Panel con tabs para configurar notificaciones por rol: nuevo ingreso y cada etapa del flujo de forma independiente.</div>
               </v-list-item>
 
-              <v-list-item prepend-icon="mdi-filter-variant">
-                <div class="novedad-titulo">Filtro de ubicación en lista de ingresos</div>
-                <div class="novedad-desc">Chips interactivos para filtrar ingresos por ubicación actual del equipo: Cuarentena, Taller, Bodega, Cliente, etc.</div>
+              <v-list-item prepend-icon="mdi-calendar-clock">
+                <div class="novedad-titulo">Calendario de preventivos mejorado</div>
+                <div class="novedad-desc">Filtro por cliente con búsqueda parcial y header unificado con el resto del sistema.</div>
               </v-list-item>
 
               <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
 
-              <v-list-item prepend-icon="mdi-alert-circle-outline">
-                <div class="novedad-titulo">Estado "Fuera de servicio"</div>
-                <div class="novedad-desc">Se incorporó este estado para identificar equipos que serán dados de baja o que el cliente ha notificado que ya no utiliza.</div>
+              <v-list-item prepend-icon="mdi-calendar-end">
+                <div class="novedad-titulo">Fecha de finalización automática en órdenes</div>
+                <div class="novedad-desc">Al seleccionar la fecha de inicio por primera vez, la fecha de finalización se completa automáticamente con el mismo valor.</div>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-amplifier">
+                <div class="novedad-titulo">Referencias de equipo</div>
+                <div class="novedad-desc">Corrección al crear nueva referencia y redirección automática al guardar o actualizar.</div>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-tag-outline">
+                <div class="novedad-titulo">Estado "Disponible Pdte. MP."</div>
+                <div class="novedad-desc">El estado "Disp. Pdte. MP." fue renombrado a "Disponible Pdte. MP." en todo el sistema.</div>
               </v-list-item>
 
               <v-list-subheader class="font-weight-bold text-teal mt-2">Correcciones</v-list-subheader>
 
-              <v-list-item prepend-icon="mdi-delete-sweep-outline">
-                <div class="novedad-titulo">Etapa "Revisado" eliminada</div>
-                <div class="novedad-desc">La etapa Revisado fue retirada de todas las listas de opciones disponibles para los usuarios.</div>
+              <v-list-item prepend-icon="mdi-alert-circle-outline">
+                <div class="novedad-titulo">Error al guardar una orden</div>
+                <div class="novedad-desc">Si el servidor falla al guardar, ahora se muestra un mensaje de error claro y el formulario conserva la información para reintentar.</div>
               </v-list-item>
 
             </v-list>
@@ -136,7 +146,7 @@ export default {
   },
   mounted() {
     this.clearCookies();
-    this.dialogNovedades = true;
+    // this.dialogNovedades = true;
   },
   methods: {
     clearCookies() {

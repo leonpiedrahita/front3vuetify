@@ -200,19 +200,17 @@ export default {
     async guardarTodo() {
       this.guardando = true;
       try {
-        const peticiones = [];
+        const cambios = [];
         for (const rol of ROLES) {
           for (const tipo of TIPOS) {
-            peticiones.push(
-              axios.put(
-                this.$store.state.ruta + 'api/configuracion/notificaciones',
-                { rol: rol.nombre, tipoNotificacion: tipo, habilitado: this.configuracion[rol.nombre][tipo] },
-                { headers: { token: this.$store.state.token } }
-              )
-            );
+            cambios.push({ rol: rol.nombre, tipoNotificacion: tipo, habilitado: this.configuracion[rol.nombre][tipo] });
           }
         }
-        await Promise.all(peticiones);
+        await axios.post(
+          this.$store.state.ruta + 'api/configuracion/notificaciones/bulk',
+          { cambios },
+          { headers: { token: this.$store.state.token } }
+        );
         this.original = clonar(this.configuracion);
         this.mostrarSnackbar('success', 'Configuración guardada correctamente');
       } catch (err) {

@@ -27,7 +27,7 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.2.1.3
+            V.2.1.4
           </div>
         </v-row>
       </v-col>
@@ -37,7 +37,7 @@
         <v-card>
           <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-icon class="ml-3 mr-2">mdi-new-box</v-icon>
-            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.3</v-toolbar-title>
+            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.4</v-toolbar-title>
           </v-toolbar>
           <v-card-text class="pt-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
             <v-list density="compact">

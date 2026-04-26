@@ -369,8 +369,43 @@
       </v-card>
     </v-dialog>
 
+    <!-- Historial de estados -->
+    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4 no-imprimir">
+      <v-toolbar flat style="background-color: #1565C0; color: white;" class="mb-3 rounded">
+        <v-icon class="ml-3 mr-2">mdi-swap-horizontal-bold</v-icon>
+        <v-toolbar-title class="font-weight-bold">Historial de estados</v-toolbar-title>
+      </v-toolbar>
+
+      <div v-if="historialEstadoCargando" class="text-center pa-4">
+        <v-progress-circular indeterminate color="primary" />
+      </div>
+      <div v-else-if="!historialEstado.length" class="text-center pa-3 text-medium-emphasis">
+        Sin cambios de estado registrados
+      </div>
+      <v-timeline v-else density="compact" align="start" side="end" class="mx-2">
+        <v-timeline-item
+          v-for="item in historialEstado"
+          :key="item.id"
+          :dot-color="colorEstado(item.estadoNuevo)"
+          size="small"
+        >
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold">{{ item.estadoNuevo }}</span>
+            <span v-if="item.estadoAnterior" class="text-caption text-medium-emphasis">
+              Desde: {{ item.estadoAnterior }}
+            </span>
+            <span class="text-caption">
+              <v-icon size="12">mdi-account-outline</v-icon> {{ item.usuarioNombre }}
+              &nbsp;·&nbsp;
+              <v-icon size="12">mdi-clock-outline</v-icon> {{ formatearFechaAudit(item.fecha) }}
+            </span>
+          </div>
+        </v-timeline-item>
+      </v-timeline>
+    </div>
+
     <!-- Audit Log — solo administrador -->
-    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4">
+    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4 no-imprimir">
       <v-toolbar flat style="background-color: #37474F; color: white;" class="mb-3 rounded">
         <v-icon class="ml-3 mr-2">mdi-history</v-icon>
         <v-toolbar-title class="font-weight-bold">Historial de cambios</v-toolbar-title>
@@ -523,6 +558,8 @@ export default {
     docAEliminar: null,
     eliminandoDoc: false,
     snackbarDoc: { visible: false, color: 'success', mensaje: '' },
+    historialEstado: [],
+    historialEstadoCargando: false,
     auditLog: [],
     auditLogCargando: false,
     auditLogDetalle: null,
@@ -651,6 +688,7 @@ export default {
     this.historial = this.equipo.historialDeServicios;
     this.documentosLegales = this.equipo.documentosLegales;
     if (this.$store.state.user.rol === 'administrador') {
+      this.cargarHistorialEstado();
       this.cargarAuditLog();
     }
   },
@@ -662,6 +700,33 @@ export default {
     
   },
   methods: {
+
+    async cargarHistorialEstado() {
+      this.historialEstadoCargando = true;
+      try {
+        const { data } = await axios.get(
+          this.$store.state.ruta + `api/equipo/historialestado/${this.equipo.id}`,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.historialEstado = data;
+      } catch (err) {
+        console.error('Error al cargar historial de estados:', err);
+      } finally {
+        this.historialEstadoCargando = false;
+      }
+    },
+
+    colorEstado(estado) {
+      const mapa = {
+        'Activo': '#4CAF50',
+        'En mantenimiento': '#FF9800',
+        'En reparación': '#F44336',
+        'Disponible Pdte. MP.': '#2196F3',
+        'Inactivo': '#9E9E9E',
+        'En cuarentena': '#9C27B0',
+      };
+      return mapa[estado] || '#607D8B';
+    },
 
     async cargarAuditLog() {
       this.auditLogCargando = true;
@@ -904,7 +969,7 @@ imprimirVCard() {
           .mensaje-movil { font-size:14px; text-align:center; margin:10px; color:#555; }
           button { padding:8px 16px; border-radius:6px; border:1px solid #555; margin-top:15px; cursor:pointer; }
 
-          /* 👇 Ocultar botón al imprimir */
+          .no-imprimir { display: none !important; }
           @media print {
             .mensaje-movil { display: none !important; }
           }

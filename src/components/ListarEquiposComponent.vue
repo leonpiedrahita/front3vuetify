@@ -208,23 +208,24 @@
 
           <v-dialog v-model="dialog" max-width="500px">
             <v-card>
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
+              <v-toolbar color="primary" dark flat>
+                <v-icon class="ml-3 mr-2">mdi-file-document-plus-outline</v-icon>
+                <v-toolbar-title class="font-weight-bold">Se creará un reporte del siguiente equipo</v-toolbar-title>
+              </v-toolbar>
 
-              <v-card-text>
+              <v-card-text class="pt-4">
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.cliente.nombre" label="Cliente" disabled
+                      <v-text-field v-model="editedItem.cliente.nombre" label="Cliente" readonly
                         class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.nombre" label="Nombre" disabled
+                      <v-text-field v-model="editedItem.nombre" label="Nombre" readonly
                         class="centered-input"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
-                      <v-text-field v-model="editedItem.serie" label="Serie" disabled
+                      <v-text-field v-model="editedItem.serie" label="Serie" readonly
                         class="centered-input"></v-text-field>
                     </v-col>
                   </v-row>

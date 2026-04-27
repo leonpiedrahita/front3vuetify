@@ -27,38 +27,57 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.2.1.0
+            V.2.1.4
           </div>
         </v-row>
       </v-col>
 
       <!-- Dialog Novedades -->
-      <v-dialog v-model="dialogNovedades" max-width="560" persistent>
+      <v-dialog v-model="dialogNovedades" max-width="580" persistent scrollable>
         <v-card>
           <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-icon class="ml-3 mr-2">mdi-new-box</v-icon>
-            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.0</v-toolbar-title>
+            <v-toolbar-title class="font-weight-bold">Novedades — V.2.1.4</v-toolbar-title>
           </v-toolbar>
-          <v-card-text class="pt-4 pb-2">
+          <v-card-text class="pt-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
             <v-list density="compact">
+
               <v-list-subheader class="font-weight-bold text-teal">Nuevas funcionalidades</v-list-subheader>
+
+              <v-list-item prepend-icon="mdi-whatsapp">
+                <div class="novedad-titulo">Administración de permisos de notificaciones WhatsApp</div>
+                <div class="novedad-desc">Panel con tabs para configurar notificaciones por rol: nuevo ingreso y cada etapa del flujo de forma independiente.</div>
+              </v-list-item>
+
               <v-list-item prepend-icon="mdi-calendar-clock">
-                <div class="novedad-titulo">Calendario de Mantenimientos Preventivos</div>
-                <div class="novedad-desc">Visualiza todos los preventivos programados en vista mensual y lista anual, con colores según los dias restantes.</div>
+                <div class="novedad-titulo">Calendario de preventivos mejorado</div>
+                <div class="novedad-desc">Filtro por cliente con búsqueda parcial y header unificado con el resto del sistema.</div>
               </v-list-item>
-              <v-list-item prepend-icon="mdi-file-document-edit-outline">
-                <div class="novedad-titulo">Borradores de reportes de servicio</div>
-                <div class="novedad-desc">Guarda un reporte que no puedas finalizar y retómalo cuando quieras desde la sección "Mis Borradores".</div>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-account-box-multiple-outline">
-                <div class="novedad-titulo">Historial de clientes en ingresos</div>
-                <div class="novedad-desc">Ahora puedes consultar el historial de clientes de un equipo directamente desde el listado de ingresos.</div>
-              </v-list-item>
+
               <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
-              <v-list-item prepend-icon="mdi-account-eye">
-                <div class="novedad-titulo">Calendario visible por rol</div>
-                <div class="novedad-desc">El Calendario de Preventivos está disponible para: Ingeniería, aplicaciones, cotizaciones y comercial.</div>
+
+              <v-list-item prepend-icon="mdi-calendar-end">
+                <div class="novedad-titulo">Fecha de finalización automática en órdenes</div>
+                <div class="novedad-desc">Al seleccionar la fecha de inicio por primera vez, la fecha de finalización se completa automáticamente con el mismo valor.</div>
               </v-list-item>
+
+              <v-list-item prepend-icon="mdi-amplifier">
+                <div class="novedad-titulo">Referencias de equipo</div>
+                <div class="novedad-desc">Corrección al crear nueva referencia y redirección automática al guardar o actualizar.</div>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-tag-outline">
+                <div class="novedad-titulo">Estado "Disponible Pdte. MP."</div>
+                <div class="novedad-desc">El estado "Disp. Pdte. MP." fue renombrado a "Disponible Pdte. MP." en todo el sistema.</div>
+              </v-list-item>
+
+              <v-list-subheader class="font-weight-bold text-teal mt-2">Correcciones</v-list-subheader>
+
+              <v-list-item prepend-icon="mdi-alert-circle-outline">
+                <div class="novedad-titulo">Error al guardar una orden</div>
+                <div class="novedad-desc">Si el servidor falla al guardar, ahora se muestra un mensaje de error claro y el formulario conserva la información para reintentar.</div>
+              </v-list-item>
+
             </v-list>
           </v-card-text>
           <v-card-actions class="pa-4 pt-0 justify-end">
@@ -127,7 +146,7 @@ export default {
   },
   mounted() {
     this.clearCookies();
-    // this.dialogNovedades = true; // desactivado temporalmente — reactivar en próxima versión
+    // this.dialogNovedades = true;
   },
   methods: {
     clearCookies() {

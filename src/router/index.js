@@ -132,6 +132,12 @@ const routes = [
         name: 'ImportarArchivos',
         component: () => import('../views/ImportarArchivos.vue'),
         meta: { auth: true },
+      },
+      {
+        path: '/permisos',
+        name: 'Permisos',
+        component: () => import('../views/Permisos.vue'),
+        meta: { auth: true },
       }
 
     ]

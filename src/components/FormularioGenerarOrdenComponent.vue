@@ -288,6 +288,41 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="errorGuardar" persistent width="500">
+        <v-card>
+          <v-toolbar color="error" dark flat>
+            <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+            <v-toolbar-title class="font-weight-bold">Error al guardar</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text class="text-body-1 pt-5 pb-3">
+            No se ha podido guardar el reporte. Por favor verifique su conexión e intente nuevamente.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Aceptar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="dialogoImprimirReporte" persistent max-width="480">
+        <v-card>
+          <v-toolbar color="success" dark flat>
+            <v-icon class="ml-3 mr-2">mdi-check-circle</v-icon>
+            <v-toolbar-title class="font-weight-bold">Reporte guardado exitosamente</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text class="text-body-1 pt-5 pb-3">
+            ¿Desea imprimir el reporte?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="grey" variant="text" class="mb-2" @click="omitirImpresion">No imprimir</v-btn>
+            <v-btn color="success" variant="flat" class="mb-2 mr-2" @click="confirmarImpresion">
+              <v-icon start>mdi-printer</v-icon>Imprimir
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-card-actions> </v-card-actions>
     </v-container>
     <v-container v-if="archivo">
@@ -368,6 +403,22 @@
             Por favor espere...
             <v-progress-linear indeterminate color="white" class="mb-0"></v-progress-linear>
           </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="errorGuardar" persistent width="500">
+        <v-card>
+          <v-toolbar color="error" dark flat>
+            <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+            <v-toolbar-title class="font-weight-bold">Error al guardar</v-toolbar-title>
+          </v-toolbar>
+          <v-card-text class="text-body-1 pt-5 pb-3">
+            No se ha podido guardar el reporte. Por favor verifique su conexión e intente nuevamente.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Aceptar</v-btn>
+          </v-card-actions>
         </v-card>
       </v-dialog>
 
@@ -543,6 +594,9 @@ export default {
     menu2: false,
     checkbox: false,
     esperaguardar: false,
+    errorGuardar: false,
+    dialogoImprimirReporte: false,
+    urlImprimirReporte: '',
     equipo: {
       cliente: {
         sede: [
@@ -773,9 +827,13 @@ export default {
       }
     },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
-
-      this.reporte.fechadeinicio = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear(); // Los meses en JavaScript van de 0 a 11
-
+      const fechaStr = fechaseleccionadaincio.getDate() + '-' + (fechaseleccionadaincio.getMonth() + 1) + '-' + fechaseleccionadaincio.getFullYear();
+      this.reporte.fechadeinicio = fechaStr;
+      if (!this.reporte.fechadefinalizacion) {
+        this.reporte.fechadefinalizacion = fechaStr;
+        this.fechadefinalizacioncalendario = fechaseleccionadaincio;
+        this.fechacalendariodefinalizacion = fechaseleccionadaincio;
+      }
       this.menu1 = !this.menu1;
     },
     cambiarEstadoDeMenu2(fechaseleccionadafinalizacion) {
@@ -889,16 +947,11 @@ export default {
             id: identificacion
           });
           console.log(identificacion)
-          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
-          localStorage.setItem('printToken', this.$store.state.token);
-          localStorage.setItem('printRuta', this.$store.state.ruta);
-          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-          this.$router.push({ name: "ListarEquipos" });
+          this.mostrarDialogoImprimir(identificacion);
         })
         .catch((error) => {
-          this.esperaguardar = false;
           console.log(error);
-          return error;
+          this.mostrarError();
         });
     },
     async guardarReporteInternoTallerCronograma() {
@@ -935,18 +988,11 @@ export default {
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
         this.eliminarBorradorSiExiste();
 
-        const nuevaVentanaURL = this.$router.resolve({
-          name: 'ImprimirReporte',
-          params: { idreporte: identificacion.toString() }
-        }).href;
-
-        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-        this.$router.push({ name: "ListarEquipos" });
-
-        this.confirmacionguardado = true;
+        this.mostrarDialogoImprimir(identificacion);
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.mostrarError();
       } finally {
         this.esperaguardar = false;
       }
@@ -979,16 +1025,11 @@ export default {
           });
           this.eliminarBorradorSiExiste();
           console.log(identificacion)
-          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
-          localStorage.setItem('printToken', this.$store.state.token);
-          localStorage.setItem('printRuta', this.$store.state.ruta);
-          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-          this.$router.push({ name: "ListarEquipos" });
+          this.mostrarDialogoImprimir(identificacion);
         })
         .catch((error) => {
-          this.esperaguardar = false;
           console.log(error);
-          return error;
+          this.mostrarError();
         });
     },
     async guardarReporteInternoCampoCronograma() {
@@ -1025,18 +1066,11 @@ export default {
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
         this.eliminarBorradorSiExiste();
 
-        const nuevaVentanaURL = this.$router.resolve({
-          name: 'ImprimirReporte',
-          params: { idreporte: identificacion.toString() }
-        }).href;
-
-        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-        this.$router.push({ name: "ListarEquipos" });
-
-        this.confirmacionguardado = true;
+        this.mostrarDialogoImprimir(identificacion);
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.mostrarError();
       } finally {
         this.esperaguardar = false;
       }
@@ -1069,16 +1103,11 @@ export default {
           });
           this.eliminarBorradorSiExiste();
           console.log(identificacion)
-          const nuevaVentanaURL = this.$router.resolve({ name: 'ImprimirReporte', params: { idreporte: identificacion.toString() } }).href;
-          localStorage.setItem('printToken', this.$store.state.token);
-          localStorage.setItem('printRuta', this.$store.state.ruta);
-          window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-          this.$router.push({ name: "ListarEquipos" });
+          this.mostrarDialogoImprimir(identificacion);
         })
         .catch((error) => {
-          this.esperaguardar = false;
           console.log(error);
-          return error;
+          this.mostrarError();
         });
     },
     async guardarReporteInternoRemotoCronograma() {
@@ -1115,18 +1144,11 @@ export default {
         this.$store.dispatch("guardarIdentificacion", { id: identificacion });
         this.eliminarBorradorSiExiste();
 
-        const nuevaVentanaURL = this.$router.resolve({
-          name: 'ImprimirReporte',
-          params: { idreporte: identificacion.toString() }
-        }).href;
-
-        window.open(nuevaVentanaURL, '_blank', "width=800,height=600");
-        this.$router.push({ name: "ListarEquipos" });
-
-        this.confirmacionguardado = true;
+        this.mostrarDialogoImprimir(identificacion);
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.mostrarError();
       } finally {
         this.esperaguardar = false;
       }
@@ -1188,17 +1210,16 @@ export default {
         this.respuestapreguntas += this.preguntaActual.valor;
       }
 
-      // 2. REGLA CONDICIONAL: Si la pregunta actual es Remoto y la respuesta es 'Sí'
-      if (this.preguntaActual.clave === 'remoto' && respuesta === true) {
-        // Buscar el índice de la pregunta 'campo' en la cola de pendientes
+      // 2. REGLA CONDICIONAL: la pregunta de campo (presencial) es siempre redundante
+      //    después de responder remoto — se infiere la respuesta inversa.
+      if (this.preguntaActual.clave === 'remoto') {
         const indiceCampo = this.preguntasPendientes.findIndex(p => p.clave === 'campo');
-
         if (indiceCampo !== -1) {
-          // Si se encuentra, la eliminamos de la cola.
-          // Al eliminarla, se omite su pregunta y no se suma su valor (10), 
-          // cumpliendo con la regla de "asignarle un cero".
-          this.preguntasPendientes.splice(indiceCampo, 1);
-          console.log("REGLA APLICADA: Pregunta 'Campo' omitida y asignada a cero, debido a respuesta 'Sí' en 'Remoto'.");
+          const preguntaCampo = this.preguntasPendientes.splice(indiceCampo, 1)[0];
+          if (!respuesta) {
+            // remoto = NO implica campo = SÍ → sumar su valor automáticamente
+            this.respuestapreguntas += preguntaCampo.valor;
+          }
         }
       }
 
@@ -1251,6 +1272,7 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.mostrarError();
       } finally {
         this.esperaguardar = false;
       }
@@ -1296,10 +1318,42 @@ export default {
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);
+        this.mostrarError();
       } finally {
         this.esperaguardar = false;
       }
     },
+    mostrarDialogoImprimir(identificacion) {
+      this.esperaguardar = false;
+      const url = this.$router.resolve({
+        name: 'ImprimirReporte',
+        params: { idreporte: identificacion.toString() }
+      }).href;
+      localStorage.setItem('printToken', this.$store.state.token);
+      localStorage.setItem('printRuta', this.$store.state.ruta);
+      this.urlImprimirReporte = url;
+      this.dialogoImprimirReporte = true;
+    },
+
+    confirmarImpresion() {
+      this.dialogoImprimirReporte = false;
+      window.open(this.urlImprimirReporte, '_blank', 'width=800,height=600');
+      this.$router.push({ name: 'ListarEquipos' });
+    },
+
+    omitirImpresion() {
+      this.dialogoImprimirReporte = false;
+      this.$router.push({ name: 'ListarEquipos' });
+    },
+
+    mostrarError() {
+      this.esperaguardar = false;
+      this.dialogoPreguntarCronograma = false;
+      this.dialogoPreguntarCronogramaInterno = false;
+      this.dialogoAbierto = false;
+      this.errorGuardar = true;
+    },
+
     AceptarConfirmacionGuardado() {
       this.confirmacionguardado = false;
       // Redirigir a la lista de equipos

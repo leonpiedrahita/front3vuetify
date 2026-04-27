@@ -1,16 +1,11 @@
 <template>
   <v-card class="pa-2">
-    <v-toolbar flat style="background-color: #52B69A; color: white;" class="mb-4">
-      <v-icon class="ml-2 mr-3">mdi-calendar-clock</v-icon>
-      <v-toolbar-title class="font-weight-bold">Calendario de Mantenimientos Preventivos</v-toolbar-title>
-    </v-toolbar>
-
     <v-progress-linear v-if="cargando" indeterminate color="teal" class="mb-2" />
 
     <!-- Leyenda + Filtro -->
     <v-row align="center" class="mb-4 px-2">
       <v-col cols="12" sm="6" md="4">
-        <v-select
+        <v-autocomplete
           v-model="clienteFiltro"
           :items="listaClientes"
           label="Filtrar por cliente"
@@ -19,6 +14,7 @@
           density="compact"
           prepend-inner-icon="mdi-filter"
           variant="outlined"
+          :custom-filter="filtrarCliente"
         />
       </v-col>
       <v-col cols="12" sm="6" md="8" class="d-flex ga-4 flex-wrap justify-center justify-sm-end">
@@ -175,7 +171,8 @@ export default {
 
     equiposFiltrados() {
       if (!this.clienteFiltro) return this.equipos;
-      return this.equipos.filter((eq) => eq.cliente?.nombre === this.clienteFiltro);
+      const q = this.clienteFiltro.toLowerCase();
+      return this.equipos.filter((eq) => eq.cliente?.nombre?.toLowerCase().includes(q));
     },
 
     equiposFiltradosConFecha() {
@@ -200,6 +197,15 @@ export default {
         };
       });
     },
+  },
+
+  created() {
+    this.$store.dispatch('autoLogin');
+    this.$store.dispatch('guardarUbicacion', {
+      ubicacion: 'Calendario de Preventivos',
+      icono: 'mdi-calendar-clock',
+      color: 'c6',
+    });
   },
 
   mounted() {
@@ -268,6 +274,10 @@ export default {
         this.equipoSeleccionado = equipo;
         this.dialogDetalle = true;
       }
+    },
+
+    filtrarCliente(itemTitle, queryText) {
+      return itemTitle.toLowerCase().includes(queryText.toLowerCase());
     },
 
     formatearFecha(valor) {

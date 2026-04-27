@@ -8,7 +8,7 @@
         </v-btn>
       </v-col>
       <v-col cols="4" class="d-flex justify-center">
-        <v-btn v-permission="['administrador', 'calidad', 'cotizaciones']" color="primary" class="ma-3 tabla-normal"
+        <v-btn v-permission="['administrador', 'calidad', 'cotizaciones', 'ventas', 'ingresos']" color="primary" class="ma-3 tabla-normal"
           @click="nuevoDocumento">
           <v-icon left class="mr-2">mdi-file-document-plus-outline</v-icon>
           Guardar Documento
@@ -213,6 +213,16 @@
       </v-icon>
     </div>
   </template>
+  <template v-slot:[`item.eliminar`]="{ item }">
+    <v-icon
+      v-if="esAdmin"
+      medium
+      color="error"
+      @click="confirmarEliminarDocumento(item)"
+    >
+      mdi-delete-outline
+    </v-icon>
+  </template>
 </v-data-table>
 
 
@@ -238,6 +248,28 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- Confirmación eliminar documento legal -->
+    <v-dialog v-model="dialogEliminarDoc" max-width="480" persistent>
+      <v-card>
+        <v-toolbar color="error" dark class="text-h5">Eliminar documento</v-toolbar>
+        <v-card-text class="text-h5 pa-5">
+          ¿Deseas eliminar el documento <strong>{{ docAEliminar?.nombreDocumento }}</strong>?
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn text @click="dialogEliminarDoc = false">Cancelar</v-btn>
+          <v-btn color="error" :loading="eliminandoDoc" @click="ejecutarEliminarDocumento">Eliminar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Snackbar resultado eliminar documento -->
+    <v-snackbar v-model="snackbarDoc.visible" :color="snackbarDoc.color" timeout="4000" location="top">
+      {{ snackbarDoc.mensaje }}
+      <template v-slot:actions>
+        <v-btn variant="text" @click="snackbarDoc.visible = false">Cerrar</v-btn>
+      </template>
+    </v-snackbar>
+
     <v-divider class="mb-5 mt-5"></v-divider>
     <v-card-title class="text-center" id="tamanotitulo">Historial de Soportes</v-card-title>
     <v-divider class="mb-5 mt-5"></v-divider>
@@ -337,8 +369,43 @@
       </v-card>
     </v-dialog>
 
+    <!-- Historial de estados -->
+    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4 no-imprimir">
+      <v-toolbar flat style="background-color: #1565C0; color: white;" class="mb-3 rounded">
+        <v-icon class="ml-3 mr-2">mdi-swap-horizontal-bold</v-icon>
+        <v-toolbar-title class="font-weight-bold">Historial de estados</v-toolbar-title>
+      </v-toolbar>
+
+      <div v-if="historialEstadoCargando" class="text-center pa-4">
+        <v-progress-circular indeterminate color="primary" />
+      </div>
+      <div v-else-if="!historialEstado.length" class="text-center pa-3 text-medium-emphasis">
+        Sin cambios de estado registrados
+      </div>
+      <v-timeline v-else density="compact" align="start" side="end" class="mx-2">
+        <v-timeline-item
+          v-for="item in historialEstado"
+          :key="item.id"
+          :dot-color="colorEstado(item.estadoNuevo)"
+          size="small"
+        >
+          <div class="d-flex flex-column">
+            <span class="font-weight-bold">{{ item.estadoNuevo }}</span>
+            <span v-if="item.estadoAnterior" class="text-caption text-medium-emphasis">
+              Desde: {{ item.estadoAnterior }}
+            </span>
+            <span class="text-caption">
+              <v-icon size="12">mdi-account-outline</v-icon> {{ item.usuarioNombre }}
+              &nbsp;·&nbsp;
+              <v-icon size="12">mdi-clock-outline</v-icon> {{ formatearFechaAudit(item.fecha) }}
+            </span>
+          </div>
+        </v-timeline-item>
+      </v-timeline>
+    </div>
+
     <!-- Audit Log — solo administrador -->
-    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4">
+    <div v-if="this.$store.state.user.rol === 'administrador'" class="pa-2 mt-4 no-imprimir">
       <v-toolbar flat style="background-color: #37474F; color: white;" class="mb-3 rounded">
         <v-icon class="ml-3 mr-2">mdi-history</v-icon>
         <v-toolbar-title class="font-weight-bold">Historial de cambios</v-toolbar-title>
@@ -470,6 +537,8 @@ export default {
       "Sin Certificado de Conformidad (Soporte) ",
       "Nota Crédito Proveedor",
       "Nota Crédito Cliente",
+      "Garantía del proveedor",
+      "Lista de chequeo del proveedor",
     ],
     listaNombresSoportes: [
       "Acta de entrega",
@@ -482,8 +551,15 @@ export default {
     ],
 
     equipo: [],
+    documentosLegales: [],
     historial: [],
     soportes: [],
+    dialogEliminarDoc: false,
+    docAEliminar: null,
+    eliminandoDoc: false,
+    snackbarDoc: { visible: false, color: 'success', mensaje: '' },
+    historialEstado: [],
+    historialEstadoCargando: false,
     auditLog: [],
     auditLogCargando: false,
     auditLogDetalle: null,
@@ -500,22 +576,6 @@ export default {
 
     },
     documento: {},
-    encabezadosDocumentosLegales: [
-      {
-        title: "Documento",
-        key: "nombreDocumento",
-        align: "center",
-
-      },
-
-      {
-        title: "Descargar",
-        value: "imprimir",
-        sortable: false,
-        align: "center",
-        class: "columna-imprimir"
-      },
-    ],
     headers: [
       {
         title: "Fecha de ejecución",
@@ -592,18 +652,28 @@ export default {
   }),
 
   computed: {
+    encabezadosDocumentosLegales() {
+      const cols = [
+        { title: "Documento", key: "nombreDocumento", align: "center" },
+        { title: "Descargar", value: "imprimir", sortable: false, align: "center", class: "columna-imprimir" },
+      ];
+      if (this.esAdmin) {
+        cols.push({ title: "Eliminar", value: "eliminar", sortable: false, align: "center" });
+      }
+      return cols;
+    },
    documentosFiltrados() {
     return this.documentosLegales.filter(item => {
-      // Si el usuario tiene rol permitido, muestra todo
-      if (this.esRolPermitido) {
-        return true;
-      }
-      // Si no, excluye documentos que contengan "Factura"
+      if (item.eliminado) return false;
+      if (this.esRolPermitido) return true;
       return !/Factura/i.test(item.nombreDocumento);
     });
   },
+  esAdmin() {
+    return ['administrador', 'cotizaciones'].includes(this.$store.state.user.rol);
+  },
   esRolPermitido() {
-    const permitidos = ['administrador', 'calidad', 'cotizaciones', 'comercial'];
+    const permitidos = ['administrador', 'calidad', 'cotizaciones', 'ventas', 'ingresos', 'comercial'];
     return permitidos.includes(this.$store.state.user.rol);
   },
     formTitle() {
@@ -618,6 +688,7 @@ export default {
     this.historial = this.equipo.historialDeServicios;
     this.documentosLegales = this.equipo.documentosLegales;
     if (this.$store.state.user.rol === 'administrador') {
+      this.cargarHistorialEstado();
       this.cargarAuditLog();
     }
   },
@@ -629,6 +700,33 @@ export default {
     
   },
   methods: {
+
+    async cargarHistorialEstado() {
+      this.historialEstadoCargando = true;
+      try {
+        const { data } = await axios.get(
+          this.$store.state.ruta + `api/equipo/historialestado/${this.equipo.id}`,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.historialEstado = data;
+      } catch (err) {
+        console.error('Error al cargar historial de estados:', err);
+      } finally {
+        this.historialEstadoCargando = false;
+      }
+    },
+
+    colorEstado(estado) {
+      const mapa = {
+        'Activo': '#4CAF50',
+        'En mantenimiento': '#FF9800',
+        'En reparación': '#F44336',
+        'Disponible Pdte. MP.': '#2196F3',
+        'Inactivo': '#9E9E9E',
+        'En cuarentena': '#9C27B0',
+      };
+      return mapa[estado] || '#607D8B';
+    },
 
     async cargarAuditLog() {
       this.auditLogCargando = true;
@@ -691,6 +789,39 @@ export default {
         this.ventanaGuardarDocumento = true;
       }
     },
+    confirmarEliminarDocumento(item) {
+      this.docAEliminar = item;
+      this.dialogEliminarDoc = true;
+    },
+    async ejecutarEliminarDocumento() {
+      this.eliminandoDoc = true;
+      const nombre = this.docAEliminar.nombreDocumento;
+      let exito = false;
+      try {
+        await axios.patch(
+          this.$store.state.ruta + `api/s3/documentolegal/${this.docAEliminar.id}/eliminar`,
+          {},
+          { headers: { token: this.$store.state.token } }
+        );
+        this.documentosLegales = this.documentosLegales.filter(d => d.id !== this.docAEliminar.id);
+        exito = true;
+      } catch (err) {
+        console.error('Error al eliminar documento:', err);
+      } finally {
+        this.eliminandoDoc = false;
+        this.dialogEliminarDoc = false;
+        this.docAEliminar = null;
+        await this.$nextTick();
+        this.snackbarDoc = {
+          visible: true,
+          color: exito ? 'success' : 'error',
+          mensaje: exito
+            ? `El documento "${nombre}" fue eliminado exitosamente.`
+            : `El documento "${nombre}" no pudo ser eliminado.`,
+        };
+      }
+    },
+
     imprimirDocumento(item) {
 
       this.documento = Object.assign({}, item);
@@ -838,7 +969,7 @@ imprimirVCard() {
           .mensaje-movil { font-size:14px; text-align:center; margin:10px; color:#555; }
           button { padding:8px 16px; border-radius:6px; border:1px solid #555; margin-top:15px; cursor:pointer; }
 
-          /* 👇 Ocultar botón al imprimir */
+          .no-imprimir { display: none !important; }
           @media print {
             .mensaje-movil { display: none !important; }
           }
@@ -935,32 +1066,18 @@ imprimirVCard() {
 
 
 
-        console.log("Documento guardado:", response);
         this.ventanaGuardarDocumento = false;
         this.nombredocumentoseleccionado = null;
         this.files = null;
-        axios
-          .get(this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`,
-            {
-              headers: {
-                token: this.$store.state.token,
-              },
-            })
-          /*.get(`http://localhost:3001/api/reporte/listaruno/${id}`)*/
-          .then((response) => {
-            this.equipo = response.data;
-            console.log("Equipo actualizado:", this.equipo);
-            this.historial = this.equipo.historialDeServicios;
-            this.documentosLegales = this.equipo.documentosLegales;
-          })
-          .catch((error) => {
-            console.error("Error al obtener el reporte:", error);
-          })
-          .finally(() => {
-            this.esperaguardar = false;
-            this.confirmacionguardado = true;
-          });;
 
+        const refresh = await axios.get(
+          this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`,
+          { headers: { token: this.$store.state.token } }
+        );
+        this.equipo = refresh.data;
+        this.historial = this.equipo.historialDeServicios;
+        this.documentosLegales = this.equipo.documentosLegales;
+        this.confirmacionguardado = true;
 
       } catch (error) {
         console.error("Error al guardar el reporte:", error.response?.data || error.message);

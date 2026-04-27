@@ -36,12 +36,12 @@
                     <v-row dense>
                         <v-col cols="12">
                             <v-text-field v-model="usuario.nombre" label="Nombre*"
-                                :rules="[v => !!v || 'Campo obligatorio']" />
+                                :rules="[v => !!v || 'Campo obligatorio']" autocomplete="off" />
                         </v-col>
 
                         <v-col cols="12">
                             <v-text-field v-model="usuario.email" label="Email*"
-                                :rules="[v => !!v || 'Campo obligatorio']" />
+                                :rules="[v => !!v || 'Campo obligatorio']" autocomplete="off" />
                         </v-col>
 
                         <v-col cols="12">
@@ -56,26 +56,27 @@
 
                         <v-col cols="12">
                             <v-text-field v-model="usuario.telefono" label="Teléfono WhatsApp (formato +57XXXXXXXXXX)"
-                                placeholder="+57XXXXXXXXXX" />
+                                placeholder="+57XXXXXXXXXX" autocomplete="tel"
+                                :rules="[v => !v || /^\+\d{7,15}$/.test(v) || 'Formato inválido. Usa +57XXXXXXXXXX']" />
                         </v-col>
 
                         <!-- Solo para nuevo usuario -->
                        <v-col cols="12" v-if="esNuevo">
-    <v-text-field 
-        v-model="usuario.password" 
-        label="Contraseña*" 
-        :rules="[validarPassword]" 
-        
+    <v-text-field
+        v-model="usuario.password"
+        label="Contraseña*"
+        :rules="[validarPassword]"
+        autocomplete="new-password"
         :type="mostrarCrearPassword ? 'text' : 'password'"
         :append-inner-icon="mostrarCrearPassword ? 'mdi-eye' : 'mdi-eye-off'"
         @click:append-inner="mostrarCrearPassword = !mostrarCrearPassword"
     />
-    
-    <v-text-field 
-        v-model="confirmarPassword" 
-        label="Confirmar Contraseña*" 
+
+    <v-text-field
+        v-model="confirmarPassword"
+        label="Confirmar Contraseña*"
         :rules="[v => v === usuario.password || 'Las contraseñas no coinciden']"
-        
+        autocomplete="new-password"
         :type="mostrarConfirmarCrearPassword ? 'text' : 'password'"
         :append-inner-icon="mostrarConfirmarCrearPassword ? 'mdi-eye' : 'mdi-eye-off'"
         @click:append-inner="mostrarConfirmarCrearPassword = !mostrarConfirmarCrearPassword"
@@ -238,7 +239,7 @@ export default {
             password: '',
             telefono: ''
         },
-        rolesDisponibles: ["administrador", "calidad", "cotizaciones", "soporte", "comercial", "bodega", "lumira"],
+        rolesDisponibles: ["administrador", "calidad", "cotizaciones", "ventas", "ingresos", "soporte", "aplicaciones", "comercial", "bodega", "lumira"],
         estadoOpciones: [
             { text: 'Activo', value: 1 },
             { text: 'Bloqueado', value: 0 }

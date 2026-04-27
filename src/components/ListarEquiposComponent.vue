@@ -446,50 +446,55 @@
       </template>
 
       <template v-slot:[`item.atencion`]="{ item }">
-        <v-menu v-if="$store.state.user.rol === 'administrador'" offset-y>
-          <template v-slot:activator="{ props }">
-            <v-chip
-              v-if="item.atencion"
-              v-bind="props"
-              :style="getAtencionStyle(item.atencion)"
-              size="small"
-              class="font-weight-bold"
-              variant="outlined"
-              style="cursor:pointer"
-            >
-              <v-icon :icon="getAtencionStyle(item.atencion).icon" :color="getAtencionStyle(item.atencion).color" start />
-              {{ item.atencion }}
-            </v-chip>
-            <v-btn v-else v-bind="props" icon variant="text" size="small" color="grey">
-              <v-icon>mdi-dots-horizontal</v-icon>
-            </v-btn>
-          </template>
-          <v-list density="compact">
-            <v-list-item @click="cambiarAtencion(item, 'Autorizado')">
-              <v-icon color="green" start>mdi-check-circle</v-icon> Autorizado
-            </v-list-item>
-            <v-list-item @click="cambiarAtencion(item, 'Cartera')">
-              <v-icon color="red" start>mdi-close-circle</v-icon> Cartera
-            </v-list-item>
-            <v-list-item @click="cambiarAtencion(item, 'MP')">
-              <v-icon color="red" start>mdi-alert-circle</v-icon> MP
-            </v-list-item>
-            <v-divider />
-            <v-list-item v-if="item.atencion" @click="cambiarAtencion(item, null)">
-              <v-icon color="grey" start>mdi-close</v-icon> Quitar
-            </v-list-item>
-          </v-list>
-        </v-menu>
-        <v-chip
-          v-else-if="item.atencion"
-          :style="getAtencionStyle(item.atencion)"
-          size="small"
-          class="font-weight-bold"
-          variant="outlined"
-        >
-          <v-icon :icon="getAtencionStyle(item.atencion).icon" :color="getAtencionStyle(item.atencion).color" start />
-          {{ item.atencion }}
-        </v-chip>
+        <div class="d-flex flex-column align-center">
+          <v-menu v-if="$store.state.user.rol === 'administrador'" offset-y>
+            <template v-slot:activator="{ props }">
+              <v-chip
+                v-if="item.atencion"
+                v-bind="props"
+                :style="getAtencionStyle(item.atencion)"
+                size="small"
+                class="font-weight-bold"
+                variant="outlined"
+                style="cursor:pointer"
+              >
+                <v-icon :icon="getAtencionStyle(item.atencion).icon" :color="getAtencionStyle(item.atencion).color" start />
+                {{ item.atencion }}
+              </v-chip>
+              <v-btn v-else v-bind="props" icon variant="text" size="small" color="grey">
+                <v-icon>mdi-dots-horizontal</v-icon>
+              </v-btn>
+            </template>
+            <v-list density="compact">
+              <v-list-item @click="cambiarAtencion(item, 'Autorizado')">
+                <v-icon color="green" start>mdi-check-circle</v-icon> Autorizado
+              </v-list-item>
+              <v-list-item @click="cambiarAtencion(item, 'Cartera')">
+                <v-icon color="red" start>mdi-close-circle</v-icon> Cartera
+              </v-list-item>
+              <v-list-item @click="cambiarAtencion(item, 'MP')">
+                <v-icon color="red" start>mdi-alert-circle</v-icon> MP
+              </v-list-item>
+              <v-divider />
+              <v-list-item v-if="item.atencion" @click="cambiarAtencion(item, null)">
+                <v-icon color="grey" start>mdi-close</v-icon> Quitar
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <v-chip
+            v-else-if="item.atencion"
+            :style="getAtencionStyle(item.atencion)"
+            size="small"
+            class="font-weight-bold"
+            variant="outlined"
+          >
+            <v-icon :icon="getAtencionStyle(item.atencion).icon" :color="getAtencionStyle(item.atencion).color" start />
+            {{ item.atencion }}
+          </v-chip>
+          <span class="text-caption text-medium-emphasis mt-1" style="font-size:0.7rem; line-height:1.2;">
+            {{ item.asesor || 'Sin asesor' }}
+          </span>
+        </div>
       </template>
       <template v-slot:[`item.detalles`]="{ item }">
                 <v-icon medium @click="detallesEquipo(item)" :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
@@ -638,7 +643,7 @@ export default {
       { title: "Contrato", key: "tipoDeContrato", align: "center", sortable: false },
       { title: "Estado", key: "estado", align: "center", sortable: false },
       {
-        title: "Atención",
+        title: "Atención/Asesor(a)",
         key: "atencion",
         align: "center",
         sortable: false,

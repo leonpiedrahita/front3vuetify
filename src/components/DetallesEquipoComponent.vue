@@ -30,6 +30,30 @@
                   label="Nombre del documento" required :rules="[(v) => !!v || 'Campo Requerido']"></v-select>
 
               </v-col>
+              <v-col v-if="requiereFechaDocumento" cols="12" md="12">
+                <v-menu v-model="menuFechaDocumento" :close-on-content-click="false" min-width="auto">
+                  <template v-slot:activator="{ props }">
+                    <v-text-field
+                      v-model="fechaDocumentoTexto"
+                      label="Fecha del documento"
+                      prepend-icon="mdi-calendar"
+                      readonly
+                      v-bind="props"
+                      :rules="[(v) => !!v || 'Campo Requerido']"
+                    ></v-text-field>
+                  </template>
+                  <v-locale-provider locale="es">
+                    <v-date-picker
+                      locale="es"
+                      v-model="fechaDocumentoCalendario"
+                      color="primary"
+                      title="Fecha del documento"
+                      header="Seleccionar Fecha"
+                      @update:model-value="onFechaDocumentoChange"
+                    ></v-date-picker>
+                  </v-locale-provider>
+                </v-menu>
+              </v-col>
               <v-col cols="12" md="12">
                 <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
                   multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
@@ -50,9 +74,9 @@
           <v-btn color="error" text @click="cancelarGuardarDocumento"> Cancelar </v-btn>
           <v-btn :disabled="!(
             files &&
-            nombredocumentoseleccionado
-          )
-            " color="success" text @click="guardarDocumento">
+            nombredocumentoseleccionado &&
+            (!requiereFechaDocumento || fechaDocumentoTexto)
+          )" color="success" text @click="guardarDocumento">
             Guardar
           </v-btn>
         </v-card-actions>
@@ -194,38 +218,59 @@
      
       <v-divider class="mb-5 mt-5 ocultar-en-impresion"></v-divider>
     </v-row>
-    <v-card-title class="text-center ocultar-en-impresion" id="tamanotitulo">Documentos Legales</v-card-title>
+    <v-card-title class="text-center ocultar-en-impresion" id="tamanotitulo">Documentos de propiedad y nacionalización</v-card-title>
 
     <v-row>
-      <!-- se crea la data table prinecipal para listar los clientes -->
-     <v-data-table
-  :headers="encabezadosDocumentosLegales"
-  :items="documentosFiltrados"
-  class="tabla-normal elevation-1"
-  loading-text="Cargando ... por favor espere"
-  hide-default-footer
-  :items-per-page="-1"
->
-  <template v-slot:[`item.imprimir`]="{ item }">
-    <div class="columna-imprimir">
-      <v-icon style="margin-left:10px" medium @click="imprimirDocumento(item)">
-        mdi-file-download-outline
-      </v-icon>
-    </div>
-  </template>
-  <template v-slot:[`item.eliminar`]="{ item }">
-    <v-icon
-      v-if="esAdmin"
-      medium
-      color="error"
-      @click="confirmarEliminarDocumento(item)"
-    >
-      mdi-delete-outline
-    </v-icon>
-  </template>
-</v-data-table>
+      <v-data-table
+        :headers="encabezadosDocumentosLegales"
+        :items="documentosFiltrados"
+        class="tabla-normal elevation-1"
+        loading-text="Cargando ... por favor espere"
+        hide-default-footer
+        :items-per-page="-1"
+      >
+        <template v-slot:[`item.imprimir`]="{ item }">
+          <div class="columna-imprimir">
+            <v-icon style="margin-left:10px" medium @click="imprimirDocumento(item)">
+              mdi-file-download-outline
+            </v-icon>
+          </div>
+        </template>
+        <template v-slot:[`item.eliminar`]="{ item }">
+          <v-icon v-if="esAdmin" medium color="error" @click="confirmarEliminarDocumento(item)">
+            mdi-delete-outline
+          </v-icon>
+        </template>
+      </v-data-table>
+    </v-row>
 
+    <v-card-title class="text-center ocultar-en-impresion mt-6" id="tamanotitulo">Documentos de gestión operativa y de movimientos</v-card-title>
 
+    <v-row>
+      <v-data-table
+        :headers="encabezadosDocumentosGestion"
+        :items="documentosGestion"
+        class="tabla-normal elevation-1"
+        loading-text="Cargando ... por favor espere"
+        hide-default-footer
+        :items-per-page="-1"
+      >
+        <template v-slot:[`item.fechaDocumento`]="{ item }">
+          {{ item.fechaDocumento ? new Date(item.fechaDocumento).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '—' }}
+        </template>
+        <template v-slot:[`item.imprimir`]="{ item }">
+          <div class="columna-imprimir">
+            <v-icon style="margin-left:10px" medium @click="imprimirDocumento(item)">
+              mdi-file-download-outline
+            </v-icon>
+          </div>
+        </template>
+        <template v-slot:[`item.eliminar`]="{ item }">
+          <v-icon v-if="esAdmin" medium color="error" @click="confirmarEliminarDocumento(item)">
+            mdi-delete-outline
+          </v-icon>
+        </template>
+      </v-data-table>
     </v-row>
     <v-dialog v-model="esperaguardar" persistent width="500">
       <v-card color="c6" dark>
@@ -527,6 +572,9 @@ export default {
     files: null,
     nombredocumentoseleccionado: null,
     nombresoporteseleccionado: null,
+    menuFechaDocumento: false,
+    fechaDocumentoTexto: '',
+    fechaDocumentoCalendario: null,
     listaNombresDocumentos: [
       "Factura de Compra",
       "Factura de Venta",
@@ -539,11 +587,11 @@ export default {
       "Nota Crédito Cliente",
       "Garantía del proveedor",
       "Lista de chequeo del proveedor",
+      "Acta de entrega (Comodato, Alquiler o Préstamo)",
+      "Acta de retiro (Comodato, Alquiler o Préstamo)",
+      "Contrato (Comodato o Alquiler)",
     ],
     listaNombresSoportes: [
-      "Acta de entrega",
-      "Acta de retiro",
-      "Contrato",
       "Soportes del reporte",
       "Asistencia a entrenamiento",
       "Certificados de entrenamiento",
@@ -652,6 +700,13 @@ export default {
   }),
 
   computed: {
+    requiereFechaDocumento() {
+      return [
+        'Acta de entrega (Comodato, Alquiler o Préstamo)',
+        'Acta de retiro (Comodato, Alquiler o Préstamo)',
+        'Contrato (Comodato o Alquiler)',
+      ].includes(this.nombredocumentoseleccionado);
+    },
     encabezadosDocumentosLegales() {
       const cols = [
         { title: "Documento", key: "nombreDocumento", align: "center" },
@@ -665,9 +720,38 @@ export default {
    documentosFiltrados() {
     return this.documentosLegales.filter(item => {
       if (item.eliminado) return false;
+      if (this.TIPOS_GESTION.includes(item.nombreDocumento)) return false;
       if (this.esRolPermitido) return true;
       return !/Factura/i.test(item.nombreDocumento);
     });
+  },
+  documentosGestion() {
+    const rolesContrato = ['administrador', 'comercial', 'calidad', 'cotizaciones'];
+    const puedeVerContrato = rolesContrato.includes(this.$store.state.user.rol);
+    return this.documentosLegales.filter(item => {
+      if (item.eliminado) return false;
+      if (!this.TIPOS_GESTION.includes(item.nombreDocumento)) return false;
+      if (item.nombreDocumento === 'Contrato (Comodato o Alquiler)' && !puedeVerContrato) return false;
+      return true;
+    });
+  },
+  TIPOS_GESTION() {
+    return [
+      'Acta de entrega (Comodato, Alquiler o Préstamo)',
+      'Acta de retiro (Comodato, Alquiler o Préstamo)',
+      'Contrato (Comodato o Alquiler)',
+    ];
+  },
+  encabezadosDocumentosGestion() {
+    const cols = [
+      { title: "Fecha", key: "fechaDocumento", align: "center", width: "140px" },
+      { title: "Documento", key: "nombreDocumento", align: "center", width: "320px" },
+      { title: "Descargar", value: "imprimir", sortable: false, align: "center", class: "columna-imprimir", width: "100px" },
+    ];
+    if (this.esAdmin) {
+      cols.push({ title: "Eliminar", value: "eliminar", sortable: false, align: "center", width: "100px" });
+    }
+    return cols;
   },
   esAdmin() {
     return ['administrador', 'cotizaciones'].includes(this.$store.state.user.rol);
@@ -1015,11 +1099,19 @@ imprimirVCard() {
       console.log('Archivo seleccionado:', this.files);
     },
 
+    onFechaDocumentoChange(value) {
+      this.menuFechaDocumento = false;
+      this.fechaDocumentoTexto = new Date(value).toLocaleDateString('es-CO', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+      });
+    },
     cancelarGuardarDocumento() {
       this.ventanaGuardarDocumento = false;
       this.$nextTick(() => {
         this.nombredocumentoseleccionado = null;
         this.files = null;
+        this.fechaDocumentoTexto = '';
+        this.fechaDocumentoCalendario = null;
       });
     },
     cancelarGuardarSoporte() {
@@ -1053,6 +1145,9 @@ imprimirVCard() {
         formData.append('id_equipo', JSON.stringify(this.equipo.id));
         formData.append('serie', JSON.stringify(this.equipo.serie));
         formData.append('nombredocumento', JSON.stringify(this.nombredocumentoseleccionado));
+        if (this.requiereFechaDocumento && this.fechaDocumentoCalendario) {
+          formData.append('fechaDocumento', new Date(this.fechaDocumentoCalendario).toISOString());
+        }
 
         const response = await axios.post(
           `${this.$store.state.ruta}api/s3/guardardocumento`,
@@ -1069,6 +1164,8 @@ imprimirVCard() {
         this.ventanaGuardarDocumento = false;
         this.nombredocumentoseleccionado = null;
         this.files = null;
+        this.fechaDocumentoTexto = '';
+        this.fechaDocumentoCalendario = null;
 
         const refresh = await axios.get(
           this.$store.state.ruta + `api/equipo/listaruno/${this.equipo.id}`,

@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-2">
     <!-- Tarjetas lado a lado -->
-    <div class="d-flex flex-wrap ma-4" style="gap: 24px; justify-content: space-between;">
+    <div class="d-flex flex-wrap ma-4" style="gap: 24px; justify-content: space-around;">
 
       <!-- Sección 1: Cartera -->
       <v-card class="pa-6 flex-1-1" style="min-width: 280px; max-width: 560px;" elevation="2">

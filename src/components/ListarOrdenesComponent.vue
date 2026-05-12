@@ -6,8 +6,8 @@
 
                 <div class="pa-3">
                     <!-- Chips de ubicación -->
-                    <v-row class="mb-1" v-if="ubicacionesDisponibles.length">
-                        <v-col cols="12">
+                    <v-row class="mb-0 mt-0" v-if="ubicacionesDisponibles.length">
+                        <v-col cols="12" class="py-1">
                             <div class="d-flex flex-wrap ga-2 align-center">
                                 <span class="text-body-1 font-weight-bold mr-2">Ubicaciones:</span>
                                 <v-chip
@@ -32,6 +32,40 @@
                                     prepend-icon="mdi-close-circle"
                                     clickable
                                     @click="ubicacionesFiltro = []"
+                                >
+                                    Limpiar
+                                </v-chip>
+                            </div>
+                        </v-col>
+                    </v-row>
+
+                    <!-- Chips de etapa actual -->
+                    <v-row class="mb-0 mt-0" v-if="etapasDisponibles.length">
+                        <v-col cols="12" class="py-1">
+                            <div class="d-flex flex-wrap ga-2 align-center">
+                                <span class="text-body-1 font-weight-bold mr-2">Etapa actual:</span>
+                                <v-chip
+                                    v-for="et in etapasDisponibles"
+                                    :key="et.nombre"
+                                    :color="etapasFiltro.includes(et.nombre) ? getColorEtapa(et.nombre) : 'default'"
+                                    :variant="etapasFiltro.includes(et.nombre) ? 'flat' : 'outlined'"
+                                    class="font-weight-medium text-body-1"
+                                    size="large"
+                                    label
+                                    clickable
+                                    @click="toggleEtapa(et.nombre)"
+                                >
+                                    {{ et.nombre }}
+                                    <span class="ml-2 font-weight-bold text-black">{{ et.count }}</span>
+                                </v-chip>
+                                <v-chip
+                                    v-if="etapasFiltro.length"
+                                    color="error"
+                                    variant="text"
+                                    size="large"
+                                    prepend-icon="mdi-close-circle"
+                                    clickable
+                                    @click="etapasFiltro = []"
                                 >
                                     Limpiar
                                 </v-chip>
@@ -160,6 +194,7 @@ export default {
         cargando: true,
         ordenes: [],
         ubicacionesFiltro: [],
+        etapasFiltro: [],
         search: "",
         ordenseleccionada: {},
         encabezado: [
@@ -260,15 +295,31 @@ export default {
                 count: this.ordenes.filter(o => o.ubicacionFlat === nombre).length,
             })).filter(u => u.count > 0);
         },
+        etapasDisponibles() {
+            const nombres = [...new Set(this.ordenes.map(o => o.etapaActualFlat).filter(n => n && n !== 'N/A'))];
+            return nombres.map(nombre => ({
+                nombre,
+                count: this.ordenes.filter(o => o.etapaActualFlat === nombre).length,
+            }));
+        },
         ordenesFiltradas() {
-            if (!this.ubicacionesFiltro.length) return this.ordenes;
-            return this.ordenes.filter(o =>
-                this.ubicacionesFiltro.includes(o.ubicacionFlat || 'N/A')
-            );
+            return this.ordenes.filter(o => {
+                const porUbicacion = !this.ubicacionesFiltro.length || this.ubicacionesFiltro.includes(o.ubicacionFlat || 'N/A');
+                const porEtapa = !this.etapasFiltro.length || this.etapasFiltro.includes(o.etapaActualFlat || 'N/A');
+                return porUbicacion && porEtapa;
+            });
         },
     },
 
     methods: {
+        toggleEtapa(nombre) {
+            const idx = this.etapasFiltro.indexOf(nombre);
+            if (idx === -1) {
+                this.etapasFiltro.push(nombre);
+            } else {
+                this.etapasFiltro.splice(idx, 1);
+            }
+        },
         toggleUbicacion(nombre) {
             const idx = this.ubicacionesFiltro.indexOf(nombre);
             if (idx === -1) {
@@ -336,6 +387,7 @@ export default {
                 };
             });
             this.ubicacionesFiltro = [];
+            this.etapasFiltro = [];
             this.cargando = false;
         });
     },
@@ -355,6 +407,7 @@ export default {
                 };
             });
             this.ubicacionesFiltro = [];
+            this.etapasFiltro = [];
             this.cargando = false;
         });
     },

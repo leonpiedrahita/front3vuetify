@@ -10,81 +10,73 @@
     <v-progress-linear v-if="cargando" indeterminate color="primary" class="mb-4" />
 
     <template v-else>
-      <v-tabs v-model="tab" color="c6" align-tabs="center" class="mb-4">
-        <v-tab value="ingreso">
-          <v-icon start>mdi-inbox-arrow-down</v-icon>
-          Nuevo Ingreso
-        </v-tab>
-        <v-tab value="etapas">
-          <v-icon start>mdi-state-machine</v-icon>
-          Por Etapa
-        </v-tab>
-      </v-tabs>
 
-      <v-window v-model="tab">
-
-        <!-- ── Tab: Nuevo Ingreso ─────────────────────────────────── -->
-        <v-window-item value="ingreso">
-          <v-table density="comfortable" class="elevation-1">
-            <thead>
-              <tr>
-                <th class="text-center font-weight-bold">Rol</th>
-                <th class="text-center font-weight-bold">Notificar al registrar un nuevo ingreso</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="rol in roles" :key="rol.nombre">
-                <td class="font-weight-medium text-capitalize text-center">{{ rol.nombre }}</td>
-                <td class="text-center">
-                  <v-switch
-                    v-model="configuracion[rol.nombre].ingreso"
-                    color="success"
-                    hide-details
-                    density="compact"
-                    class="d-flex justify-center"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-window-item>
-
-        <!-- ── Tab: Por Etapa ─────────────────────────────────────── -->
-        <v-window-item value="etapas">
-          <div style="overflow-x: auto;">
-            <v-table density="comfortable" class="elevation-1" style="min-width: 900px;">
-              <thead>
-                <tr>
-                  <th class="text-center font-weight-bold" style="min-width:120px;">Rol</th>
-                  <th
-                    v-for="etapa in tiposEtapa"
-                    :key="etapa.key"
-                    class="text-center font-weight-bold"
-                    style="min-width:110px; font-size:0.78rem;"
-                  >
-                    {{ etapa.label }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="rol in roles" :key="rol.nombre">
-                  <td class="font-weight-medium text-capitalize text-center">{{ rol.nombre }}</td>
-                  <td v-for="etapa in tiposEtapa" :key="etapa.key" class="text-center">
-                    <v-switch
-                      v-model="configuracion[rol.nombre][etapa.key]"
-                      color="success"
-                      hide-details
-                      density="compact"
-                      class="d-flex justify-center"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
+      <!-- Interruptor principal -->
+      <v-card variant="outlined" class="mb-4 pa-3 mx-auto" style="width: fit-content;" :color="globalHabilitado ? 'success' : 'error'">
+        <div class="d-flex align-center justify-center ga-4">
+          <v-switch
+            v-model="globalHabilitado"
+            :color="globalHabilitado ? 'success' : 'error'"
+            hide-details
+            :loading="guardandoGlobal"
+            @update:model-value="cambiarGlobal"
+          />
+          <div>
+            <div class="text-subtitle-1 font-weight-bold">
+              <v-icon class="mr-2">mdi-whatsapp</v-icon>
+              Notificaciones WhatsApp
+            </div>
+            <div class="text-body-2 text-medium-emphasis">
+              {{ globalHabilitado
+                ? 'Activas — las notificaciones se enviarán según la configuración por rol'
+                : 'Desactivadas — no se enviará ninguna notificación (la configuración por rol se conserva)' }}
+            </div>
           </div>
-        </v-window-item>
+        </div>
+      </v-card>
 
-      </v-window>
+      <!-- ── Tabla unificada: Notificaciones por etapa ─────────── -->
+      <div style="overflow-x: auto;">
+        <v-table density="comfortable" class="elevation-1" style="min-width: 1000px;">
+          <thead>
+            <tr>
+              <th class="text-center font-weight-bold" style="min-width:120px;">Rol</th>
+              <th class="text-center font-weight-bold" style="min-width:110px; font-size:0.78rem;">Nuevo Ingreso</th>
+              <th
+                v-for="etapa in tiposEtapa"
+                :key="etapa.key"
+                class="text-center font-weight-bold"
+                style="min-width:110px; font-size:0.78rem;"
+              >
+                {{ etapa.label }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="rol in roles" :key="rol.nombre">
+              <td class="font-weight-medium text-capitalize text-center">{{ rol.nombre }}</td>
+              <td class="text-center">
+                <v-switch
+                  v-model="configuracion[rol.nombre].ingreso"
+                  color="success"
+                  hide-details
+                  density="compact"
+                  class="d-flex justify-center"
+                />
+              </td>
+              <td v-for="etapa in tiposEtapa" :key="etapa.key" class="text-center">
+                <v-switch
+                  v-model="configuracion[rol.nombre][etapa.key]"
+                  color="success"
+                  hide-details
+                  density="compact"
+                  class="d-flex justify-center"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </div>
 
       <v-card-actions class="justify-center mt-4">
         <v-btn
@@ -156,9 +148,10 @@ export default {
   name: 'PermisosComponent',
   data() {
     return {
-      tab: 'ingreso',
       cargando: true,
       guardando: false,
+      globalHabilitado: true,
+      guardandoGlobal: false,
       roles: ROLES,
       tiposEtapa: TIPOS_ETAPA,
       configuracion: configuracionInicial(),
@@ -178,6 +171,36 @@ export default {
     },
   },
   methods: {
+    async cargarGlobal() {
+      try {
+        const { data } = await axios.get(
+          this.$store.state.ruta + 'api/configuracion/notificaciones/global',
+          { headers: { token: this.$store.state.token } }
+        );
+        this.globalHabilitado = data.habilitado;
+      } catch (err) {
+        this.mostrarSnackbar('error', 'Error al cargar estado global de notificaciones');
+      }
+    },
+    async cambiarGlobal(valor) {
+      this.guardandoGlobal = true;
+      try {
+        await axios.put(
+          this.$store.state.ruta + 'api/configuracion/notificaciones/global',
+          { habilitado: valor },
+          { headers: { token: this.$store.state.token } }
+        );
+        this.mostrarSnackbar(
+          valor ? 'success' : 'warning',
+          valor ? 'Notificaciones WhatsApp activadas' : 'Notificaciones WhatsApp desactivadas'
+        );
+      } catch (err) {
+        this.globalHabilitado = !valor;
+        this.mostrarSnackbar('error', 'Error al actualizar el estado de notificaciones');
+      } finally {
+        this.guardandoGlobal = false;
+      }
+    },
     async cargar() {
       this.cargando = true;
       try {
@@ -234,6 +257,7 @@ export default {
       icono: 'mdi-shield-account',
       color: 'c6',
     });
+    this.cargarGlobal();
     this.cargar();
   },
 };

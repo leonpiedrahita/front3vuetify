@@ -9,10 +9,24 @@ const axiosPlugin = {
 
     app.config.globalProperties.$axios = instance;
 
-    // Interceptor de respuesta: renueva el access token automáticamente en 403
+    // Interceptor de request: log de salida
+    instance.interceptors.request.use(config => {
+      console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+      return config;
+    });
+
+    // Interceptor de respuesta: log de resultado + renueva el access token automáticamente en 403
     instance.interceptors.response.use(
-      response => response,
+      response => {
+        console.log(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+        return response;
+      },
       async (error) => {
+        const status = error.response?.status ?? 'ERR';
+        const url = error.config?.url ?? '';
+        const method = error.config?.method?.toUpperCase() ?? '';
+        console.error(`[API] ${status} ${method} ${url}`, error.response?.data ?? error.message);
+
         const original = error.config;
 
         // Solo actúa en 403 y evita bucles infinitos

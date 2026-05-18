@@ -448,6 +448,57 @@
           </v-dialog>
       </template>
 
+      <template v-slot:[`item.atencion`]="{ item }">
+        <div class="d-flex flex-column align-center">
+          <v-menu v-if="$store.state.user.rol === 'administrador'" offset-y>
+            <template v-slot:activator="{ props }">
+              <v-chip
+                v-if="item.atencion"
+                v-bind="props"
+                :style="getAtencionStyle(item.atencion)"
+                size="small"
+                class="font-weight-bold"
+                variant="outlined"
+                style="cursor:pointer"
+              >
+                <v-icon :icon="getAtencionStyle(item.atencion).icon" :color="getAtencionStyle(item.atencion).color" start />
+                {{ item.atencion }}
+              </v-chip>
+              <v-btn v-else v-bind="props" icon variant="text" size="small" color="grey">
+                <v-icon>mdi-dots-horizontal</v-icon>
+              </v-btn>
+            </template>
+            <v-list density="compact">
+              <v-list-item @click="cambiarAtencion(item, 'Autorizado')">
+                <v-icon color="green" start>mdi-check-circle</v-icon> Autorizado
+              </v-list-item>
+              <v-list-item @click="cambiarAtencion(item, 'Cartera')">
+                <v-icon color="red" start>mdi-close-circle</v-icon> Cartera
+              </v-list-item>
+              <v-list-item @click="cambiarAtencion(item, 'MP')">
+                <v-icon color="red" start>mdi-alert-circle</v-icon> MP
+              </v-list-item>
+              <v-divider />
+              <v-list-item v-if="item.atencion" @click="cambiarAtencion(item, null)">
+                <v-icon color="grey" start>mdi-close</v-icon> Quitar
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <v-chip
+            v-else-if="item.atencion"
+            :style="getAtencionStyle(item.atencion)"
+            size="small"
+            class="font-weight-bold"
+            variant="outlined"
+          >
+            <v-icon :icon="getAtencionStyle(item.atencion).icon" :color="getAtencionStyle(item.atencion).color" start />
+            {{ item.atencion }}
+          </v-chip>
+          <span class="text-caption text-medium-emphasis mt-1" style="font-size:0.7rem; line-height:1.2;">
+            {{ item.asesor || 'Sin asesor' }}
+          </span>
+        </div>
+      </template>
       <template v-slot:[`item.detalles`]="{ item }">
                 <v-icon medium @click="detallesEquipo(item)" :color="item.tipoDeContrato === 'Venta Externo' // Condición de más alta prioridad
           ? 'black' // Color negro si el contrato es 'Venta Externo'
@@ -594,6 +645,13 @@ export default {
       },
       { title: "Contrato", key: "tipoDeContrato", align: "center", sortable: false },
       { title: "Estado", key: "estado", align: "center", sortable: false },
+      {
+        title: "Atención/Asesor(a)",
+        key: "atencion",
+        align: "center",
+        sortable: false,
+        roles: ["administrador"],
+      },
       {
         title: "Detalles",
         value: "detalles",
@@ -1815,6 +1873,31 @@ export default {
       }
       return fechaLimite;
     },
+    getAtencionStyle(atencion) {
+      const estilos = {
+        'Autorizado':  { color: '#4CAF50', icon: 'mdi-check-circle' },
+        'Cartera':     { color: '#F44336', icon: 'mdi-close-circle' },
+        'MP':          { color: '#F44336', icon: 'mdi-alert-circle' },
+        'Cartera - MP':{ color: '#B71C1C', icon: 'mdi-alert-octagon' },
+      };
+      return estilos[atencion] || { color: '#9E9E9E', icon: 'mdi-help-circle' };
+    },
+
+    async cambiarAtencion(item, valor) {
+      try {
+        const ruta = this.$store.state.ruta;
+        const token = this.$store.state.token;
+        await this.$axios.patch(
+          `${ruta}api/equipo/actualizaratencion/${item.id}`,
+          { atencion: valor },
+          { headers: { token } }
+        );
+        item.atencion = valor;
+      } catch (err) {
+        console.error('Error al actualizar atención:', err);
+      }
+    },
+
     AceptarConfirmacionGuardado() {
       this.confirmacionguardado = false;
 

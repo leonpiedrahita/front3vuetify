@@ -116,6 +116,10 @@
             <v-list-item prepend-icon="mdi-calendar-clock" title="Calendario Preventivos" />
           </v-list-item>
 
+          <v-list-item v-if="this.$store.state.user.rol === 'administrador'" :to="{ name: 'ImportarArchivos' }">
+            <v-list-item prepend-icon="mdi-file-upload-outline" title="Importar Archivos" />
+          </v-list-item>
+
           <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" prepend-icon="mdi-badge-account-outline" title="Administración" />

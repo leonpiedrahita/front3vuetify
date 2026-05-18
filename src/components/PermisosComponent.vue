@@ -11,29 +11,54 @@
 
     <template v-else>
 
-      <!-- Interruptor principal -->
-      <v-card variant="outlined" class="mb-4 pa-3 mx-auto" style="width: fit-content;" :color="globalHabilitado ? 'success' : 'error'">
-        <div class="d-flex align-center justify-center ga-4">
-          <v-switch
-            v-model="globalHabilitado"
-            :color="globalHabilitado ? 'success' : 'error'"
-            hide-details
-            :loading="guardandoGlobal"
-            @update:model-value="cambiarGlobal"
-          />
-          <div>
-            <div class="text-subtitle-1 font-weight-bold">
-              <v-icon class="mr-2">mdi-whatsapp</v-icon>
-              Notificaciones WhatsApp
-            </div>
-            <div class="text-body-2 text-medium-emphasis">
-              {{ globalHabilitado
-                ? 'Activas — las notificaciones se enviarán según la configuración por rol'
-                : 'Desactivadas — no se enviará ninguna notificación (la configuración por rol se conserva)' }}
+      <!-- Interruptores principales -->
+      <div class="d-flex flex-wrap justify-center ga-4 mb-4">
+        <v-card variant="outlined" class="pa-3" :color="globalHabilitado ? 'success' : 'error'">
+          <div class="d-flex align-center ga-4">
+            <v-switch
+              v-model="globalHabilitado"
+              :color="globalHabilitado ? 'success' : 'error'"
+              hide-details
+              :loading="guardandoGlobal"
+              @update:model-value="cambiarGlobal"
+            />
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">
+                <v-icon class="mr-2">mdi-whatsapp</v-icon>
+                Notificaciones WhatsApp
+              </div>
+              <div class="text-body-2 text-medium-emphasis">
+                {{ globalHabilitado
+                  ? 'Activas — se enviarán según la configuración por rol'
+                  : 'Desactivadas — no se enviará ninguna notificación' }}
+              </div>
             </div>
           </div>
-        </div>
-      </v-card>
+        </v-card>
+
+        <v-card variant="outlined" class="pa-3" :color="mostrarNovedades ? 'info' : 'default'">
+          <div class="d-flex align-center ga-4">
+            <v-switch
+              v-model="mostrarNovedades"
+              color="info"
+              hide-details
+              :loading="guardandoNovedades"
+              @update:model-value="cambiarNovedades"
+            />
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">
+                <v-icon class="mr-2">mdi-bell-cog</v-icon>
+                Ventana de novedades al iniciar sesión
+              </div>
+              <div class="text-body-2 text-medium-emphasis">
+                {{ mostrarNovedades
+                  ? 'Activa — se mostrará el resumen de cambios al ingresar'
+                  : 'Desactivada — los usuarios no verán la ventana de novedades' }}
+              </div>
+            </div>
+          </div>
+        </v-card>
+      </div>
 
       <!-- ── Tabla unificada: Notificaciones por etapa ─────────── -->
       <div style="overflow-x: auto;">
@@ -152,6 +177,8 @@ export default {
       guardando: false,
       globalHabilitado: true,
       guardandoGlobal: false,
+      mostrarNovedades: false,
+      guardandoNovedades: false,
       roles: ROLES,
       tiposEtapa: TIPOS_ETAPA,
       configuracion: configuracionInicial(),
@@ -180,6 +207,30 @@ export default {
         this.globalHabilitado = data.habilitado;
       } catch (err) {
         this.mostrarSnackbar('error', 'Error al cargar estado global de notificaciones');
+      }
+    },
+    async cargarNovedades() {
+      try {
+        const { data } = await axios.get(this.$store.state.ruta + 'api/configuracion/novedades');
+        this.mostrarNovedades = data.habilitado;
+      } catch (err) {
+        this.mostrarSnackbar('error', 'Error al cargar configuración de novedades');
+      }
+    },
+    async cambiarNovedades(valor) {
+      this.guardandoNovedades = true;
+      try {
+        await axios.put(
+          this.$store.state.ruta + 'api/configuracion/notificaciones',
+          { rol: 'sistema', tipoNotificacion: 'mostrar_novedades', habilitado: valor },
+          { headers: { token: this.$store.state.token } }
+        );
+        this.mostrarSnackbar('info', valor ? 'Ventana de novedades activada' : 'Ventana de novedades desactivada');
+      } catch (err) {
+        this.mostrarNovedades = !valor;
+        this.mostrarSnackbar('error', 'Error al actualizar la configuración de novedades');
+      } finally {
+        this.guardandoNovedades = false;
       }
     },
     async cambiarGlobal(valor) {
@@ -258,6 +309,7 @@ export default {
       color: 'c6',
     });
     this.cargarGlobal();
+    this.cargarNovedades();
     this.cargar();
   },
 };

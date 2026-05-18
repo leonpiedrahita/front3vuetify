@@ -616,8 +616,8 @@ export default {
       },
     ],
     headers: [
-      { title: "Serie", value: "serie", align: "center", sortable: false },
       { title: "Nombre", key: "nombre", align: "center", sortable: false },
+      { title: "Serie", value: "serie", align: "center", sortable: false },
       /*  { title: "Inventario", value: "placaDeInventario", align: "center" }, */
       {
         title: "Propietario",
@@ -650,7 +650,6 @@ export default {
         key: "atencion",
         align: "center",
         sortable: false,
-        roles: ["administrador"],
       },
       {
         title: "Detalles",
@@ -689,8 +688,8 @@ export default {
       },
     ],
     headersCronograma: [
-      { title: "Serie", value: "serie", align: "center" },
       { title: "Nombre", value: "nombre", align: "center" },
+      { title: "Serie", value: "serie", align: "center" },
       {
         title: "Propietario",
         align: "center",
@@ -1727,8 +1726,8 @@ export default {
         );
         const exportData = response.data.map(item => ({
           Nombre: item.nombre,
-          Marca: item.marca,
           Serie: item.serie,
+          Marca: item.marca,
           Cliente: item.cliente.nombre,
           Proveedor: item.proveedor.nombre,
           Propietario: item.propietario.nombre,
@@ -1749,8 +1748,8 @@ export default {
     },
     exportarAExcel() {
       const exportData = this.equiposCronograma.map(item => ({
-        Serie: item.serie,
         Nombre: item.nombre,
+        Serie: item.serie,
         Propietario: item.propietario.nombre,
         Proveedor: item.proveedor.nombre,
         Cliente: item.cliente.nombre,

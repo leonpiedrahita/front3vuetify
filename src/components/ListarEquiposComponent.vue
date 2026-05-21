@@ -269,11 +269,12 @@
             <v-card>
 
               <v-card-text style="max-height: 75vh; overflow-y: auto;">
-                <v-select v-model="nuevaEtapa.etapaSeleccionada" :items="etapasDisponiblesPorRol"
+                <v-select v-model="nuevaEtapa.etapaSeleccionada"
+                  :items="esIngresoNuevoEquipo ? ['Equipo nuevo'] : etapasDisponiblesPorRol"
                   label="Etapa de Ingreso" required></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
-                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Bodega Prado', 'Cliente']"
+                  :items="['Bodega de equipos nuevos', 'Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Bodega Prado', 'Cliente']"
                   :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
                 <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
@@ -283,11 +284,12 @@
                 <h2 class="text-h6 text-primary text-center">Nueva Etapa</h2>
                 <v-divider class="mt-1 mb-4"></v-divider>
 
-                <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=listadeetapas
+                <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *"
+                  :items="esIngresoNuevoEquipo ? ['Listo para despacho'] : listadeetapas"
                   :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
-                  :items="['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Cliente', 'Dado de baja']"
+                  :items="['Bodega de equipos nuevos', 'Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Cliente', 'Dado de baja']"
                   :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
               </v-card-text>
@@ -589,6 +591,7 @@ export default {
     dialogomodificarequipocliente: false,
     dialogo: false,
     dialogoetapa: false,
+    esIngresoNuevoEquipo: false,
     textodialogo: "",
     search: "",
     cargando: false,
@@ -894,8 +897,7 @@ export default {
         } else if (userRol === 'soporte' || userRol === 'aplicaciones') {
         return ['Soporte ingeniería', 'Soporte aplicaciones'];
       } else if (userRol === 'administrador') {
-        // Devuelve todas las opciones si es administrador
-        return ['Cuarentena', 'Soporte ingeniería', 'Soporte aplicaciones','Cotización aprobada', 'Instalación'];
+        return ['Equipo nuevo', 'Cuarentena', 'Soporte ingeniería', 'Soporte aplicaciones', 'Cotización aprobada', 'Instalación', 'Repuestos aprobados para entrega', 'Cotización solicitada', 'Entrenamiento realizado'];
       }
 
       return ['Rol no autorizado'];
@@ -1016,6 +1018,7 @@ export default {
         nombre: null,
         ubicacion: null,
       };
+      this.esIngresoNuevoEquipo = false;
     },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
 
@@ -1220,9 +1223,14 @@ export default {
               this.fechaDeMovimiento = null;
               this.fechadecalendario = null;
             })
-            this.mensajeDialogo = "Equipo registrado correctamente";
-            this.confirmacionguardado = true;
             this.buscarEquipos();
+            this.editedItem.id = response.data.equipo.id;
+            this.esIngresoNuevoEquipo = true;
+            this.nuevaEtapa.etapaSeleccionada = 'Equipo nuevo';
+            this.nuevaEtapa.ubicacionEtapaSeleccionada = 'Bodega de equipos nuevos';
+            this.nuevaEtapa.nombre = 'Listo para despacho';
+            this.nuevaEtapa.ubicacion = 'Bodega de equipos nuevos';
+            this.dialogoetapa = true;
           })
           .catch((error) => {
             if (error.response?.status === 409) {
@@ -1450,8 +1458,8 @@ export default {
     asignarLista() {
       if (this.$store.state.user.rol === "administrador") {
         this.listadeetapas = [
-          "Desinfección","Soporte ingeniería",
-          "Soporte aplicaciones"
+          "Equipo nuevo", "Listo para despacho", "Desinfección", "Soporte ingeniería", "Soporte aplicaciones",
+          "Repuestos aprobados para entrega", "Cotización solicitada", "Entrenamiento realizado"
         ];
       } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones") {
         this.listadeetapas = [
@@ -1517,27 +1525,28 @@ export default {
           }
         );
 
-        // B. Lógica Condicional: Actualizar Estado del Equipo (Solo para rol 'bodega')
-        if (this.$store.state.user.rol === "bodega" || this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones" || this.$store.state.user.rol === "administrador") {
-          // Usamos el método PUT o PATCH que es más semántico para actualizaciones parciales
-          const responseUpdate = await axios.patch( // Cambiado de POST a PATCH (semántica REST)
-            rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
-            {
-              nuevoEstado: "En soporte", // Cambiado 'estado' a 'nuevoEstado' para mayor claridad
-            },
-            {
-              headers: { token },
-            }
-          );
-          console.log('Estado del equipo actualizado:', responseUpdate.data);
-        }
-
-        // C. Finalización Exitosa (Fuera de los condicionales)
+        // C. Finalización Exitosa
         this.esperaguardar = false;
         this.dialogoetapa = false;
         this.dialog = false;
+        const eraIngresoNuevoEquipo = this.esIngresoNuevoEquipo;
+        const etapaEraEquipoNuevo = this.nuevaEtapa.etapaSeleccionada === 'Equipo nuevo';
         this.limpiarNuevaEtapa();
         this.close();
+
+        // B. Actualizar Estado del Equipo (no bloquea el cierre del diálogo)
+        const esNuevoEquipo = eraIngresoNuevoEquipo || etapaEraEquipoNuevo;
+        const rolActualiza = ["bodega", "soporte", "aplicaciones", "administrador"].includes(this.$store.state.user.rol);
+        if (esNuevoEquipo || rolActualiza) {
+          const nuevoEstado = esNuevoEquipo ? "Nuevo" : "En soporte";
+          axios.patch(
+            rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
+            { nuevoEstado },
+            { headers: { token } }
+          ).then(r => console.log('Estado del equipo actualizado:', r.data))
+           .catch(e => console.warn('No se pudo actualizar el estado del equipo:', e.message));
+        }
+
         this.$router.push({ name: "ListarOrdenes" });
 
       } catch (error) {

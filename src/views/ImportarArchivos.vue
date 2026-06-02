@@ -53,6 +53,9 @@
                 </tr>
               </tbody>
             </v-table>
+            <v-alert v-if="filasMalformadasCartera > 0" type="warning" variant="tonal" density="compact" class="mt-2">
+              {{ filasMalformadasCartera }} fila(s) ignoradas por formato inválido (NIT o días vacíos)
+            </v-alert>
           </div>
         </v-card-text>
 
@@ -75,7 +78,7 @@
           <div class="font-weight-medium mb-1">Importación completada</div>
           <div>Total procesados: <strong>{{ resultado.total }}</strong></div>
           <div>Con NIT encontrado: <strong>{{ resultado.actualizados }}</strong></div>
-          <div>Sin coincidencia: <strong>{{ resultado.enBlanco }}</strong></div>
+          <div>Sin NIT en CSV: <strong>{{ resultado.enBlanco }}</strong></div>
         </v-alert>
       </v-card>
 
@@ -125,6 +128,9 @@
                 </tr>
               </tbody>
             </v-table>
+            <v-alert v-if="filasMalformadasAsesor > 0" type="warning" variant="tonal" density="compact" class="mt-2">
+              {{ filasMalformadasAsesor }} fila(s) ignoradas por formato inválido (NIT o asesor vacíos)
+            </v-alert>
           </div>
         </v-card-text>
 
@@ -147,7 +153,7 @@
           <div class="font-weight-medium mb-1">Importación completada</div>
           <div>Total procesados: <strong>{{ resultadoAsesor.total }}</strong></div>
           <div>Con asesor asignado: <strong>{{ resultadoAsesor.actualizados }}</strong></div>
-          <div>Sin coincidencia: <strong>{{ resultadoAsesor.enBlanco }}</strong></div>
+          <div>Sin NIT en CSV: <strong>{{ resultadoAsesor.enBlanco }}</strong></div>
         </v-alert>
       </v-card>
 
@@ -176,11 +182,13 @@ export default {
     // Cartera
     archivo: null,
     previstaRegistros: [],
+    filasMalformadasCartera: 0,
     importando: false,
     resultado: null,
     // Asesores
     archivoAsesor: null,
     previstaAsesores: [],
+    filasMalformadasAsesor: 0,
     importandoAsesor: false,
     resultadoAsesor: null,
     // Compartido
@@ -192,6 +200,7 @@ export default {
     onArchivoSeleccionado(file) {
       this.previstaRegistros = [];
       this.resultado = null;
+      this.filasMalformadasCartera = 0;
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -207,6 +216,7 @@ export default {
     onArchivoAsesorSeleccionado(file) {
       this.previstaAsesores = [];
       this.resultadoAsesor = null;
+      this.filasMalformadasAsesor = 0;
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -224,15 +234,17 @@ export default {
       const lineas = contenido.split(/\r?\n/).filter(l => l.trim());
       if (lineas.length < 2) throw new Error('Archivo vacío');
       const registros = [];
+      let malformadas = 0;
       for (let i = 1; i < lineas.length; i++) {
         const partes = lineas[i].split(',');
-        if (partes.length < 3) continue;
+        if (partes.length < 3) { malformadas++; continue; }
         const nit = partes[0].trim();
         const nombre = partes[1].trim();
         const dias = parseInt(partes[2].trim(), 10);
-        if (!nit || isNaN(dias)) continue;
+        if (!nit || isNaN(dias)) { malformadas++; continue; }
         registros.push({ nit, nombre, dias });
       }
+      this.filasMalformadasCartera = malformadas;
       return registros;
     },
 
@@ -241,15 +253,17 @@ export default {
       const lineas = contenido.split(/\r?\n/).filter(l => l.trim());
       if (lineas.length < 2) throw new Error('Archivo vacío');
       const registros = [];
+      let malformadas = 0;
       for (let i = 1; i < lineas.length; i++) {
         const partes = lineas[i].split(',');
-        if (partes.length < 3) continue;
+        if (partes.length < 3) { malformadas++; continue; }
         const nit = partes[0].trim();
         const nombre = partes[1].trim();
         const asesor = partes[2].trim();
-        if (!nit || !asesor) continue;
+        if (!nit || !asesor) { malformadas++; continue; }
         registros.push({ nit, nombre, asesor });
       }
+      this.filasMalformadasAsesor = malformadas;
       return registros;
     },
 

@@ -117,6 +117,15 @@
             </template>
             <template v-slot:item.ubicacionFlat="{ item }">
     {{ item.ubicacionFlat }}
+    <v-tooltip
+        v-if="item.etapas?.some(e => e.confirmado === false && e.nombre !== 'Despachado')"
+        location="top"
+        text="Pendiente de confirmación de ubicación"
+    >
+        <template v-slot:activator="{ props }">
+            <v-icon v-bind="props" color="#D97706" size="small" class="ml-1">mdi-alert-box-outline</v-icon>
+        </template>
+    </v-tooltip>
 </template>
             <template v-slot:item.etapaActualFlat="{ item }">
     <v-chip

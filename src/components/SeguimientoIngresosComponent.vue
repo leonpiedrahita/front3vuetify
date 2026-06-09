@@ -22,6 +22,7 @@
                 Actualizar etapa
             </v-btn>
         </div>
+        <v-container>
         <v-timeline align="start" density="confortable" truncate-line="both" >
             <v-timeline-item v-for="(etapa, index) in ingreso.etapas" :key="etapa.id" dot-color="primary" size="small">
                 <!-- Dibuja el número en el dot -->
@@ -48,9 +49,29 @@
             <div class="text-body-1">
                 <strong>Responsable:</strong> {{ etapa.responsable || 'No asignado' }}
             </div>
+            <div v-if="etapa.confirmado === false && etapa.nombre !== 'Despachado'" class="mt-2 d-flex align-center flex-wrap" style="gap: 8px;">
+                <v-chip color="warning" variant="tonal" prepend-icon="mdi-truck-delivery-outline" size="small">
+                    En tránsito
+                </v-chip>
+                <v-btn
+                    v-if="puedeConfirmarUbicacion(etapa.ubicacion)"
+                    color="success"
+                    variant="flat"
+                    size="small"
+                    prepend-icon="mdi-check-circle-outline"
+                    :loading="confirmando === etapa.id"
+                    @click="confirmarLlegada(etapa)"
+                >
+                    Confirmar movimiento
+                </v-btn>
+            </div>
+            <div v-if="etapa.confirmadoPor" class="mt-1 text-caption text-grey">
+                Ubicación confirmada por: {{ etapa.confirmadoPor }}
+            </div>
                 </div>
             </v-timeline-item>
         </v-timeline>
+        </v-container>
     </v-card>
     <v-dialog v-model="dialogoNuevaEtapa" transition="dialog-bottom-transition" persistent max-width="800">
         <v-toolbar flat color="primary">
@@ -161,6 +182,7 @@ export default {
         };
 
         return {
+            confirmando: null,
             cambiarestado: false,
             nuevoestadoequipo: null,
             listadeestadosequipo: ['En soporte', 'En uso', 'Disponible', 'Disponible Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
@@ -404,6 +426,30 @@ export default {
                     return error; // Retornar el error para manejarlo si es necesario
                 });
             //localStorage.removeItem('equipo')
+        },
+        puedeConfirmarUbicacion(ubicacion) {
+            const rol = this.$store.state.user.rol;
+            const ub = (ubicacion || '').toLowerCase();
+            if (ub.includes('bodega')) return ['bodega', 'administrador', 'ingresos'].includes(rol);
+            if (['cuarentena', 'taller de ingenieria', 'taller de ingeniería', 'snibe'].some(t => ub.includes(t)))
+                return ['administrador', 'soporte', 'lumira', 'aplicaciones'].includes(rol);
+            return false;
+        },
+        async confirmarLlegada(etapa) {
+            this.confirmando = etapa.id;
+            try {
+                await axios.patch(
+                    `${this.$store.state.ruta}api/ingreso/confirmar/${this.ingreso.id}/etapa/${etapa.id}`,
+                    {},
+                    { headers: { token: this.$store.state.token } }
+                );
+                this.consultarEquipoActualizado();
+                this.$store.dispatch('fetchMovimientosPendientes');
+            } catch (err) {
+                console.error('Error al confirmar llegada:', err.response?.data || err.message);
+            } finally {
+                this.confirmando = null;
+            }
         },
         asignarLista() {
             if (this.$store.state.user.rol === "administrador") {

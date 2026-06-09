@@ -41,6 +41,9 @@ function resetState() {
   store.commit('setIdentificacion', '');
   store.commit('setOrdenesEquipo', {});
   store.commit('setReferenciaEquipo', { referenciaequipo: {}, nuevareferencia: 0 });
+  store.commit('setSnackbarSesion', { visible: false, texto: '' });
+  store.commit('setSesionExpirando', false);
+  store.commit('setMovimientosPendientes', 0);
   localStorage.clear();
   vi.clearAllMocks();
 }
@@ -311,5 +314,157 @@ describe('Action: guardarIdentificacion', () => {
     // The action reads `identificacion.id` — not the whole object
     await store.dispatch('guardarIdentificacion', { id: 'EQ-999', nombre: 'Ventilador' });
     expect(store.state.identificacion).toBe('EQ-999');
+  });
+});
+
+// =============================================================================
+// MUTATIONS: snackbarSesion, sesionExpirando, movimientosPendientes
+// =============================================================================
+
+describe('Store mutations — sesión y movimientos', () => {
+  beforeEach(resetState);
+
+  it('setSnackbarSesion — actualiza visible y texto', () => {
+    store.commit('setSnackbarSesion', { visible: true, texto: 'Sesión expirada' });
+    expect(store.state.snackbarSesion.visible).toBe(true);
+    expect(store.state.snackbarSesion.texto).toBe('Sesión expirada');
+  });
+
+  it('setSnackbarSesion — puede ocultarse con visible: false', () => {
+    store.commit('setSnackbarSesion', { visible: true, texto: 'msg' });
+    store.commit('setSnackbarSesion', { visible: false, texto: '' });
+    expect(store.state.snackbarSesion.visible).toBe(false);
+  });
+
+  it('setSesionExpirando — actualiza a true', () => {
+    store.commit('setSesionExpirando', true);
+    expect(store.state.sesionExpirando).toBe(true);
+  });
+
+  it('setSesionExpirando — puede restablecerse a false', () => {
+    store.commit('setSesionExpirando', true);
+    store.commit('setSesionExpirando', false);
+    expect(store.state.sesionExpirando).toBe(false);
+  });
+
+  it('setMovimientosPendientes — actualiza el conteo', () => {
+    store.commit('setMovimientosPendientes', 5);
+    expect(store.state.movimientosPendientes).toBe(5);
+  });
+
+  it('setMovimientosPendientes — puede ponerse en 0', () => {
+    store.commit('setMovimientosPendientes', 3);
+    store.commit('setMovimientosPendientes', 0);
+    expect(store.state.movimientosPendientes).toBe(0);
+  });
+});
+
+// =============================================================================
+// ACTION: sesionExpirada
+// =============================================================================
+
+describe('Action: sesionExpirada', () => {
+  let setTimeoutSpy;
+  let capturedFn;
+
+  beforeEach(() => {
+    resetState();
+    capturedFn = null;
+    // Interceptar setTimeout sin instalar fake timers globales (evita conflicto con Vitest)
+    setTimeoutSpy = vi.spyOn(global, 'setTimeout').mockImplementation((fn) => {
+      capturedFn = fn;
+      return 0;
+    });
+  });
+
+  afterEach(() => {
+    setTimeoutSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it('activa el snackbar con el mensaje de sesión expirada', async () => {
+    await store.dispatch('sesionExpirada');
+    expect(store.state.snackbarSesion.visible).toBe(true);
+    expect(store.state.snackbarSesion.texto).toContain('expirado');
+  });
+
+  it('establece sesionExpirando en true para evitar llamadas duplicadas', async () => {
+    await store.dispatch('sesionExpirada');
+    expect(store.state.sesionExpirando).toBe(true);
+  });
+
+  it('no dispara un segundo snackbar si ya está en curso', async () => {
+    store.commit('setSesionExpirando', true);
+    store.commit('setSnackbarSesion', { visible: false, texto: '' });
+    await store.dispatch('sesionExpirada');
+    expect(store.state.snackbarSesion.visible).toBe(false);
+  });
+
+  it('programa salir con un setTimeout de 2500ms y navega al Login al ejecutarlo', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
+    await store.dispatch('sesionExpirada');
+
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 2500);
+    expect(router.push).not.toHaveBeenCalled();
+
+    // Ejecutar el callback capturado simula el disparo del timer
+    await capturedFn();
+    expect(router.push).toHaveBeenCalledWith({ name: 'Login' });
+  });
+});
+
+// =============================================================================
+// ACTION: fetchMovimientosPendientes
+// =============================================================================
+
+describe('Action: fetchMovimientosPendientes', () => {
+  beforeEach(resetState);
+  afterEach(() => vi.unstubAllGlobals());
+
+  const rolesQueDescargan = ['administrador', 'bodega', 'soporte', 'aplicaciones', 'lumira', 'ingresos'];
+  const rolesQueNoDescargan = ['comercial', 'calidad', 'cotizaciones', 'ventas'];
+
+  rolesQueDescargan.forEach(rol => {
+    it(`descarga el conteo para el rol "${rol}"`, async () => {
+      store.commit('setToken', 'tok');
+      store.commit('setUsuario', { rol });
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ count: 4 }),
+      });
+      vi.stubGlobal('fetch', mockFetch);
+
+      await store.dispatch('fetchMovimientosPendientes');
+
+      expect(mockFetch).toHaveBeenCalled();
+      expect(store.state.movimientosPendientes).toBe(4);
+    });
+  });
+
+  rolesQueNoDescargan.forEach(rol => {
+    it(`no hace fetch para el rol "${rol}"`, async () => {
+      store.commit('setToken', 'tok');
+      store.commit('setUsuario', { rol });
+
+      const mockFetch = vi.fn();
+      vi.stubGlobal('fetch', mockFetch);
+
+      await store.dispatch('fetchMovimientosPendientes');
+
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
+
+  it('no altera el conteo si el servidor responde con error', async () => {
+    store.commit('setToken', 'tok');
+    store.commit('setUsuario', { rol: 'administrador' });
+    store.commit('setMovimientosPendientes', 2);
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+
+    await store.dispatch('fetchMovimientosPendientes');
+
+    expect(store.state.movimientosPendientes).toBe(2);
   });
 });

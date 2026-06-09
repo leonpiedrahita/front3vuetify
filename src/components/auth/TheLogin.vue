@@ -46,34 +46,22 @@
 
               <v-list-item prepend-icon="mdi-map-marker-multiple-outline">
                 <div class="novedad-titulo">Menú Ubicaciones</div>
-                <div class="novedad-desc">Nuevo grupo en el menú lateral con dos secciones: <strong>Pendientes</strong> (movimientos que requieren confirmación física) y <strong>Listado de ubicaciones</strong> (todos los ingresos abiertos con filtros por ubicación, estado de confirmación, búsqueda y exportación a Excel).</div>
+                <div class="novedad-desc">Nuevo grupo en el menú lateral con dos secciones: Pendientes (movimientos que requieren confirmación) y Listado de ubicaciones (todos los ingresos abiertos con filtros por ubicación, estado de confirmación, búsqueda y exportación a Excel).</div>
               </v-list-item>
 
               <v-list-item prepend-icon="mdi-truck-check-outline">
                 <div class="novedad-titulo">Confirmación de movimientos físicos</div>
-                <div class="novedad-desc">Cuando un equipo cambia de ubicación, el sistema queda en estado <em>En tránsito</em> hasta que el responsable de la ubicación destino confirme la llegada. Los permisos de confirmación dependen del rol y el tipo de ubicación: bodega/admin/ingresos confirman bodegas; admin/soporte/lumira/aplicaciones confirman cuarentena y talleres.</div>
+                <div class="novedad-desc">Cuando un equipo cambia de ubicación, el sistema queda en estado En tránsito hasta que el responsable de la ubicación destino confirme la llegada. Los permisos de confirmación dependen del rol y el tipo de ubicación.</div>
               </v-list-item>
 
               <v-list-item prepend-icon="mdi-alert-box-outline">
                 <div class="novedad-titulo">Indicador de movimientos pendientes</div>
-                <div class="novedad-desc">Los equipos con movimientos sin confirmar muestran un ícono de alerta en el listado de ingresos. El submenú <em>Pendientes</em> muestra un badge con el conteo total para los roles que pueden confirmar.</div>
+                <div class="novedad-desc">Los equipos con movimientos sin confirmar muestran un ícono de alerta en el listado de ingresos.</div>
               </v-list-item>
 
               <v-list-item prepend-icon="mdi-file-document-plus-outline">
                 <div class="novedad-titulo">Nuevos tipos de documento</div>
-                <div class="novedad-desc">Se agregaron <strong>Otrosí (Comodato o Alquiler)</strong> y <strong>Acta de entrega (Proveedor)</strong> al listado de documentos de cada equipo. Ambos aparecen en la tabla de gestión operativa y de movimientos.</div>
-              </v-list-item>
-
-              <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
-
-              <v-list-item prepend-icon="mdi-shield-lock-outline">
-                <div class="novedad-titulo">Verificación proactiva de sesión</div>
-                <div class="novedad-desc">Antes de cualquier acción que modifique datos, el sistema verifica que la sesión esté vigente. Si el token expiró, intenta renovarlo automáticamente; si no es posible, muestra un aviso y redirige al inicio de sesión.</div>
-              </v-list-item>
-
-              <v-list-item prepend-icon="mdi-sort-clock-ascending-outline">
-                <div class="novedad-titulo">Orden correcto de etapas en seguimiento</div>
-                <div class="novedad-desc">Las etapas del timeline de ingresos ahora siempre aparecen en orden cronológico de registro, sin importar cuántas se hayan agregado.</div>
+                <div class="novedad-desc">Se agregaron Otrosí (Comodato o Alquiler) y Acta de entrega (Proveedor) al listado de documentos de cada equipo. Ambos aparecen en la tabla de gestión operativa y de movimientos.</div>
               </v-list-item>
 
             </v-list>

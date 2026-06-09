@@ -105,6 +105,30 @@
             <v-list-item prepend-icon="mdi-vector-circle" title="Ingresos" />
           </v-list-item>
 
+          <v-list-group no-action>
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" prepend-icon="mdi-map-marker-multiple-outline" title="Ubicaciones" />
+            </template>
+            <v-list-item :to="{ name: 'BandejaMovimientos' }">
+              <template v-slot:append>
+                <v-badge
+                  v-if="$store.state.movimientosPendientes > 0"
+                  :content="$store.state.movimientosPendientes"
+                  color="error"
+                  inline
+                />
+              </template>
+              <v-list-item-subtitle>
+                <v-list-item-title>Pendientes</v-list-item-title>
+              </v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item :to="{ name: 'ListadoUbicaciones' }">
+              <v-list-item-subtitle>
+                <v-list-item-title>Listado de ubicaciones</v-list-item-title>
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-list-group>
+
           <v-list-item v-if="['administrador','soporte','aplicaciones','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }">
             <v-list-item prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
           </v-list-item>
@@ -169,6 +193,7 @@ export default {
       this.$router.push({ name: "Login" });
     } else {
       this.ready = true;
+      this.$store.dispatch("fetchMovimientosPendientes");
     }
   },
   methods: {

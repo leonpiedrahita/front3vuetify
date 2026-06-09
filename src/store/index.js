@@ -22,7 +22,10 @@ const store = createStore({
         idorden: "",
         referenciaequipo: {},
         nuevareferencia: 0,
-        detallesequipo: {}
+        detallesequipo: {},
+        movimientosPendientes: 0,
+        snackbarSesion: { visible: false, texto: '' },
+        sesionExpirando: false,
     },
     mutations: {//creo las mutaciones para cambiar el valor de las variables del estado
         setToken(state, token) {//con state accedo a las variables del estado y con el token accedo al valor que devolvio el back al momento de loguearme
@@ -59,10 +62,16 @@ const store = createStore({
 
         setDetallesEquipo(state, detallesequipo) {
             state.detallesequipo = detallesequipo
-
-
-        }
-
+        },
+        setMovimientosPendientes(state, count) {
+            state.movimientosPendientes = count
+        },
+        setSnackbarSesion(state, payload) {
+            state.snackbarSesion = payload;
+        },
+        setSesionExpirando(state, val) {
+            state.sesionExpirando = val;
+        },
     },
     actions: {
         // Guarda el access token en estado (memoria) y el refresh token en localStorage
@@ -113,6 +122,13 @@ const store = createStore({
             }
         },
 
+        async sesionExpirada({ commit, dispatch, state }) {
+            if (state.sesionExpirando) return;
+            commit('setSesionExpirando', true);
+            commit('setSnackbarSesion', { visible: true, texto: 'Tu sesión ha expirado. Serás redirigido al inicio de sesión.' });
+            setTimeout(() => dispatch('salir'), 2500);
+        },
+
         async salir({ commit }) {
             const refreshToken = localStorage.getItem('refreshToken');
             try {
@@ -152,13 +168,25 @@ const store = createStore({
             commit("setReferenciaEquipo", { referenciaequipo, nuevareferencia });
 
         },
-        guardarDetallesEquipo({ commit }, detallesequipo) {//el commit es algo que se recibe para confirmar las llamadas a mutaciones
+        guardarDetallesEquipo({ commit }, detallesequipo) {
             commit("setDetallesEquipo", detallesequipo.detallesequipo);
-
-
         },
 
-
+        async fetchMovimientosPendientes({ commit, state }) {
+            const rol = state.user?.rol;
+            if (!['administrador', 'bodega', 'soporte', 'aplicaciones', 'lumira', 'ingresos'].includes(rol)) return;
+            try {
+                const res = await fetch(`${apiUrl}api/ingreso/movimientos/pendientes/count`, {
+                    headers: { token: state.token },
+                });
+                if (res.ok) {
+                    const { count } = await res.json();
+                    commit('setMovimientosPendientes', count);
+                }
+            } catch (err) {
+                console.warn('[store] No se pudo obtener movimientos pendientes:', err.message);
+            }
+        },
     },
 
 

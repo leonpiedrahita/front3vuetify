@@ -590,6 +590,8 @@ export default {
       "Acta de entrega (Comodato, Alquiler o Préstamo)",
       "Acta de retiro (Comodato, Alquiler o Préstamo)",
       "Contrato (Comodato o Alquiler)",
+      "Otrosí (Comodato o Alquiler)",
+      "Acta de entrega (Proveedor)",
     ],
     listaNombresSoportes: [
       "Soportes del reporte",
@@ -740,6 +742,8 @@ export default {
       'Acta de entrega (Comodato, Alquiler o Préstamo)',
       'Acta de retiro (Comodato, Alquiler o Préstamo)',
       'Contrato (Comodato o Alquiler)',
+      'Otrosí (Comodato o Alquiler)',
+      'Acta de entrega (Proveedor)',
     ];
   },
   encabezadosDocumentosGestion() {

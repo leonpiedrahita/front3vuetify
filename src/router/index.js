@@ -138,6 +138,18 @@ const routes = [
         name: 'Permisos',
         component: () => import('../views/Permisos.vue'),
         meta: { auth: true },
+      },
+      {
+        path: '/bandeja-movimientos',
+        name: 'BandejaMovimientos',
+        component: () => import('../views/BandejaMovimientos.vue'),
+        meta: { auth: true },
+      },
+      {
+        path: '/listado-ubicaciones',
+        name: 'ListadoUbicaciones',
+        component: () => import('../views/ListadoUbicaciones.vue'),
+        meta: { auth: true },
       }
 
     ]

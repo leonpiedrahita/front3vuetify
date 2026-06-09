@@ -3,11 +3,45 @@ import jwtdecode from 'jwt-decode';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+const MUTATION_METHODS = ['post', 'patch', 'put', 'delete'];
+
 const axiosPlugin = {
   install: (app) => {
     const instance = axios.create();
 
     app.config.globalProperties.$axios = instance;
+
+    // Verifica expiración del token ANTES de cualquier petición mutante.
+    // Se añade al axios global para cubrir también los imports directos de axios.
+    axios.interceptors.request.use(async config => {
+      // No interceptar los endpoints de autenticación (evita bucles)
+      if (config.url?.includes('/api/usuario/')) return config;
+      if (!MUTATION_METHODS.includes(config.method?.toLowerCase())) return config;
+
+      const store = app.config.globalProperties.$store;
+      if (!store) return config;
+
+      // Si ya hay un cierre de sesión en curso, cancelar silenciosamente
+      if (store.state.sesionExpirando) return Promise.reject(new Error('SESION_EXPIRADA'));
+
+      const exp = store.state.user?.exp;
+      if (!exp || exp * 1000 >= Date.now()) return config; // token vigente
+
+      // Token expirado — intentar renovar con el refresh token
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const { data } = await axios.post(`${apiUrl}api/usuario/refresh`, { refreshToken });
+          store.commit('setToken', data.accessToken);
+          store.commit('setUsuario', jwtdecode(data.accessToken));
+          config.headers['token'] = data.accessToken;
+          return config;
+        } catch { /* refresh también expiró */ }
+      }
+
+      store.dispatch('sesionExpirada');
+      return Promise.reject(new Error('SESION_EXPIRADA'));
+    });
 
     // Interceptor de request: log de salida
     instance.interceptors.request.use(config => {

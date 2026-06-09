@@ -27,38 +27,53 @@
             <span class="separator"></span>
             Todos los derechos reservados 2026.
             <span class="separator"></span>
-            V.2.2.0
+            V.2.3.0
           </div>
         </v-row>
       </v-col>
 
       <!-- Dialog Novedades -->
-      <v-dialog v-model="dialogNovedades" max-width="580" persistent scrollable>
+      <v-dialog v-model="dialogNovedades" max-width="600" persistent scrollable>
         <v-card>
           <v-toolbar flat style="background-color: #52B69A; color: white;">
             <v-icon class="ml-3 mr-2">mdi-new-box</v-icon>
-            <v-toolbar-title class="font-weight-bold">Novedades — V.2.2.0</v-toolbar-title>
+            <v-toolbar-title class="font-weight-bold">Novedades — V.2.3.0</v-toolbar-title>
           </v-toolbar>
           <v-card-text class="pt-4 pb-2" style="max-height: 70vh; overflow-y: auto;">
             <v-list density="compact">
 
               <v-list-subheader class="font-weight-bold text-teal">Nuevas funcionalidades</v-list-subheader>
 
-              <v-list-item prepend-icon="mdi-account-tie">
-                <div class="novedad-titulo">Columna Atención / Asesor(a)</div>
-                <div class="novedad-desc">Todos los usuarios pueden ver el estado de atención (Autorizado, Cartera, MP) y el asesor asignado a cada equipo.</div>
+              <v-list-item prepend-icon="mdi-map-marker-multiple-outline">
+                <div class="novedad-titulo">Menú Ubicaciones</div>
+                <div class="novedad-desc">Nuevo grupo en el menú lateral con dos secciones: <strong>Pendientes</strong> (movimientos que requieren confirmación física) y <strong>Listado de ubicaciones</strong> (todos los ingresos abiertos con filtros por ubicación, estado de confirmación, búsqueda y exportación a Excel).</div>
               </v-list-item>
 
-              <v-list-item prepend-icon="mdi-whatsapp">
-                <div class="novedad-titulo">Notificaciones WhatsApp por asesor</div>
-                <div class="novedad-desc">El rol Comercial recibe notificaciones únicamente cuando el equipo tiene asignado su nombre como asesor(a). Si el equipo pasa a "Disponible" o "Disponible Pdte. MP." se notifica a todos los comerciales.</div>
+              <v-list-item prepend-icon="mdi-truck-check-outline">
+                <div class="novedad-titulo">Confirmación de movimientos físicos</div>
+                <div class="novedad-desc">Cuando un equipo cambia de ubicación, el sistema queda en estado <em>En tránsito</em> hasta que el responsable de la ubicación destino confirme la llegada. Los permisos de confirmación dependen del rol y el tipo de ubicación: bodega/admin/ingresos confirman bodegas; admin/soporte/lumira/aplicaciones confirman cuarentena y talleres.</div>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-alert-box-outline">
+                <div class="novedad-titulo">Indicador de movimientos pendientes</div>
+                <div class="novedad-desc">Los equipos con movimientos sin confirmar muestran un ícono de alerta en el listado de ingresos. El submenú <em>Pendientes</em> muestra un badge con el conteo total para los roles que pueden confirmar.</div>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-file-document-plus-outline">
+                <div class="novedad-titulo">Nuevos tipos de documento</div>
+                <div class="novedad-desc">Se agregaron <strong>Otrosí (Comodato o Alquiler)</strong> y <strong>Acta de entrega (Proveedor)</strong> al listado de documentos de cada equipo. Ambos aparecen en la tabla de gestión operativa y de movimientos.</div>
               </v-list-item>
 
               <v-list-subheader class="font-weight-bold text-teal mt-2">Mejoras</v-list-subheader>
 
-              <v-list-item prepend-icon="mdi-table-column">
-                <div class="novedad-titulo">Orden de columnas: Nombre primero</div>
-                <div class="novedad-desc">Las columnas Nombre y Serie aparecen en ese orden tanto en la tabla de equipos como en los archivos exportados a Excel.</div>
+              <v-list-item prepend-icon="mdi-shield-lock-outline">
+                <div class="novedad-titulo">Verificación proactiva de sesión</div>
+                <div class="novedad-desc">Antes de cualquier acción que modifique datos, el sistema verifica que la sesión esté vigente. Si el token expiró, intenta renovarlo automáticamente; si no es posible, muestra un aviso y redirige al inicio de sesión.</div>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-sort-clock-ascending-outline">
+                <div class="novedad-titulo">Orden correcto de etapas en seguimiento</div>
+                <div class="novedad-desc">Las etapas del timeline de ingresos ahora siempre aparecen en orden cronológico de registro, sin importar cuántas se hayan agregado.</div>
               </v-list-item>
 
             </v-list>

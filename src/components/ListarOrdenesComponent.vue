@@ -186,7 +186,7 @@
 
 <script>
 import axios from "axios";
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 
@@ -431,7 +431,7 @@ export default {
             });
             this.ventanaSeguimiento = true;
         },
-        exportarAExcel() {
+        async exportarAExcel() {
             const exportData = this.ordenes.map(item => ({
                 Equipo: item.equipo.nombre,
                 Serie: item.equipo.serie,
@@ -450,30 +450,15 @@ export default {
 
 
             }));
-            // Crear hoja y libro
-            const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Ingresos');
-
-            // Escribir y guardar
-            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
-            // 4. GENERAR NOMBRE DE ARCHIVO CON FECHA 📅
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Ingresos');
+            if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
+            ws.addRows(exportData);
+            const excelBuffer = await wb.xlsx.writeBuffer();
+            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const now = new Date();
-
-            // Formato YYYY-MM-DD (Ejemplo: 2025-11-09)
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0'); // Mese 0-index, por eso + 1
-            const day = String(now.getDate()).padStart(2, '0');
-
-            const fechaActual = `${day}-${month}-${year}`;
-
-            // Concatenar el nombre y la fecha
-            const nombreArchivo = `Ingresos-${fechaActual}.xlsx`;
-
-            // 5. Guardar el archivo
-            saveAs(blob, nombreArchivo);
+            const fechaActual = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
+            saveAs(blob, `Ingresos-${fechaActual}.xlsx`);
         },
     },
     beforeCreate() {

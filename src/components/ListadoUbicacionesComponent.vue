@@ -100,7 +100,7 @@
 
 <script>
 import axios from 'axios';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 export default {
@@ -171,7 +171,7 @@ export default {
                 this.cargando = false;
             }
         },
-        exportarExcel() {
+        async exportarExcel() {
             const datos = this.itemsFiltrados.map(o => ({
                 Equipo: o.equipo.nombre,
                 Serie: o.equipo.serie,
@@ -181,13 +181,14 @@ export default {
                 ConfirmadoPor: o.etapas?.at(-1)?.confirmadoPor || '',
                 EtapaActual: o.etapaActualFlat,
             }));
-            const ws = XLSX.utils.json_to_sheet(datos);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Ubicaciones');
-            const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const wb = new ExcelJS.Workbook();
+            const ws = wb.addWorksheet('Ubicaciones');
+            if (datos.length) ws.columns = Object.keys(datos[0]).map(k => ({ header: k, key: k, width: 22 }));
+            ws.addRows(datos);
+            const buf = await wb.xlsx.writeBuffer();
             const now = new Date();
             const fecha = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-            saveAs(new Blob([buf], { type: 'application/octet-stream' }), `ubicaciones_${fecha}.xlsx`);
+            saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `ubicaciones_${fecha}.xlsx`);
         },
     },
     created() {

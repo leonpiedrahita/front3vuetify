@@ -362,11 +362,6 @@
               <!-- TOOLBAR CON COLOR Y ESTILO -->
               <v-toolbar flat color="primary">
                 <v-spacer></v-spacer>
-                <!-- Botón cerrar flotando a la derecha -->
-
-
-
-                <!-- Título centrado en negrilla -->
                 <v-toolbar-title class="pa-0" style="flex: 1;">
                   <div class="text-center font-weight-bold text-body-1 text-md-h6"
                     style="white-space: normal; word-break: break-word; line-height: 1.2;">
@@ -374,7 +369,6 @@
                   </div>
                 </v-toolbar-title>
                 <v-spacer></v-spacer>
-                <!-- Botón cerrar a la derecha -->
                 <v-btn icon="mdi-close" @click="VentanaCronograma = false" variant="text" color="white"
                   class="ml-auto" />
               </v-toolbar>
@@ -392,9 +386,15 @@
                       hide-details></v-text-field>
                   </v-col>
 
-                  <!-- Botón exportar -->
-                  <v-col cols="12" md="4" class="d-flex justify-center">
-                    <v-btn color="primary" min-width="228" size="large" @click="exportarAExcel">
+                  <!-- Botones -->
+                  <v-col cols="12" md="6" class="d-flex justify-space-around">
+                    <v-btn v-if="['administrador','calidad'].includes($store.state.user.rol)"
+                      color="primary" size="large"
+                      @click="dialogImprimirCronograma = true; destinatarioSeleccionado = null; equiposSeleccionados = []">
+                      <v-icon start>mdi-file-pdf-box</v-icon>
+                      Imprimir carta
+                    </v-btn>
+                    <v-btn color="primary" size="large" @click="exportarAExcel">
                       <v-icon start>mdi-file-excel</v-icon>
                       Exportar a Excel
                     </v-btn>
@@ -427,6 +427,59 @@
                   </template>
                 </v-data-table>
               </v-card-text>
+
+              <!-- Diálogo selector para imprimir carta de cronograma -->
+              <v-dialog v-model="dialogImprimirCronograma" max-width="700" persistent>
+                <v-card>
+                  <v-toolbar flat style="background-color:#52B69A; color:white;">
+                    <v-icon class="ml-3 mr-2">mdi-file-pdf-box</v-icon>
+                    <v-toolbar-title class="font-weight-bold">Generar carta de cronograma</v-toolbar-title>
+                  </v-toolbar>
+                  <v-card-text class="pt-5 pb-2">
+                    <v-autocomplete
+                      v-model="destinatarioSeleccionado"
+                      :items="opcionesDestinatario"
+                      item-title="label"
+                      return-object
+                      label="Cliente asignado / Propietario / Distribuidor"
+                      variant="outlined"
+                      clearable
+                      @update:modelValue="equiposSeleccionados = []"
+                    />
+                    <v-autocomplete
+                      v-if="destinatarioSeleccionado"
+                      v-model="equiposSeleccionados"
+                      :items="equiposDisponibles"
+                      item-title="title"
+                      item-value="value"
+                      label="Equipos a incluir en la carta (vacío = todos)"
+                      variant="outlined"
+                      multiple
+                      chips
+                      closable-chips
+                      clearable
+                      class="mt-2"
+                    />
+                    <div v-if="destinatarioSeleccionado" class="text-caption text-grey mt-2 mb-1">
+                      <span v-if="destinatarioCarta.nombre">
+                        <strong>Dirigida a:</strong> {{ destinatarioCarta.nombre }}
+                        <span v-if="destinatarioCarta.ciudad"> — {{ destinatarioCarta.ciudad }}</span>
+                      </span>
+                      &nbsp;·&nbsp;
+                      <strong>{{ equiposParaCarta.length }}</strong> equipo(s) con MP programado
+                    </div>
+                  </v-card-text>
+                  <v-card-actions class="pa-4 pt-0 justify-end">
+                    <v-btn variant="text" @click="dialogImprimirCronograma = false">Cancelar</v-btn>
+                    <v-btn color="#52B69A" variant="flat" style="color:white;"
+                      :disabled="!destinatarioSeleccionado || equiposParaCarta.length === 0"
+                      prepend-icon="mdi-printer"
+                      @click="imprimirCronogramaPDF(); dialogImprimirCronograma = false">
+                      Imprimir
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
 
             </v-card>
           </v-dialog>
@@ -556,9 +609,10 @@
 </template>
 <script>
 import axios from "axios";
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import DetallesEquipoComponent from "./DetallesEquipoComponent.vue";
+import biosystemsLogo from '../imagenes/logo/biosystems.jpg';
 export default {
   components: {
     DetallesEquipoComponent
@@ -582,6 +636,9 @@ export default {
     fechaDeMovimiento: null,
     ventanaDetallesEquipo: false,
     VentanaCronograma: false,
+    dialogImprimirCronograma: false,
+    destinatarioSeleccionado: null,
+    equiposSeleccionados: [],
     dialogoclientes: false,
     historialclientes: [],
     dialog: false,
@@ -911,6 +968,59 @@ export default {
         // Si tiene roles, verifica si el rol del usuario está permitido
         return column.roles.includes(this.$store.state.user.rol);
       });
+    },
+    opcionesDestinatario() {
+      const construir = (entidad, tipo) => {
+        if (!entidad?.nombre) return null;
+        const tipoLabel = tipo === 'propietario' ? 'Propietario' : tipo === 'cliente' ? 'Cliente' : 'Distribuidor';
+        const ciudad = entidad.sedePrincipal?.ciudad || '';
+        const label = ciudad ? `${entidad.nombre} — ${ciudad} — ${tipoLabel}` : `${entidad.nombre} — ${tipoLabel}`;
+        return { label, nombre: entidad.nombre, ciudad, tipo };
+      };
+      const agregar = (mapa, obj) => {
+        if (!obj) return;
+        const key = `${obj.tipo}|${obj.nombre}|${obj.ciudad}`;
+        if (!mapa.has(key)) mapa.set(key, obj);
+      };
+      const propMap = new Map(), cliMap = new Map(), disMap = new Map();
+      for (const e of this.equiposCronograma) {
+        agregar(propMap, construir(e.propietario, 'propietario'));
+        agregar(cliMap,  construir(e.cliente,     'cliente'));
+        agregar(disMap,  construir(e.proveedor,   'distribuidor'));
+      }
+      const ordenar = m => [...m.values()].sort((a, b) => a.nombre.localeCompare(b.nombre));
+      return [...ordenar(propMap), ...ordenar(cliMap), ...ordenar(disMap)];
+    },
+    equiposBaseFiltrados() {
+      if (!this.destinatarioSeleccionado) return [];
+      const { nombre, tipo } = this.destinatarioSeleccionado;
+      return this.equiposCronograma.filter(e => {
+        if (tipo === 'propietario') return e.propietario?.nombre === nombre;
+        if (tipo === 'cliente')     return e.cliente?.nombre === nombre;
+        if (tipo === 'distribuidor') return e.proveedor?.nombre === nombre;
+        return false;
+      }).filter(e => e.referencia?.periodicidadmantenimiento !== 'Libre de mantenimiento');
+    },
+    equiposDisponibles() {
+      return this.equiposBaseFiltrados.map(e => {
+        const fecha = this.calcularFechaVencimiento(e) || 'Sin fecha';
+        const serie = e.serie ? ` — ${e.serie}` : '';
+        return { title: `${e.nombre}${serie} — ${fecha}`, value: e.id };
+      });
+    },
+    equiposParaCarta() {
+      if (!this.destinatarioSeleccionado) return [];
+      if (!this.equiposSeleccionados.length) return this.equiposBaseFiltrados;
+      return this.equiposBaseFiltrados.filter(e => this.equiposSeleccionados.includes(e.id));
+    },
+    destinatarioCarta() {
+      if (!this.destinatarioSeleccionado) return { nombre: '', ciudad: '' };
+      const { nombre, tipo } = this.destinatarioSeleccionado;
+      if (tipo === 'distribuidor') return { nombre, ciudad: '' };
+      const equipo = this.equiposParaCarta[0];
+      const esBiosystems = (equipo?.proveedor?.nombre || '').toLowerCase().includes('biosystems');
+      if (!esBiosystems && equipo) return { nombre: equipo.proveedor?.nombre || '', ciudad: '' };
+      return { nombre, ciudad: equipo?.ubicacionNombre || '' };
     },
     formTitle() {
       if (this.dialog2) {
@@ -1745,17 +1855,17 @@ export default {
           Estado: item.estado,
           'Tipo de Contrato': item.tipoDeContrato,
         }));
-        const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-        saveAs(blob, 'Equipos.xlsx');
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet('Equipos');
+        if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
+        ws.addRows(exportData);
+        const buffer = await wb.xlsx.writeBuffer();
+        saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Equipos.xlsx');
       } catch (err) {
         console.error("Error al exportar a Excel:", err);
       }
     },
-    exportarAExcel() {
+    async exportarAExcel() {
       const exportData = this.equiposCronograma.map(item => ({
         Nombre: item.nombre,
         Serie: item.serie,
@@ -1767,12 +1877,115 @@ export default {
         ProximoMantenimiento: this.calcularFechaVencimiento(item),
         DiasRestantes: this.calcularDiferencia(item),
       }));
-      const ws = XLSX.utils.json_to_sheet(exportData, { origin: 'A1' });
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Equipos');
-      const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-      saveAs(blob, 'Cronograma MP.xlsx');
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Equipos');
+      if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
+      ws.addRows(exportData);
+      const buffer = await wb.xlsx.writeBuffer();
+      saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Cronograma MP.xlsx');
+    },
+
+    async imprimirCronogramaPDF() {
+      const hoy = new Date();
+      const dia = hoy.getDate();
+      const mesNombre = hoy.toLocaleDateString('es-CO', { month: 'long' });
+      const anio = hoy.getFullYear();
+      const fechaStr = `Medellín ${dia} de ${mesNombre} de ${anio}`;
+
+      const dest = this.destinatarioCarta;
+      const usuario = this.$store.state.user;
+
+      let firma = null;
+      try {
+        const { data } = await this.$axios.get(
+          this.$store.state.ruta + 'api/usuario/buscarfirma',
+          { headers: { token: this.$store.state.token } }
+        );
+        firma = data.firma;
+      } catch { /* sin firma registrada */ }
+
+      const filas = this.equiposParaCarta.map(item => {
+        const fv = this.obtenerFechaVencimiento(item);
+        const mesMP = fv
+          ? fv.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' })
+          : '-';
+        const mesCap = mesMP.charAt(0).toUpperCase() + mesMP.slice(1);
+        return `<tr>
+          <td>${item.nombre}</td>
+          <td>${item.serie}</td>
+          <td>${mesCap}</td>
+        </tr>`;
+      }).join('');
+
+      const firmaHtml = firma
+        ? `<img src="${firma}" style="height:75px;display:block;margin-bottom:2px;" />`
+        : '';
+
+      const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cronograma MP - ${dest.nombre} - ${this.equiposSeleccionados.length ? `${this.equiposSeleccionados.length} equipo(s)` : 'Todos los equipos'}</title>
+<style>
+  @page { margin: 1.8cm 2cm 2.5cm; }
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; margin: 0; }
+  .header-wrap { text-align: right; margin-bottom: 28px; }
+  p { margin: 0 0 14px; }
+  .destinatario { margin-bottom: 20px; line-height: 1.9; }
+  .cuerpo { text-align: justify; line-height: 1.65; }
+  table.cronograma { border-collapse: collapse; margin: 22px auto; min-width: 55%; }
+  table.cronograma th { background: #fff; color: #000; padding: 7px 18px; text-align: center; font-weight: bold; border: 1px solid #000; }
+  table.cronograma td { border: 1px solid #000; padding: 6px 18px; text-align: center; }
+  .firma { margin-top: 40px; }
+  .footer-bar { position: fixed; bottom: 0; left: 0; right: 0;
+                border-top: 1px solid #bbb; text-align: center;
+                font-size: 8pt; color: #555; padding: 6px 0; background: white; }
+</style>
+</head>
+<body>
+<div class="header-wrap">
+  <img src="${biosystemsLogo}" style="max-height:65px;" />
+</div>
+
+<p>${fechaStr}</p>
+
+<div class="destinatario">
+  <strong>Señores</strong><br>
+  <strong>${dest.nombre}</strong>${dest.ciudad ? `<br>${dest.ciudad}` : ''}
+</div>
+
+<p>Reciban un cordial saludo,</p>
+
+<p class="cuerpo">Por medio de la presente les informamos el cronograma de mantenimiento preventivo de los analizadores instalados en su laboratorio.</p>
+
+<table class="cronograma">
+  <thead><tr><th>Equipo</th><th>Número de Serie</th><th>Mes</th></tr></thead>
+  <tbody>${filas}</tbody>
+</table>
+
+<p class="cuerpo">La fecha exacta de la visita será programada de manera anticipada, con el fin de no afectar el normal desarrollo de las actividades del laboratorio.</p>
+
+<p class="cuerpo">En el caso de los equipos propiedad del usuario, dicha programación se llevará a cabo conforme a los términos establecidos en un contrato de servicio vigente o, en su defecto, previa aceptación de la cotización correspondiente para la prestación del servicio de mantenimiento.</p>
+
+<div class="firma">
+  <p>Atentamente,</p>
+  ${firmaHtml}
+  <p><strong>${usuario.nombre}</strong><br>Biosystems S.A.S.</p>
+</div>
+
+<div class="footer-bar">
+  Transversal 5A No. 45-139, Patio Bonito – El Poblado - Teléfono 312 07 00 - Medellín - Colombia &nbsp;|&nbsp;
+  E-mail: ventas@biosystems.com.co - cotizaciones@biosystems.com.co &nbsp;|&nbsp;
+  Página web: www.biosystems.com.co
+</div>
+</body>
+</html>`;
+
+      const ventana = window.open('', '_blank');
+      ventana.document.write(html);
+      ventana.document.close();
+      ventana.focus();
+      setTimeout(() => { ventana.print(); }, 600);
     },
 
     calcularDiferencia(item) {

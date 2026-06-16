@@ -26,6 +26,7 @@ const store = createStore({
         movimientosPendientes: 0,
         snackbarSesion: { visible: false, texto: '' },
         sesionExpirando: false,
+        refreshCount: 0,
     },
     mutations: {//creo las mutaciones para cambiar el valor de las variables del estado
         setToken(state, token) {//con state accedo a las variables del estado y con el token accedo al valor que devolvio el back al momento de loguearme
@@ -72,6 +73,12 @@ const store = createStore({
         setSesionExpirando(state, val) {
             state.sesionExpirando = val;
         },
+        setRefreshCount(state, val) {
+            state.refreshCount = val;
+        },
+        incrementRefreshCount(state) {
+            state.refreshCount++;
+        },
     },
     actions: {
         // Guarda el access token en estado (memoria) y el refresh token en localStorage
@@ -79,6 +86,7 @@ const store = createStore({
             commit("setToken", accessToken);
             commit("setUsuario", jwtdecode(accessToken));
             commit("setExistetoken", 1);
+            commit("setRefreshCount", 0);
             localStorage.setItem('refreshToken', refreshToken);
         },
 
@@ -144,6 +152,7 @@ const store = createStore({
             } finally {
                 commit("setToken", null);
                 commit("setUsuario", null);
+                commit("setRefreshCount", 0);
                 localStorage.removeItem('refreshToken');
                 router.push({ name: 'Login' });
             }

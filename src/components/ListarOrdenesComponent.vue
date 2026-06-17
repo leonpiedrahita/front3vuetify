@@ -432,33 +432,32 @@ export default {
             this.ventanaSeguimiento = true;
         },
         async exportarAExcel() {
-            const exportData = this.ordenes.map(item => ({
-                Equipo: item.equipo.nombre,
-                Serie: item.equipo.serie,
-                Cliente: item.equipo.cliente.nombre,
-                Ciudad: item.equipo.ubicacionNombre,
-                EstadoIngreso: item.estado,
-                EstadoEquipo: item.equipo.estado,
-                ubicacion: item.etapas && item.etapas.length > 0
-                    ? (item.etapas.at(-1)?.ubicacion ?? item.etapas[item.etapas.length - 1].ubicacion)
-                    : 'N/A',
-                FechaIngreso: this.formatearFecha(item.createdAt),
-                UltimaActualizacion: this.formatearFecha(item.updatedAt),
-                EtapaActual: item.etapas && item.etapas.length > 0
-                    ? (item.etapas.at(-1)?.nombre ?? item.etapas[item.etapas.length - 1].nombre)
-                    : 'N/A',
-
-
-            }));
-            const wb = new ExcelJS.Workbook();
-            const ws = wb.addWorksheet('Ingresos');
-            if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
-            ws.addRows(exportData);
-            const excelBuffer = await wb.xlsx.writeBuffer();
-            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const now = new Date();
-            const fechaActual = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
-            saveAs(blob, `Ingresos-${fechaActual}.xlsx`);
+            try {
+                const exportData = this.ordenes.map(item => ({
+                    Equipo: item.equipo?.nombre ?? '',
+                    Serie: item.equipo?.serie ?? '',
+                    Cliente: item.equipo?.cliente?.nombre ?? '',
+                    Ciudad: item.equipo?.ubicacionNombre ?? '',
+                    EstadoIngreso: item.estado ?? '',
+                    EstadoEquipo: item.equipo?.estado ?? '',
+                    Ubicacion: item.etapas?.length > 0 ? (item.etapas.at(-1)?.ubicacion ?? '') : 'N/A',
+                    FechaIngreso: this.formatearFecha(item.createdAt),
+                    UltimaActualizacion: this.formatearFecha(item.updatedAt),
+                    EtapaActual: item.etapas?.length > 0 ? (item.etapas.at(-1)?.nombre ?? '') : 'N/A',
+                }));
+                const wb = new ExcelJS.Workbook();
+                const ws = wb.addWorksheet('Ingresos');
+                if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
+                ws.addRows(exportData);
+                const excelBuffer = await wb.xlsx.writeBuffer();
+                const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const now = new Date();
+                const fechaActual = `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
+                saveAs(blob, `Ingresos-${fechaActual}.xlsx`);
+            } catch (err) {
+                console.error('Error al exportar ingresos a Excel:', err);
+                alert('No se pudo exportar el archivo Excel. Intente nuevamente.');
+            }
         },
     },
     beforeCreate() {

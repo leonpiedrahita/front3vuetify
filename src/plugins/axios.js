@@ -5,19 +5,44 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const MAX_REFRESH = 2;
 
+// Promesa compartida: evita que peticiones concurrentes con token expirado
+// disparen múltiples llamadas al endpoint de refresh simultáneamente.
+let refreshPromise = null;
+
 const axiosPlugin = {
   install: (app) => {
     const instance = axios.create();
 
     app.config.globalProperties.$axios = instance;
 
+    const getStore = () => app.config.globalProperties.$store;
+
+    // Helper único de refresh — cualquier llamada concurrente espera la misma Promise
+    const doRefresh = () => {
+      if (!refreshPromise) {
+        const rt = localStorage.getItem('refreshToken');
+        refreshPromise = axios
+          .post(`${apiUrl}api/usuario/refresh`, { refreshToken: rt })
+          .then(({ data }) => {
+            const store = getStore();
+            store.commit('setToken', data.accessToken);
+            store.commit('setUsuario', jwtdecode(data.accessToken));
+            store.commit('incrementRefreshCount');
+            if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+            return data.accessToken;
+          })
+          .finally(() => { refreshPromise = null; });
+      }
+      return refreshPromise;
+    };
+
     // Verifica expiración del token ANTES de cualquier petición (todos los métodos).
     // Renueva automáticamente el access token si expiró, hasta MAX_REFRESH veces por sesión.
-    axios.interceptors.request.use(async config => {
+    instance.interceptors.request.use(async config => {
       // No interceptar los endpoints de autenticación (evita bucles)
       if (config.url?.includes('/api/usuario/')) return config;
 
-      const store = app.config.globalProperties.$store;
+      const store = getStore();
       if (!store) return config;
 
       // Si ya hay un cierre de sesión en curso, cancelar silenciosamente
@@ -32,14 +57,10 @@ const axiosPlugin = {
         return Promise.reject(new Error('SESION_EXPIRADA'));
       }
 
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
+      if (localStorage.getItem('refreshToken')) {
         try {
-          const { data } = await axios.post(`${apiUrl}api/usuario/refresh`, { refreshToken });
-          store.commit('setToken', data.accessToken);
-          store.commit('setUsuario', jwtdecode(data.accessToken));
-          store.commit('incrementRefreshCount');
-          config.headers['token'] = data.accessToken;
+          const newToken = await doRefresh();
+          config.headers['token'] = newToken;
           return config;
         } catch { /* refresh también expiró */ }
       }
@@ -72,27 +93,21 @@ const axiosPlugin = {
         if (error.response?.status === 403 && !original._retry) {
           original._retry = true;
 
-          const store = app.config.globalProperties.$store;
+          const store = getStore();
 
           if (store.state.refreshCount >= MAX_REFRESH) {
             store.dispatch('sesionExpirada');
             return Promise.reject(error);
           }
 
-          const refreshToken = localStorage.getItem('refreshToken');
-          if (!refreshToken) {
+          if (!localStorage.getItem('refreshToken')) {
             store.dispatch('salir');
             return Promise.reject(error);
           }
 
           try {
-            const { data } = await axios.post(`${apiUrl}api/usuario/refresh`, { refreshToken });
-
-            store.commit('setToken', data.accessToken);
-            store.commit('setUsuario', jwtdecode(data.accessToken));
-            store.commit('incrementRefreshCount');
-
-            original.headers['token'] = data.accessToken;
+            const newToken = await doRefresh();
+            original.headers['token'] = newToken;
             return instance(original);
           } catch (refreshError) {
             store.dispatch('salir');

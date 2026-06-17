@@ -117,14 +117,25 @@ const store = createStore({
                     return false;
                 }
 
-                const { accessToken } = await response.json();
+                const data = await response.json();
+                const accessToken = data.accessToken;
+                if (typeof accessToken !== 'string' || !accessToken) {
+                    throw new Error('Respuesta de refresh inválida');
+                }
                 commit("setToken", accessToken);
                 commit("setUsuario", jwtdecode(accessToken));
                 commit("setExistetoken", 1);
+                commit("setRefreshCount", 0);
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
                 return true;
             } catch (error) {
+                // El refreshToken inválido ya fue descartado en el bloque !response.ok.
+                // Aquí solo llegamos por errores transitorios (red, JSON malformado,
+                // jwtdecode sobre un accessToken ausente) — conservar el refreshToken
+                // para que el usuario pueda reintentar.
                 console.error("Error en autoLogin:", error);
-                localStorage.removeItem('refreshToken');
                 commit("setExistetoken", 0);
                 return false;
             }

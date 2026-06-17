@@ -172,23 +172,28 @@ export default {
             }
         },
         async exportarExcel() {
-            const datos = this.itemsFiltrados.map(o => ({
-                Equipo: o.equipo.nombre,
-                Serie: o.equipo.serie,
-                Cliente: o.equipo.cliente.nombre,
-                Ubicacion: o.ubicacionFlat,
-                Confirmacion: o.etapas?.some(e => e.confirmado === false) ? 'Pendiente' : 'Confirmado',
-                ConfirmadoPor: o.etapas?.at(-1)?.confirmadoPor || '',
-                EtapaActual: o.etapaActualFlat,
-            }));
-            const wb = new ExcelJS.Workbook();
-            const ws = wb.addWorksheet('Ubicaciones');
-            if (datos.length) ws.columns = Object.keys(datos[0]).map(k => ({ header: k, key: k, width: 22 }));
-            ws.addRows(datos);
-            const buf = await wb.xlsx.writeBuffer();
-            const now = new Date();
-            const fecha = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-            saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `ubicaciones_${fecha}.xlsx`);
+            try {
+                const datos = this.itemsFiltrados.map(o => ({
+                    Equipo: o.equipo?.nombre ?? '',
+                    Serie: o.equipo?.serie ?? '',
+                    Cliente: o.equipo?.cliente?.nombre ?? '',
+                    Ubicacion: o.ubicacionFlat ?? '',
+                    Confirmacion: o.etapas?.some(e => e.confirmado === false) ? 'Pendiente' : 'Confirmado',
+                    ConfirmadoPor: o.etapas?.at(-1)?.confirmadoPor || '',
+                    EtapaActual: o.etapaActualFlat ?? '',
+                }));
+                const wb = new ExcelJS.Workbook();
+                const ws = wb.addWorksheet('Ubicaciones');
+                if (datos.length) ws.columns = Object.keys(datos[0]).map(k => ({ header: k, key: k, width: 22 }));
+                ws.addRows(datos);
+                const buf = await wb.xlsx.writeBuffer();
+                const now = new Date();
+                const fecha = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+                saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `ubicaciones_${fecha}.xlsx`);
+            } catch (err) {
+                console.error('Error al exportar ubicaciones a Excel:', err);
+                alert('No se pudo exportar el archivo Excel. Intente nuevamente.');
+            }
         },
     },
     created() {

@@ -47,6 +47,13 @@
               <v-col cols="12" md="6">
                 <div class="text-h6 mb-4">Cambiar contraseña</div>
                 <v-text-field
+                  v-model="contrasenaActual"
+                  label="Contraseña actual"
+                  :type="mostrarContrasena ? 'text' : 'password'"
+                  variant="outlined"
+                  :error-messages="errorContrasenaActual"
+                />
+                <v-text-field
                   v-model="nuevaContrasena"
                   label="Nueva contraseña"
                   :type="mostrarContrasena ? 'text' : 'password'"
@@ -178,10 +185,12 @@ export default {
       selectedItem: 1,
       ready: false,
       dialogoUsuario: false,
+      contrasenaActual: "",
       nuevaContrasena: "",
       confirmarContrasena: "",
       mostrarContrasena: false,
       guardandoContrasena: false,
+      errorContrasenaActual: "",
       errorContrasena: "",
       errorConfirmar: "",
       mensajeExito: "",
@@ -202,16 +211,24 @@ export default {
     },
     cerrarDialogoUsuario() {
       this.dialogoUsuario = false;
+      this.contrasenaActual = "";
       this.nuevaContrasena = "";
       this.confirmarContrasena = "";
+      this.errorContrasenaActual = "";
       this.errorContrasena = "";
       this.errorConfirmar = "";
       this.mensajeExito = "";
     },
     async cambiarContrasena() {
+      this.errorContrasenaActual = "";
       this.errorContrasena = "";
       this.errorConfirmar = "";
       this.mensajeExito = "";
+
+      if (!this.contrasenaActual) {
+        this.errorContrasenaActual = "Ingrese su contraseña actual";
+        return;
+      }
 
       const regexContrasena = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$/;
       if (!this.nuevaContrasena || !regexContrasena.test(this.nuevaContrasena)) {
@@ -227,14 +244,20 @@ export default {
       try {
         await this.$axios.patch(
           `${this.$store.state.ruta}api/usuario/cambiarcontrasena`,
-          { newPassword: this.nuevaContrasena },
+          { oldPassword: this.contrasenaActual, newPassword: this.nuevaContrasena },
           { headers: { token: this.$store.state.token } }
         );
         this.mensajeExito = "Contraseña actualizada correctamente";
+        this.contrasenaActual = "";
         this.nuevaContrasena = "";
         this.confirmarContrasena = "";
       } catch (err) {
-        this.errorContrasena = err.response?.data?.message || "Error al actualizar la contraseña";
+        const msg = err.response?.data?.message || "Error al actualizar la contraseña";
+        if (err.response?.status === 401) {
+          this.errorContrasenaActual = msg;
+        } else {
+          this.errorContrasena = msg;
+        }
       } finally {
         this.guardandoContrasena = false;
       }

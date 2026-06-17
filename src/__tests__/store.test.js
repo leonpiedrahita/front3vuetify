@@ -187,6 +187,20 @@ describe('Action: autoLogin', () => {
     expect(store.state.existe).toBe(1);
   });
 
+  it('resets refreshCount to 0 on successful refresh', async () => {
+    localStorage.setItem('refreshToken', 'valid-refresh');
+    store.commit('setRefreshCount', 2);
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: 'new-access-token' }),
+    }));
+
+    await store.dispatch('autoLogin');
+
+    expect(store.state.refreshCount).toBe(0);
+  });
+
   it('removes refreshToken and returns false when server responds with 4xx', async () => {
     localStorage.setItem('refreshToken', 'expired-refresh');
 
@@ -203,7 +217,7 @@ describe('Action: autoLogin', () => {
     expect(localStorage.getItem('refreshToken')).toBeNull();
   });
 
-  it('removes refreshToken and returns false when fetch throws a network error', async () => {
+  it('preserves refreshToken and returns false when fetch throws a network error', async () => {
     localStorage.setItem('refreshToken', 'some-refresh');
 
     const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
@@ -213,7 +227,24 @@ describe('Action: autoLogin', () => {
 
     expect(result).toBe(false);
     expect(store.state.existe).toBe(0);
-    expect(localStorage.getItem('refreshToken')).toBeNull();
+    // Hallazgo 13: errores transitorios no deben destruir un refreshToken válido
+    expect(localStorage.getItem('refreshToken')).toBe('some-refresh');
+  });
+
+  it('preserves refreshToken when server returns ok:true but accessToken is missing', async () => {
+    localStorage.setItem('refreshToken', 'still-valid');
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ /* accessToken ausente */ }),
+    }));
+
+    const result = await store.dispatch('autoLogin');
+
+    expect(result).toBe(false);
+    expect(store.state.existe).toBe(0);
+    // El refreshToken puede seguir siendo válido — no se debe eliminar
+    expect(localStorage.getItem('refreshToken')).toBe('still-valid');
   });
 });
 

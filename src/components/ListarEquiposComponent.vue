@@ -1019,7 +1019,7 @@ export default {
       if (tipo === 'distribuidor') return { nombre, ciudad: '' };
       const equipo = this.equiposParaCarta[0];
       const esBiosystems = (equipo?.proveedor?.nombre || '').toLowerCase().includes('biosystems');
-      if (!esBiosystems && equipo) return { nombre: equipo.proveedor?.nombre || '', ciudad: '' };
+      if (!esBiosystems && equipo?.proveedor?.nombre) return { nombre: equipo.proveedor.nombre, ciudad: '' };
       return { nombre, ciudad: equipo?.ubicacionNombre || '' };
     },
     formTitle() {
@@ -1178,7 +1178,7 @@ export default {
     },
     abrirCronograma() {
       this.VentanaCronograma = true;
-      axios
+      this.$axios
         .get(this.$store.state.ruta + "api/equipo/listartodos", {
           headers: { token: this.$store.state.token },
         })
@@ -1866,26 +1866,31 @@ export default {
       }
     },
     async exportarAExcel() {
-      const exportData = this.equiposCronograma.map(item => ({
-        Nombre: item.nombre,
-        Serie: item.serie,
-        Propietario: item.propietario.nombre,
-        Proveedor: item.proveedor.nombre,
-        Cliente: item.cliente.nombre,
-        Ubicacion: item.ubicacionNombre,
-        Contrato: item.tipoDeContrato,
-        ProximoMantenimiento: this.calcularFechaVencimiento(item),
-        DiasRestantes: this.calcularDiferencia(item),
-      }));
-      const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet('Equipos');
-      if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
-      ws.addRows(exportData);
-      const buffer = await wb.xlsx.writeBuffer();
-      saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Cronograma MP.xlsx');
+      try {
+        const exportData = this.equiposCronograma.map(item => ({
+          Nombre: item.nombre,
+          Serie: item.serie,
+          Propietario: item.propietario?.nombre ?? '',
+          Proveedor: item.proveedor?.nombre ?? '',
+          Cliente: item.cliente?.nombre ?? '',
+          Ubicacion: item.ubicacionNombre,
+          Contrato: item.tipoDeContrato,
+          ProximoMantenimiento: this.calcularFechaVencimiento(item),
+          DiasRestantes: this.calcularDiferencia(item),
+        }));
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet('Equipos');
+        if (exportData.length) ws.columns = Object.keys(exportData[0]).map(k => ({ header: k, key: k, width: 22 }));
+        ws.addRows(exportData);
+        const buffer = await wb.xlsx.writeBuffer();
+        saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Cronograma MP.xlsx');
+      } catch (err) {
+        console.error('Error al exportar cronograma a Excel:', err);
+      }
     },
 
     async imprimirCronogramaPDF() {
+      const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       const hoy = new Date();
       const dia = hoy.getDate();
       const mesNombre = hoy.toLocaleDateString('es-CO', { month: 'long' });
@@ -1911,13 +1916,13 @@ export default {
           : '-';
         const mesCap = mesMP.charAt(0).toUpperCase() + mesMP.slice(1);
         return `<tr>
-          <td>${item.nombre}</td>
-          <td>${item.serie}</td>
+          <td>${esc(item.nombre)}</td>
+          <td>${esc(item.serie)}</td>
           <td>${mesCap}</td>
         </tr>`;
       }).join('');
 
-      const firmaHtml = firma
+      const firmaHtml = firma && /^data:image\/(png|jpeg|webp|gif);base64,/.test(firma)
         ? `<img src="${firma}" style="height:75px;display:block;margin-bottom:2px;" />`
         : '';
 
@@ -1925,10 +1930,13 @@ export default {
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Cronograma MP - ${dest.nombre} - ${this.equiposSeleccionados.length ? `${this.equiposSeleccionados.length} equipo(s)` : 'Todos los equipos'}</title>
+<title>Cronograma MP - ${esc(dest.nombre)} - ${this.equiposSeleccionados.length ? `${this.equiposSeleccionados.length} equipo(s)` : 'Todos los equipos'}</title>
 <style>
   @page { margin: 1.8cm 2cm 2.5cm; }
-  body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; margin: 0; }
+  body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; margin: 0; padding: 1.8cm 2cm 2.5cm; box-sizing: border-box; }
+  @media print {
+    body { padding: 0; }
+  }
   .header-wrap { text-align: right; margin-bottom: 28px; }
   p { margin: 0 0 14px; }
   .destinatario { margin-bottom: 20px; line-height: 1.9; }
@@ -1939,7 +1947,7 @@ export default {
   .firma { margin-top: 40px; }
   .footer-bar { position: fixed; bottom: 0; left: 0; right: 0;
                 border-top: 1px solid #bbb; text-align: center;
-                font-size: 8pt; color: #555; padding: 6px 0; background: white; }
+                font-size: 8pt; color: #555; padding: 6px 2cm; box-sizing: border-box; background: white; }
 </style>
 </head>
 <body>
@@ -1951,7 +1959,7 @@ export default {
 
 <div class="destinatario">
   <strong>Señores</strong><br>
-  <strong>${dest.nombre}</strong>${dest.ciudad ? `<br>${dest.ciudad}` : ''}
+  <strong>${esc(dest.nombre)}</strong>${dest.ciudad ? `<br>${esc(dest.ciudad)}` : ''}
 </div>
 
 <p>Reciban un cordial saludo,</p>
@@ -1970,7 +1978,7 @@ export default {
 <div class="firma">
   <p>Atentamente,</p>
   ${firmaHtml}
-  <p><strong>${usuario.nombre}</strong><br>Biosystems S.A.S.</p>
+  <p><strong>${esc(usuario.nombre)}</strong><br>Biosystems S.A.S.</p>
 </div>
 
 <div class="footer-bar">
@@ -1981,7 +1989,11 @@ export default {
 </body>
 </html>`;
 
-      const ventana = window.open('', '_blank');
+      const ventana = window.open('', '_blank', 'width=900,height=700,menubar=no,toolbar=no,location=no,status=no');
+      if (!ventana) {
+        alert('El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes para este sitio e intenta de nuevo.');
+        return;
+      }
       ventana.document.write(html);
       ventana.document.close();
       ventana.focus();

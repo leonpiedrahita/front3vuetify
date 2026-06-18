@@ -41,7 +41,8 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="12" md="12">
-                      <v-autocomplete v-model="nuevoequipo.nombre" :items="nombresequipos" label="Equipo" required
+                      <v-autocomplete v-model="nuevoequipo.id" :items="nombresequipos" item-title="title"
+                        item-value="id" label="Equipo" required
                         :rules="[(v) => !!v || 'Campo Requerido']">{{ nuevamarca }}</v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="12" md="12">
@@ -1057,8 +1058,8 @@ export default {
     dialog(val) {
       val || this.close();
     },
-    'nuevoequipo.nombre': function (newValue) {
-      // Este watcher se ejecutará cuando nuevoequipo.nombre cambie                                                                              
+    'nuevoequipo.id': function (newValue) {
+      // Este watcher se ejecutará cuando se seleccione una referencia (por id, siempre único)
       this.nuevamarca();
     },
     'nuevoequipo.propietario.nombre': function (newValue) {
@@ -1469,9 +1470,10 @@ export default {
               marca: equipo.marca,
               id: equipo.id,
             }));
-            this.nombresequipos = this.refequipos.map(
-              (nombres) => nombres.nombre
-            );
+            this.nombresequipos = this.refequipos.map((equipo) => ({
+              title: equipo.marca ? `${equipo.nombre} - ${equipo.marca}` : equipo.nombre,
+              id: equipo.id,
+            }));
           })
           .catch((error) => {
             //console.log(error);
@@ -1711,26 +1713,11 @@ export default {
     },
     nuevamarca: function () {
       // `this` apunta a la instancia vm
-      this.nuevoequipo.marca = this.refequipos.map((equipo) => {
-        if (equipo.nombre === this.nuevoequipo.nombre) {
-          return equipo.marca;
-        }
-      });
-
-      var filtered = this.nuevoequipo.marca.filter(function (el) {
-        return el != null;
-      });
-      this.nuevoequipo.marca = filtered[0];
-
-      this.nuevoequipo.id = this.refequipos.map((equipo) => {
-        if (equipo.nombre === this.nuevoequipo.nombre) {
-          return equipo.id;
-        }
-      });
-      var filtered = this.nuevoequipo.id.filter(function (el) {
-        return el != null;
-      });
-      this.nuevoequipo.id = filtered[0];
+      // Resuelve por id (siempre único) en vez de por nombre, ya que dos referencias
+      // distintas pueden compartir el mismo nombre si son de marcas diferentes.
+      const referencia = this.refequipos.find((equipo) => equipo.id === this.nuevoequipo.id);
+      this.nuevoequipo.nombre = referencia ? referencia.nombre : "";
+      this.nuevoequipo.marca = referencia ? referencia.marca : null;
     },
 
     nuevopropietario: function () {

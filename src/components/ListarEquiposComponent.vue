@@ -1945,7 +1945,6 @@ export default {
 <p>${fechaStr}</p>
 
 <div class="destinatario">
-  <strong>Señores</strong><br>
   <strong>${esc(dest.nombre)}</strong>${dest.ciudad ? `<br>${esc(dest.ciudad)}` : ''}
 </div>
 

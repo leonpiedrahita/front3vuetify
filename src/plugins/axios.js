@@ -11,7 +11,7 @@ let refreshPromise = null;
 
 const axiosPlugin = {
   install: (app) => {
-    const instance = axios.create();
+    const instance = axios.create({ timeout: 20000 });
 
     app.config.globalProperties.$axios = instance;
 

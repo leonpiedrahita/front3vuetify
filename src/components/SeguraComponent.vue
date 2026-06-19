@@ -85,13 +85,9 @@
     <v-navigation-drawer v-model="drawer" fixed temporary>
       <v-card class="mx-auto" max-width="300" tile>
         <v-list nav>
-          <v-list-item :to="{ name: 'ListarEquipos' }" exact>
-            <v-list-item prepend-icon="mdi-home" title="Inicio" />
-          </v-list-item>
+          <v-list-item :to="{ name: 'ListarEquipos' }" exact prepend-icon="mdi-home" title="Inicio" />
 
-          <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'ListarClientes' }">
-            <v-list-item prepend-icon="mdi-account-box-multiple" title="Clientes" />
-          </v-list-item>
+          <v-list-item v-if="this.$store.state.user.rol !== 'lumira'" :to="{ name: 'ListarClientes' }" prepend-icon="mdi-account-box-multiple" title="Clientes" />
 
           <v-list-group>
             <template v-slot:activator="{ props }">
@@ -108,9 +104,7 @@
               </v-list-item-subtitle>
             </v-list-item>
           </v-list-group>
-          <v-list-item :to="{ name: 'ListarOrdenes' }">
-            <v-list-item prepend-icon="mdi-vector-circle" title="Ingresos" />
-          </v-list-item>
+          <v-list-item :to="{ name: 'ListarOrdenes' }" prepend-icon="mdi-vector-circle" title="Ingresos" />
 
           <v-list-group no-action>
             <template v-slot:activator="{ props }">
@@ -136,20 +130,16 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-item v-if="['administrador','soporte','aplicaciones','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }">
-            <v-list-item prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
-          </v-list-item>
+          <v-list-item v-if="['administrador','soporte','aplicaciones','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }" prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
 
           <v-list-item
             v-if="['administrador','soporte','aplicaciones','comercial','cotizaciones','ventas','ingresos','lumira'].includes(this.$store.state.user.rol)"
             :to="{ name: 'CalendarioPreventivos' }"
-          >
-            <v-list-item prepend-icon="mdi-calendar-clock" title="Calendario Preventivos" />
-          </v-list-item>
+            prepend-icon="mdi-calendar-clock"
+            title="Calendario Preventivos"
+          />
 
-          <v-list-item v-if="this.$store.state.user.rol === 'administrador'" :to="{ name: 'ImportarArchivos' }">
-            <v-list-item prepend-icon="mdi-file-upload-outline" title="Importar Archivos" />
-          </v-list-item>
+          <v-list-item v-if="this.$store.state.user.rol === 'administrador'" :to="{ name: 'ImportarArchivos' }" prepend-icon="mdi-file-upload-outline" title="Importar Archivos" />
 
           <v-list-group v-if="this.$store.state.user.rol === 'administrador'" prepend-icon="mdi-security" no-action>
             <template v-slot:activator="{ props }">

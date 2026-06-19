@@ -46,12 +46,26 @@
         <v-snackbar v-model="snackbar.visible" :color="snackbar.color" timeout="3000">
             {{ snackbar.texto }}
         </v-snackbar>
+
+        <v-dialog v-model="errorGuardar" persistent width="500">
+            <v-card>
+                <v-toolbar color="error" dark flat>
+                    <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+                    <v-toolbar-title class="font-weight-bold">Error</v-toolbar-title>
+                </v-toolbar>
+                <v-card-text class="text-body-1 pt-5 pb-3">
+                    {{ mensajeErrorGuardar }}
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Entendido</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
     name: 'BandejaMovimientosComponent',
     data() {
@@ -60,6 +74,8 @@ export default {
             movimientos: [],
             confirmando: null,
             snackbar: { visible: false, texto: '', color: 'success' },
+            errorGuardar: false,
+            mensajeErrorGuardar: "",
             encabezado: [
                 { title: 'Equipo — Serie', key: 'equipo', sortable: false, align: 'start' },
                 { title: 'Cliente', key: 'cliente', sortable: false, align: 'center' },
@@ -81,16 +97,21 @@ export default {
                 return ['administrador', 'soporte', 'lumira', 'aplicaciones'].includes(rol);
             return false;
         },
+        mostrarErrorGuardar(mensaje) {
+            this.mensajeErrorGuardar = mensaje || 'No se pudo completar la acción. Por favor verifique su conexión e intente nuevamente.';
+            this.errorGuardar = true;
+        },
         async cargar() {
             this.cargando = true;
             try {
-                const { data } = await axios.get(
+                const { data } = await this.$axios.get(
                     `${this.$store.state.ruta}api/ingreso/movimientos/pendientes`,
                     { headers: { token: this.$store.state.token } }
                 );
                 this.movimientos = data;
             } catch (err) {
                 console.error(err);
+                this.mostrarErrorGuardar(err.response?.data?.error);
             } finally {
                 this.cargando = false;
             }
@@ -98,7 +119,7 @@ export default {
         async confirmar(etapa) {
             this.confirmando = etapa.id;
             try {
-                await axios.patch(
+                await this.$axios.patch(
                     `${this.$store.state.ruta}api/ingreso/confirmar/${etapa.ingreso.id}/etapa/${etapa.id}`,
                     {},
                     { headers: { token: this.$store.state.token } }
@@ -107,7 +128,7 @@ export default {
                 this.$store.dispatch('fetchMovimientosPendientes');
                 await this.cargar();
             } catch (err) {
-                this.snackbar = { visible: true, texto: 'Error al confirmar el movimiento', color: 'error' };
+                this.mostrarErrorGuardar(err.response?.data?.error);
             } finally {
                 this.confirmando = null;
             }

@@ -315,6 +315,21 @@
               </v-card-text>
             </v-card>
           </v-dialog>
+          <v-dialog v-model="errorGuardar" persistent width="500">
+            <v-card>
+              <v-toolbar color="error" dark flat>
+                <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+                <v-toolbar-title class="font-weight-bold">Error</v-toolbar-title>
+              </v-toolbar>
+              <v-card-text class="text-body-1 pt-5 pb-3">
+                {{ mensajeErrorGuardar }}
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Entendido</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-dialog v-model="dialogoclientes" transition="dialog-bottom-transition" persistent fullscreen>
             <v-card>
 
@@ -651,6 +666,8 @@ export default {
     dialogoetapa: false,
     esIngresoNuevoEquipo: false,
     textodialogo: "",
+    errorGuardar: false,
+    mensajeErrorGuardar: "",
     search: "",
     cargando: false,
     esperaguardar: false,
@@ -1293,8 +1310,8 @@ export default {
         console.log("ciudad", this.nuevoequipo.ubicacion.ciudad);
         console.log("direccion", this.nuevoequipo.ubicacion.direccion);
 
-
-        axios
+        this.esperaguardar = true;
+        this.$axios
           .post(
             this.$store.state.ruta + "api/equipo/registrar/",
             {
@@ -1313,6 +1330,7 @@ export default {
           )
           .then((response) => {
             console.log(response);
+            this.esperaguardar = false;
             this.$nextTick(() => {
               this.nuevoequipo.nombre = "";
               this.nuevoequipo.marca = null;
@@ -1342,20 +1360,20 @@ export default {
             this.nuevaEtapa.nombre = 'Listo para despacho';
             this.nuevaEtapa.ubicacion = 'Bodega de equipos nuevos';
             this.dialogoetapa = true;
+            this.dialog2 = false;
+            this.close();
           })
           .catch((error) => {
             if (error.response?.status === 409) {
+              this.esperaguardar = false;
               this.textodialogo = "El número de serie ya se encuentra registrado";
               this.dialogo = true;
             } else {
-              console.error(error);
+              this.mostrarErrorGuardar();
             }
           });
 
       }
-
-      this.dialog2 = false;
-      this.close();
     }
     ,
     actualizarequipo() {
@@ -1404,7 +1422,8 @@ export default {
       };
       console.log("payload", payload);
       // Llamada PATCH
-      axios
+      this.esperaguardar = true;
+      this.$axios
         .patch(
           `${this.$store.state.ruta}api/equipo/actualizar/${this.equipomodificado.id}`,
           payload,
@@ -1416,6 +1435,7 @@ export default {
         )
         .then((response) => {
           console.log(response);
+          this.esperaguardar = false;
           /* this.$nextTick(() => {
             this.equipomodificado = this.nuevoequipopordefecto;
           }); */
@@ -1426,8 +1446,8 @@ export default {
 
         })
         .catch((error) => {
-          console.log(error);
-          return error;
+          console.error(error);
+          this.mostrarErrorGuardar();
         });
     },
     nuevoEquipo() {
@@ -1626,7 +1646,7 @@ export default {
         console.log("nuevaetapa", this.nuevaEtapa);
         // A. API Call 1: Registrar la Etapa
         // Usamos 'await' para esperar la respuesta antes de continuar.
-        await axios.post(
+        await this.$axios.post(
           rutaBase + "api/ingreso/registrar",
           {
             equipo: { id: this.editedItem.id },
@@ -1651,7 +1671,7 @@ export default {
         const rolActualiza = ["bodega", "soporte", "aplicaciones", "administrador"].includes(this.$store.state.user.rol);
         if (esNuevoEquipo || rolActualiza) {
           const nuevoEstado = esNuevoEquipo ? "Nuevo" : "En soporte";
-          axios.patch(
+          this.$axios.patch(
             rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
             { nuevoEstado },
             { headers: { token } }
@@ -1675,9 +1695,7 @@ export default {
         } else {
           // Manejar otros errores (p. ej., error de red, 404, 500 genérico)
           console.error("Error al confirmar etapa:", error);
-          // Opcional: mostrar un mensaje de error genérico al usuario
-          // this.textodialogo = "Ocurrió un error desconocido. Intente de nuevo.";
-          // this.dialogo = true; 
+          this.mostrarErrorGuardar();
         }
       }
     },
@@ -1710,6 +1728,11 @@ export default {
           console.log(error);
           return error;
         });
+    },
+    mostrarErrorGuardar(mensaje) {
+      this.esperaguardar = false;
+      this.mensajeErrorGuardar = mensaje || 'No se pudo completar la acción. Por favor verifique su conexión e intente nuevamente.';
+      this.errorGuardar = true;
     },
     nuevamarca: function () {
       // `this` apunta a la instancia vm
@@ -1945,6 +1968,7 @@ export default {
 <p>${fechaStr}</p>
 
 <div class="destinatario">
+  <strong>Dirigido a:</strong><br>
   <strong>${esc(dest.nombre)}</strong>${dest.ciudad ? `<br>${esc(dest.ciudad)}` : ''}
 </div>
 

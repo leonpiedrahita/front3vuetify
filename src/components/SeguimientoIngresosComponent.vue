@@ -75,11 +75,9 @@
     </v-card>
     <v-dialog v-model="dialogoNuevaEtapa" transition="dialog-bottom-transition" persistent max-width="800">
         <v-toolbar flat color="primary">
-            <v-toolbar-title class="text-center font-weight-bold">
+            <v-toolbar-title class="text-center font-weight-bold text-h5">
                 Añadir nueva etapa
             </v-toolbar-title>
-            <v-spacer></v-spacer>
-
         </v-toolbar>
 
         <v-card>
@@ -87,13 +85,18 @@
                 <v-form ref="formNuevaEtapa">
                     <v-container>
                         <v-row>
-                            <v-col cols="12">
+                            <v-col cols="12" sm="6">
                                 <h2 class="text-h6 text-primary text-center">Etapa actual</h2>
                                 <p class="text-center text-body-3 text-black font-weight-bold">
                                     {{ ingreso.etapas[ingreso.etapas.length - 1].nombre }}
                                 </p>
                             </v-col>
-
+                            <v-col cols="12" sm="6">
+                                <h2 class="text-h6 text-primary text-center">Ubicación actual</h2>
+                                <p class="text-center text-body-3 text-black font-weight-bold">
+                                    {{ ingreso.etapas[ingreso.etapas.length - 1].ubicacion }}
+                                </p>
+                            </v-col>
 
                             <v-col cols="12">
                                 <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
@@ -101,7 +104,7 @@
                                     variant="outlined"></v-textarea>
                             </v-col>
                             <v-col cols="12">
-                                <h2 class="text-h6 text-primary text-center">Nueva Etapa</h2>
+                                <h2 class="text-h6 text-primary text-center">Nueva Etapa y Ubicación</h2>
                                 <v-divider class="mt-1 mb-4"></v-divider>
                             </v-col>
                             <v-col cols="12" md="6">
@@ -136,6 +139,21 @@
             </v-card-text>
         </v-card>
     </v-dialog>
+    <v-dialog v-model="errorGuardar" persistent width="500">
+        <v-card>
+            <v-toolbar color="error" dark flat>
+                <v-icon class="ml-3 mr-2">mdi-alert-circle</v-icon>
+                <v-toolbar-title class="font-weight-bold">Error</v-toolbar-title>
+            </v-toolbar>
+            <v-card-text class="text-body-1 pt-5 pb-3">
+                {{ mensajeErrorGuardar }}
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer />
+                <v-btn color="error" variant="flat" class="mb-2 mr-2" @click="errorGuardar = false">Entendido</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
     <v-dialog v-model="cambiarestado" persistent width="500">
         <v-card>
             <v-toolbar flat color="primary">
@@ -165,7 +183,6 @@
 
 <script>
 import { ref } from 'vue'; // ref se usa para simular la reactividad inicial, pero lo moveremos a data()
-import axios from "axios";
 export default {
     data() {
         // --- Datos Fijos de Ejemplo (Simulación de API) ---
@@ -187,10 +204,15 @@ export default {
             nuevoestadoequipo: null,
             listadeestadosequipo: ['En soporte', 'En uso', 'Disponible', 'Disponible Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
             ingreso,
+            esperarguardar, // Antes no se incluía aquí: this.esperarguardar nunca era reactivo
+            listadeEtapas,
+            nuevoEstado,
             dialogoNuevaEtapa: false, // Reemplaza ref(false)
             modeloEtapaInicial,
             nuevaEtapa: { ...modeloEtapaInicial }, // Reemplaza ref({ ... })
             // formNuevaEtapa necesita una ref en la plantilla, se accede vía this.$refs
+            errorGuardar: false,
+            mensajeErrorGuardar: "",
         };
     },
     methods: {
@@ -234,6 +256,11 @@ export default {
             }
 
             // --- Preparación de Datos ---
+            // Se captura antes de cerrar el sub-diálogo "Nuevo estado del equipo", para que
+            // solo se vea un diálogo a la vez: o bien "Por favor espere..." directamente
+            // (si no hubo cambio de estado), o el sub-diálogo hasta dar Aceptar y ahí "Por favor espere...".
+            const habiaCambioEstado = this.cambiarestado;
+            this.cambiarestado = false;
             this.esperarguardar = true;
 
             // Mejora 1: Formato de fecha más limpio con template literals y padStart
@@ -268,13 +295,13 @@ export default {
                 ultimaEtapa: this.ingreso.ultimaEtapa,
                 ubicacion: this.nuevaEtapa.ubicacion,
                 estado: nuevoEstado,
-                nuevoestadoequipo: this.cambiarestado ? this.nuevoestadoequipo : null,
+                nuevoestadoequipo: habiaCambioEstado ? this.nuevoestadoequipo : null,
             };
 
             try {
                 // 3. API Call 1: Agregar Etapa
                 // Mejora 3: Uso de await para esperar la respuesta de la primera API
-                const responseEtapa = await axios.post(
+                const responseEtapa = await this.$axios.post(
                     `${rutaBase}api/ingreso/agregaretapa/${ingresoId}`,
                     payloadEtapa,
                     { headers: { token } }
@@ -282,17 +309,17 @@ export default {
                 console.log('Respuesta de agregar etapa:', responseEtapa.data);
 
                 // 4. API Call 2: Actualizar Estado del Equipo (Condicional)
-                if (this.cambiarestado) {
+                if (habiaCambioEstado) {
                     this.ingreso.equipo.estado = this.nuevoestadoequipo; // Actualiza el estado local
 
                     // Mejora 4: Uso de await para la segunda llamada sin anidar promesas
-                    const responseEquipo = await axios.patch(
+                    const responseEquipo = await this.$axios.patch(
                         `${rutaBase}api/equipo/actualizarestado/${this.ingreso.equipo.id}`,
                         { nuevoEstado: this.nuevoestadoequipo },
                         { headers: { token } }
                     );
                     console.log('Respuesta de actualización de equipo:', responseEquipo.data);
-                    this.cambiarestado = false; // Restablecer la bandera después del éxito
+                    this.nuevoestadoequipo = null; // Restablecer tras el éxito
                 }
 
                 // 5. Limpieza de Estado y UI (Tras Éxito)
@@ -302,25 +329,13 @@ export default {
 
                 // Cierra el diálogo y consulta datos actualizados solo si todo fue exitoso
                 this.consultarEquipoActualizado();
+                this.$store.dispatch('fetchMovimientosPendientes');
                 this.cerrarDialogoNuevaEtapa();
 
             } catch (error) {
                 // 6. Manejo de Errores
                 console.error("Error al guardar la nueva etapa o actualizar el equipo:", error);
-
-                // Uso de Encadenamiento Opcional (?.) para acceso seguro a propiedades
-                if (error.response?.data?.error) {
-                    // Manejo de errores específicos
-                    this.textodialogo = error.response.data.error;
-                    this.dialogoetapa = false;
-                    // No se limpian los campos aquí si se asume que el usuario debe ver el error y reintentar
-                    this.dialogo = true;
-                } else {
-                    // Manejo de errores genéricos (ej. error de red)
-                    // Opcional: mostrar un mensaje de error genérico al usuario
-                    // this.textodialogo = "Ocurrió un error inesperado. Por favor, intente de nuevo.";
-                    // this.dialogo = true;
-                }
+                this.mostrarErrorGuardar(error.response?.data?.error);
 
             } finally {
                 // 7. Limpieza Final (Garantizada)
@@ -336,78 +351,13 @@ export default {
                 this.guardarNuevaEtapa();
             }
         },
-        async guardarNuevaEtapaEstado() {
-            // Accede a la referencia del formulario y llama a validate()
-            const { valid } = await this.$refs.formNuevaEtapa.validate();
-
-            if (valid) {
-                this.$store.dispatch("autoLogin");
-                if (this.$store.state.existe === 0) {
-                    this.$router.push({ name: "Login" });
-                } else {
-                    this.esperarguardar = true;
-                    var today = new Date();
-                    var date =
-                        "(" +
-                        today.getDate() +
-                        "-" +
-                        (today.getMonth() + 1) +
-                        "-" +
-                        today.getFullYear() +
-                        ")";
-                    this.ingreso.etapaActual++;
-                    this.ingreso.ultimaEtapa++;
-                    if (this.nuevaEtapa.nombre === "Despachado" || this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado") {
-                        this.nuevoEstado = "Cerrado";
-                    }
-                    else {
-                        this.nuevoEstado = "Abierto";
-                    }
-                    axios
-                        .post(
-                            this.$store.state.ruta + "api/ingreso/agregaretapa/" + this.ingreso.id,
-                            {
-                                nombre: this.nuevaEtapa.nombre,
-                                comentario: this.nuevaEtapa.comentario,
-                                responsable: this.$store.state.user.nombre,
-                                fecha: date,
-                                etapaActual: this.ingreso.etapaActual,
-                                ultimaEtapa: this.ingreso.ultimaEtapa,
-                                ubicacion: this.nuevaEtapa.ubicacion,
-                                estado: this.nuevoEstado,
-                            },
-                            {
-                                headers: {
-                                    token: this.$store.state.token,
-                                },
-                            }
-                        )
-                        .then((response) => {
-                            console.log(response);
-                            this.esperarguardar = false;
-                            this.etapaautorizada = "";
-                            this.observaciones = "";
-                            this.ubicacionseleccionada = "";
-                            this.consultarEquipoActualizado();
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                            return error;
-                        });
-                }
-                this.cerrarDialogoNuevaEtapa();
-                this.esperarguardar = false;
-            } else {
-                alert('Por favor, complete todos los campos obligatorios.');
-            }
-        },
         consultarEquipo() {
             this.ingreso = this.$store.state.ingreso.ingreso;
         },
         consultarEquipoActualizado() {
 
 
-            axios
+            this.$axios
                 .get(this.$store.state.ruta + `api/ingreso/ingresoid/` + this.ingreso.id,
                     {
                         headers: {
@@ -435,10 +385,15 @@ export default {
                 return ['administrador', 'soporte', 'lumira', 'aplicaciones'].includes(rol);
             return false;
         },
+        mostrarErrorGuardar(mensaje) {
+            this.esperarguardar = false;
+            this.mensajeErrorGuardar = mensaje || 'No se pudo completar la acción. Por favor verifique su conexión e intente nuevamente.';
+            this.errorGuardar = true;
+        },
         async confirmarLlegada(etapa) {
             this.confirmando = etapa.id;
             try {
-                await axios.patch(
+                await this.$axios.patch(
                     `${this.$store.state.ruta}api/ingreso/confirmar/${this.ingreso.id}/etapa/${etapa.id}`,
                     {},
                     { headers: { token: this.$store.state.token } }
@@ -447,6 +402,7 @@ export default {
                 this.$store.dispatch('fetchMovimientosPendientes');
             } catch (err) {
                 console.error('Error al confirmar llegada:', err.response?.data || err.message);
+                this.mostrarErrorGuardar(err.response?.data?.error);
             } finally {
                 this.confirmando = null;
             }

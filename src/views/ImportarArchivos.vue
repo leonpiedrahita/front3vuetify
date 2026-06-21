@@ -79,6 +79,7 @@
           <div>Total procesados: <strong>{{ resultado.total }}</strong></div>
           <div>Con NIT encontrado: <strong>{{ resultado.actualizados }}</strong></div>
           <div>Sin NIT en CSV: <strong>{{ resultado.enBlanco }}</strong></div>
+          <div>Propios de Biosystems (sin cartera): <strong>{{ resultado.propioBiosystems }}</strong></div>
         </v-alert>
       </v-card>
 

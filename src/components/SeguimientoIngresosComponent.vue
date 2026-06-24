@@ -344,7 +344,12 @@ export default {
             }
         },
         consultarEstado() {
-            if (this.nuevaEtapa.nombre === "Finalizado" || this.nuevaEtapa.nombre === "Cancelado" || this.nuevaEtapa.nombre === "Listo para despacho") {
+            // Si la etapa no cambia (solo se actualiza la ubicación), el equipo
+            // mantiene el estado ya asignado y no se vuelve a preguntar.
+            const etapaActual = this.ingreso.etapas[this.ingreso.etapas.length - 1]?.nombre;
+            const requiereNuevoEstado = ["Finalizado", "Cancelado", "Listo para despacho"].includes(this.nuevaEtapa.nombre);
+
+            if (requiereNuevoEstado && this.nuevaEtapa.nombre !== etapaActual) {
                 this.cambiarestado = true;
             }
             else {

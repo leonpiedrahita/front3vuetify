@@ -286,7 +286,7 @@
                 <v-divider class="mt-1 mb-4"></v-divider>
 
                 <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *"
-                  :items="esIngresoNuevoEquipo ? ['Listo para despacho'] : listadeetapas"
+                  :items="esIngresoNuevoEquipo ? ['Listo para despacho'] : etapasParaNuevoIngreso"
                   :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
@@ -629,6 +629,22 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import DetallesEquipoComponent from "./DetallesEquipoComponent.vue";
 import biosystemsLogo from '../imagenes/logo/biosystems.jpg';
+
+// Etapas asignables como "Nombre de la Etapa" al crear el primer ingreso de un
+// equipo (diálogo "Gestión de Ingreso"), según el rol del usuario.
+const ETAPAS_NUEVO_INGRESO_POR_ROL = {
+  administrador: ['Equipo nuevo', 'Listo para despacho', 'Desinfección', 'Soporte ingeniería', 'Soporte aplicaciones', 'Repuestos aprobados para entrega', 'Cotización solicitada', 'Entrenamiento realizado'],
+  soporte: ['Soporte ingeniería', 'Soporte aplicaciones'],
+  aplicaciones: ['Soporte ingeniería', 'Soporte aplicaciones'],
+  bodega: ['Desinfección'],
+  cotizaciones: ['Soporte ingeniería', 'Soporte aplicaciones', 'Desinfección'],
+  ventas: ['Soporte ingeniería', 'Soporte aplicaciones', 'Desinfección'],
+  ingresos: ['Soporte ingeniería', 'Soporte aplicaciones', 'Desinfección'],
+  comercial: [],
+  calidad: [],
+  lumira: [],
+};
+
 export default {
   components: {
     DetallesEquipoComponent
@@ -679,7 +695,7 @@ export default {
     debounceTimer: null,
     _abortController: null,
     equiposCronograma: [],
-    listadeetapas: [],
+    etapasParaNuevoIngreso: [],
     listacontratos: ["Sin asignar", "Comodato", "Venta", "Venta Externo", "Alquiler", "Préstamo", "Demostración", "Fuera de Servicio", "Devuelto al Proveedor"],
     listaestados: ["Nuevo","En uso", "Disponible", "Disponible Pdte. MP.","Reservado", "En Soporte", "Fuera de servicio", "Dado de Baja"],
     nombreUbicacionesCliente: [],
@@ -716,7 +732,7 @@ export default {
         sortable: false,
       },
       {
-        title: "Ubicacion",
+        title: "Municipio, Departamento",
         align: "center",
         key: "ubicacionNombre",
         sortable: false,
@@ -1125,7 +1141,7 @@ export default {
     if (this.$store.state.existe === 0) {
       this.$router.push({ name: "Login" });
     } else {
-      this.asignarLista();
+      this.asignarEtapasNuevoIngreso();
       this.buscarEquipos();
     }
   },
@@ -1587,35 +1603,8 @@ export default {
       console.log("historialclientes", this.historialclientes.historialPropietarios);
       this.dialogoclientes = true;
     },
-    asignarLista() {
-      if (this.$store.state.user.rol === "administrador") {
-        this.listadeetapas = [
-          "Equipo nuevo", "Listo para despacho", "Desinfección", "Soporte ingeniería", "Soporte aplicaciones",
-          "Repuestos aprobados para entrega", "Cotización solicitada", "Entrenamiento realizado"
-        ];
-      } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones") {
-        this.listadeetapas = [
-          "Soporte ingeniería",
-          "Soporte aplicaciones"
-        ];
-      } else if (this.$store.state.user.rol === "bodega") {
-        this.listadeetapas = [
-          "Desinfección",
-
-        ];
-      } else if (["cotizaciones", "ventas", "ingresos"].includes(this.$store.state.user.rol)) {
-        this.listadeetapas = ["Soporte ingeniería",
-          "Soporte aplicaciones","Desinfección"];
-      } else if (this.$store.state.user.rol === "facturación") {
-        this.listadeetapas = ["Repuestos aprobados para entrega"];
-      } else if (this.$store.state.user.rol === "asesor") {
-        this.listadeetapas = [
-          "Cotización solicitada",
-          "Entrenamiento realizado",
-        ];
-      } else if (this.$store.state.user.rol === "cartera") {
-        this.listadeetapas = [];
-      }
+    asignarEtapasNuevoIngreso() {
+      this.etapasParaNuevoIngreso = ETAPAS_NUEVO_INGRESO_POR_ROL[this.$store.state.user.rol] || [];
     },
     async confirmarEtapa(m) {
       // 1. Verificación de Autenticación (se mantiene igual)

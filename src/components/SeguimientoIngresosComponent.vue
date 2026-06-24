@@ -108,7 +108,7 @@
                                 <v-divider class="mt-1 mb-4"></v-divider>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=listadeEtapas
+                                <v-select v-model="nuevaEtapa.nombre" label="Nombre de la Etapa *" :items=etapasDisponibles
                                     :rules="[v => !!v || 'El nombre es obligatorio']" required
                                     variant="outlined"></v-select>
                             </v-col>
@@ -182,13 +182,27 @@
 </template>
 
 <script>
-import { ref } from 'vue'; // ref se usa para simular la reactividad inicial, pero lo moveremos a data()
+// Etapas asignables como "Nombre de la Etapa" al añadir una etapa a un
+// ingreso ya existente (diálogo "Añadir nueva etapa"), según el rol del usuario.
+const ETAPAS_DISPONIBLES_POR_ROL = {
+    administrador: ['Cuarentena', 'Soporte ingeniería', 'Soporte aplicaciones', 'Listo para despacho', 'Cotización solicitada', 'Cotización aprobada', 'Pdte. de repuestos', 'Pdte. de aprobación de repuestos', 'Despachado', 'Finalizado', 'Cancelado'],
+    soporte: ['Soporte ingeniería', 'Soporte aplicaciones', 'Cotización solicitada', 'Pdte. de repuestos', 'Pdte. de aprobación de repuestos', 'Listo para despacho', 'Finalizado', 'Cancelado'],
+    aplicaciones: ['Soporte ingeniería', 'Soporte aplicaciones', 'Cotización solicitada', 'Pdte. de repuestos', 'Pdte. de aprobación de repuestos', 'Listo para despacho', 'Finalizado', 'Cancelado'],
+    lumira: ['Soporte ingeniería', 'Soporte aplicaciones', 'Cotización solicitada', 'Pdte. de repuestos', 'Pdte. de aprobación de repuestos', 'Listo para despacho', 'Finalizado', 'Cancelado'],
+    bodega: ['Cuarentena', 'Despachado', 'Soporte ingeniería', 'Soporte aplicaciones'],
+    cotizaciones: ['Soporte ingeniería', 'Soporte aplicaciones', 'Cotización aprobada', 'Cancelado', 'Cuarentena', 'Despachado'],
+    ventas: ['Soporte ingeniería', 'Soporte aplicaciones', 'Cotización aprobada', 'Cancelado', 'Cuarentena', 'Despachado'],
+    ingresos: ['Soporte ingeniería', 'Soporte aplicaciones', 'Cotización aprobada', 'Cancelado', 'Cuarentena', 'Despachado'],
+    comercial: [],
+    calidad: [],
+};
+
 export default {
     data() {
         // --- Datos Fijos de Ejemplo (Simulación de API) ---
         const ingreso = null;
         const esperarguardar = false;
-        const listadeEtapas = [];
+        const etapasDisponibles = [];
         const nuevoEstado = null;
         const modeloEtapaInicial = {
             nombre: '',
@@ -205,7 +219,7 @@ export default {
             listadeestadosequipo: ['En soporte', 'En uso', 'Disponible', 'Disponible Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
             ingreso,
             esperarguardar, // Antes no se incluía aquí: this.esperarguardar nunca era reactivo
-            listadeEtapas,
+            etapasDisponibles,
             nuevoEstado,
             dialogoNuevaEtapa: false, // Reemplaza ref(false)
             modeloEtapaInicial,
@@ -412,59 +426,8 @@ export default {
                 this.confirmando = null;
             }
         },
-        asignarLista() {
-            if (this.$store.state.user.rol === "administrador") {
-                this.listadeEtapas = [
-                    "Cuarentena",
-                    "Soporte ingeniería",
-                    "Soporte aplicaciones",
-                    "Listo para despacho",
-                    "Cotización solicitada",
-                    "Cotización aprobada",
-                    "Pdte. de repuestos",
-                    "Pdte. de aprobación de repuestos",
-                    "Despachado",
-                    "Finalizado",
-                    "Cancelado"
-                    ,
-
-                ];
-            } else if (this.$store.state.user.rol === "soporte" || this.$store.state.user.rol === "aplicaciones" || this.$store.state.user.rol === "lumira") {
-                this.listadeEtapas = [
-                    "Soporte ingeniería",
-                    "Soporte aplicaciones",
-                    "Cotización solicitada",
-                    "Pdte. de repuestos",
-                    "Pdte. de aprobación de repuestos",
-                    "Listo para despacho",
-                    "Finalizado",
-                    "Cancelado"
-                ];
-            }
-            else if (this.$store.state.user.rol === "bodega") {
-                this.listadeEtapas = [
-                    "Cuarentena",
-                    "Despachado",
-                    "Soporte ingeniería",
-                    "Soporte aplicaciones",
-                ];
-
-            }
-            else if (["cotizaciones", "ventas", "ingresos"].includes(this.$store.state.user.rol)) {
-                this.listadeEtapas = [
-                    "Soporte ingeniería",
-                    "Soporte aplicaciones",
-                    "Cotización aprobada",
-                    "Cancelado",
-                    "Cuarentena",
-                    "Despachado",
-                ];
-
-            } else if (this.$store.state.user.rol === "comercial") {
-                this.listadeEtapas = [];
-            } else if (this.$store.state.user.rol === "calidad") {
-                this.listadeEtapas = [];
-            }
+        asignarEtapasDisponibles() {
+            this.etapasDisponibles = ETAPAS_DISPONIBLES_POR_ROL[this.$store.state.user.rol] || [];
         },
     },
     created() {
@@ -473,8 +436,7 @@ export default {
             this.$router.push({ name: "Login" });
         } else {
             this.consultarEquipo();
-            this.asignarLista();
-            
+            this.asignarEtapasDisponibles();
         }
 
     },

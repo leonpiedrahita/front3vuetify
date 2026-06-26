@@ -546,6 +546,7 @@ export default {
       "Entrenamiento remoto": { remoto: 1, campo: 0, cronograma: 0 },
       "Desinstalación": { remoto: 1, campo: 1, cronograma: 0 },
       "Inspección": { remoto: 0, campo: 1, cronograma: 0 },
+      "Evaluación de desempeño": { remoto: 1, campo: 1, cronograma: 0 },
       "Actualización": { remoto: 1, campo: 1, cronograma: 0 },
       "Asesoría": { remoto: 1, campo: 1, cronograma: 0 },
     },

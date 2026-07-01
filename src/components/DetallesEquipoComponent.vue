@@ -57,7 +57,8 @@
               <v-col cols="12" md="12">
                 <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
                   multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
-                  show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+                  show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange"
+                  hint="Tamaño máximo permitido: 10MB" persistent-hint>
                   <template v-slot:selection="{ fileNames }">
                     <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
                       {{ file }}
@@ -100,7 +101,8 @@
               <v-col cols="12" md="12">
                 <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
                   multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
-                  show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+                  show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange"
+                  hint="Tamaño máximo permitido: 10MB" persistent-hint>
                   <template v-slot:selection="{ fileNames }">
                     <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
                       {{ file }}

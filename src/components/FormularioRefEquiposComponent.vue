@@ -43,7 +43,8 @@
                   <v-col cols="12" md="12">
                     <v-file-input v-model="files" label="Seleccione un documento" placeholder="Seleccione un documento"
                       multiple prepend-icon="mdi-paperclip" accept="image/png, image/jpeg, image/bmp, application/pdf"
-                      show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange">
+                      show-size counter :rules="fileRules" :error-messages="fileErrorMessages" outlined dense
+                      @update:modelValue="onFileChange" :hint="limiteArchivoHint" persistent-hint>
                       <template v-slot:selection="{ fileNames }">
                         <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary"
                           class="ma-1">
@@ -59,11 +60,8 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="error" text @click="cancelarGuardarDocumento"> Cancelar </v-btn>
-              <v-btn :disabled="!(
-                files &&
-                nombredocumentoseleccionado
-              )
-                " color="success" text @click="guardarDocumento">
+              <v-btn :disabled="!(files && nombredocumentoseleccionado && !fileErrorMessages)"
+                color="success" text @click="guardarDocumento">
                 Guardar
               </v-btn>
             </v-card-actions>
@@ -393,9 +391,7 @@ export default {
     ],
     sino: ["Si", "No"],
     fileRules: [
-      value => !value || value.length <= 1 || 'Máximo 1 archivos permitidos.',
-      value =>
-        !value || value.every(file => file.size < 10 * 1024 * 1024) || 'Cada archivo debe ser menor a 10MB.',
+      value => !value || value.length <= 1 || 'Máximo 1 archivo permitido.',
       value =>
         !value || value.every(file => ['image/png', 'image/jpeg', 'image/bmp', 'application/pdf'].includes(file.type))
         || 'Solo se permiten imágenes y archivos PDF.',
@@ -403,6 +399,20 @@ export default {
   }),
 
   computed: {
+    fileErrorMessages() {
+      if (!this.files) return '';
+      const filesArray = Array.isArray(this.files) ? this.files : [this.files];
+      const esGrande = ['Manual de usuario', 'Brochure'].includes(this.nombredocumentoseleccionado);
+      const maxSize = esGrande ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+      const maxLabel = esGrande ? '100MB' : '10MB';
+      return filesArray.some(file => file.size >= maxSize)
+        ? `Cada archivo debe ser menor a ${maxLabel}.`
+        : '';
+    },
+    limiteArchivoHint() {
+      const esGrande = ['Manual de usuario', 'Brochure'].includes(this.nombredocumentoseleccionado);
+      return `Tamaño máximo permitido: ${esGrande ? '100MB' : '10MB'}`;
+    },
     encabezadosDocumentosLegales() {
       const cols = [
         { title: "Documento", key: "nombreDocumento", align: "center" },

@@ -347,6 +347,7 @@ export default {
       "Registro INVIMA",
       "Manual de usuario",
       "Guía rápida",
+      "Guía de mantenimiento de usuario",
       "Brochure",
     ],
     dialogEliminarDoc: false,

@@ -1,13 +1,26 @@
+// Directiva v-permission: restringe elementos de UI según el rol del usuario.
+// NOTA: esto es solo UX — la autorización real la aplica el backend en cada endpoint.
+// Uso: v-permission="['administrador', 'soporte']"
+// Con modificador hide: v-permission.hide="['administrador']" — oculta en vez de deshabilitar.
+
+function aplicarPermiso(el, binding) {
+  const userRole = binding.instance?.$store?.state?.user?.rol;
+  const allowedRoles = Array.isArray(binding.value) ? binding.value : [];
+  const autorizado = allowedRoles.includes(userRole);
+
+  if (!autorizado) {
+    if (binding.modifiers.hide) {
+      el.style.display = 'none';
+    } else {
+      el.disabled = true;
+      el.classList.add('disabled');
+      el.setAttribute('aria-disabled', 'true');
+      el.style.pointerEvents = 'none';
+    }
+  }
+}
+
 export default {
-    mounted(el, binding) {
-        const userRole = binding.instance.$store.state.user.rol; // Rol del usuario desde Vuex o Pinia
-        const allowedRoles = binding.value; // Roles permitidos
-    
-        // Verifica si el rol del usuario está en la lista de roles permitidos
-        if (!allowedRoles.includes(userRole)) {
-          // Deshabilita el botón en lugar de ocultarlo
-          el.disabled = true;
-          el.classList.add('disabled'); // Agrega una clase opcional para estilos
-        }
-      }
-  };
+  mounted: aplicarPermiso,
+  updated: aplicarPermiso,
+};

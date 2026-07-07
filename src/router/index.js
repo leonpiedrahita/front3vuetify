@@ -171,4 +171,27 @@ const router = createRouter({
   routes,
 })
 
+// Guard global: bloquea navegación a rutas con meta.auth sin sesión válida.
+// El import es dinámico para evitar dependencia circular (store importa router).
+router.beforeEach(async (to) => {
+  if (!to.meta.auth) return true;
+
+  const { default: store } = await import('../store');
+
+  // Sin sesión activa en memoria: intentar recuperarla con el refresh token
+  if (!store.state.token || store.state.existe !== 1) {
+    const restaurada = await store.dispatch('autoLogin');
+    if (!restaurada) return { name: 'Login' };
+  }
+
+  // Access token vencido y sin refresh token disponible: sesión expirada
+  const exp = store.state.user?.exp;
+  if (exp && exp * 1000 < Date.now() && !localStorage.getItem('refreshToken')) {
+    store.dispatch('sesionExpirada');
+    return { name: 'Login' };
+  }
+
+  return true;
+});
+
 export default router

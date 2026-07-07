@@ -62,30 +62,37 @@ const axiosPlugin = {
           const newToken = await doRefresh();
           config.headers['token'] = newToken;
           return config;
-        } catch { /* refresh también expiró */ }
+        } catch (refreshError) {
+          // Refresh también expiró: continúa hacia sesionExpirada (feedback al usuario)
+          if (import.meta.env.DEV) console.error('[API] Falló renovación de token:', refreshError);
+        }
       }
 
       store.dispatch('sesionExpirada');
       return Promise.reject(new Error('SESION_EXPIRADA'));
     });
 
-    // Interceptor de request: log de salida
+    // Interceptor de request: log de salida (solo en desarrollo)
     instance.interceptors.request.use(config => {
-      console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+      if (import.meta.env.DEV) console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
       return config;
     });
 
     // Interceptor de respuesta: log de resultado + renueva el access token automáticamente en 403
     instance.interceptors.response.use(
       response => {
-        console.log(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+        if (import.meta.env.DEV) {
+          console.log(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+        }
         return response;
       },
       async (error) => {
-        const status = error.response?.status ?? 'ERR';
-        const url = error.config?.url ?? '';
-        const method = error.config?.method?.toUpperCase() ?? '';
-        console.error(`[API] ${status} ${method} ${url}`, error.response?.data ?? error.message);
+        if (import.meta.env.DEV) {
+          const status = error.response?.status ?? 'ERR';
+          const url = error.config?.url ?? '';
+          const method = error.config?.method?.toUpperCase() ?? '';
+          console.error(`[API] ${status} ${method} ${url}`, error.response?.data ?? error.message);
+        }
 
         const original = error.config;
 

@@ -7,9 +7,10 @@ function aplicarPermiso(el, binding) {
   const userRole = binding.instance?.$store?.state?.user?.rol;
   const allowedRoles = Array.isArray(binding.value) ? binding.value : [];
   const autorizado = allowedRoles.includes(userRole);
+  const modifiers = binding.modifiers || {};
 
   if (!autorizado) {
-    if (binding.modifiers.hide) {
+    if (modifiers.hide) {
       el.style.display = 'none';
     } else {
       el.disabled = true;

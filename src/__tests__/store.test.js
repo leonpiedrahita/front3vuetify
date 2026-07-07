@@ -201,6 +201,34 @@ describe('Action: autoLogin', () => {
     expect(store.state.refreshCount).toBe(0);
   });
 
+  it('rotates the refreshToken in localStorage when the server returns a new one', async () => {
+    localStorage.setItem('refreshToken', 'old-refresh');
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: 'new-access-token', refreshToken: 'rotated-refresh' }),
+    }));
+
+    const result = await store.dispatch('autoLogin');
+
+    expect(result).toBe(true);
+    expect(localStorage.getItem('refreshToken')).toBe('rotated-refresh');
+  });
+
+  it('keeps the existing refreshToken when the server does not rotate it', async () => {
+    localStorage.setItem('refreshToken', 'keep-me');
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: 'new-access-token' }),
+    }));
+
+    const result = await store.dispatch('autoLogin');
+
+    expect(result).toBe(true);
+    expect(localStorage.getItem('refreshToken')).toBe('keep-me');
+  });
+
   it('removes refreshToken and returns false when server responds with 4xx', async () => {
     localStorage.setItem('refreshToken', 'expired-refresh');
 

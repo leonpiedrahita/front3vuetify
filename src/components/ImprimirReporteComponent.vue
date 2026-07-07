@@ -89,31 +89,31 @@
         <div>Hallazgos</div>
       </div>
       <div class="gridcontenido titulo principal">
-        <div v-html="reporte.hallazgos.replace(/\n/g, '<br>')"></div>
+        <div style="white-space: pre-wrap">{{ reporte.hallazgos }}</div>
       </div>
       <div class="gridtitulo titulo principal negrita">
         <div>Actividades realizadas</div>
       </div>
       <div class="gridcontenido titulo principal">
-        <div v-html="reporte.actividades.replace(/\n/g, '<br>')"></div>
+        <div style="white-space: pre-wrap">{{ reporte.actividades }}</div>
       </div>
       <div class="gridtitulo titulo principal negrita">
         <div>Pruebas de aceptación</div>
       </div>
       <div class="gridcontenido titulo principal">
-        <div v-html="reporte.pruebas.replace(/\n/g, '<br>')"></div>
+        <div style="white-space: pre-wrap">{{ reporte.pruebas }}</div>
       </div>
       <div class="gridtitulo titulo principal negrita">
         <div>Repuestos utilizados</div>
       </div>
       <div class="gridcontenido titulo principal">
-        <div v-html="reporte.repuestos.replace(/\n/g, '<br>')"></div>
+        <div style="white-space: pre-wrap">{{ reporte.repuestos }}</div>
       </div>
       <div class="gridtitulo titulo principal negrita">
         <div>Observaciones</div>
       </div>
       <div class="gridcontenido titulo principal">
-        <div v-html="reporte.observaciones.replace(/\n/g, '<br>')"></div>
+        <div style="white-space: pre-wrap">{{ reporte.observaciones }}</div>
       </div>
       <div class="grid principal" fluid>
         <div class="gridfirma">
@@ -148,7 +148,7 @@ export default {
   setup() {
     const route = useRoute();
     const idreporte = ref(route.params.idreporte); // Reactivo para asegurar que se actualiza correctamente
-    console.log("ID Reporte recibido:", idreporte.value);
+    if (import.meta.env.DEV) console.log("ID Reporte recibido:", idreporte.value);
 
     return { idreporte };
   },
@@ -217,9 +217,11 @@ beforeMount() {
         return;
       }
 
-      // Limpiar tokens temporales tras leerlos
+      // Limpiar tokens temporales tras leerlos (ambos storages, por compatibilidad)
       localStorage.removeItem("printToken");
       localStorage.removeItem("printRuta");
+      sessionStorage.removeItem("printToken");
+      sessionStorage.removeItem("printRuta");
 
   axios
     .get(ruta + `api/reporte/listaruno/${id}`, {
@@ -229,7 +231,7 @@ beforeMount() {
     })
     .then((response) => {
       this.reporte = response.data;
-      console.log("Reporte:", this.reporte);
+      if (import.meta.env.DEV) console.log("Reporte:", this.reporte);
       document.title = `Reporte ${this.reporte.numero} - ${this.reporte.tipodeasistencia} - ${this.reporte.fechadefinalizacion} - ${this.reporte.nombrecliente}`;
     })
     .catch((error) => {

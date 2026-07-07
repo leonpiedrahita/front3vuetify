@@ -1330,8 +1330,10 @@ export default {
         name: 'ImprimirReporte',
         params: { idreporte: identificacion.toString() }
       }).href;
-      localStorage.setItem('printToken', this.$store.state.token);
-      localStorage.setItem('printRuta', this.$store.state.ruta);
+      // sessionStorage se copia a la pestaña abierta con window.open (mismo origen)
+      // y no persiste indefinidamente como localStorage.
+      sessionStorage.setItem('printToken', this.$store.state.token);
+      sessionStorage.setItem('printRuta', this.$store.state.ruta);
       this.urlImprimirReporte = url;
       this.dialogoImprimirReporte = true;
     },

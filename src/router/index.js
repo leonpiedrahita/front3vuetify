@@ -59,8 +59,9 @@ const routes = [
         path: '/detallesequipo',
         name: 'DetallesEquipo',
         component: () => import(/* webpackChunkName: "detallesequipo" */ '../views/DetallesEquipo.vue'),
+        // Requiere sesión: el layout Segura y las llamadas API asumen store poblado
         meta: {
-          public: true
+          auth: true
         },
       },
       {
@@ -68,7 +69,7 @@ const routes = [
         name: 'ListarRefEquipos',
         component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/ListarRefEquipos.vue'),
         meta: {
-          public: true
+          auth: true
         },
       },
       {
@@ -76,7 +77,7 @@ const routes = [
         name: 'ListarOrdenes',
         component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/ListarOrdenes.vue'),
         meta: {
-          public: true
+          auth: true
         },
       },
       {
@@ -84,7 +85,7 @@ const routes = [
         name: 'Pasos',
         component: () => import(/* webpackChunkName: "listarrefequipos" */ '../views/Pasos.vue'),
         meta: {
-          public: true
+          auth: true
         },
       },
       {

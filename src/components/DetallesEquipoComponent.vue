@@ -60,7 +60,7 @@
                   show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange"
                   hint="Tamaño máximo permitido: 10MB" persistent-hint>
                   <template v-slot:selection="{ fileNames }">
-                    <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
+                    <v-chip v-for="file in fileNames" :key="file" small label color="primary" class="ma-1">
                       {{ file }}
                     </v-chip>
                   </template>
@@ -104,7 +104,7 @@
                   show-size counter :rules="fileRules" outlined dense @update:modelValue="onFileChange"
                   hint="Tamaño máximo permitido: 10MB" persistent-hint>
                   <template v-slot:selection="{ fileNames }">
-                    <v-chip v-for="(file, index) in fileNames" :key="index" small label color="primary" class="ma-1">
+                    <v-chip v-for="file in fileNames" :key="file" small label color="primary" class="ma-1">
                       {{ file }}
                     </v-chip>
                   </template>
@@ -354,7 +354,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in historial" :key="index">
+          <tr v-for="item in historial" :key="item.id">
             <td>{{ item.fechaDeFinalizacion }}</td>
             <td>{{ item.tipoDeAsistencia }}</td>
           </tr>

@@ -187,6 +187,44 @@ describe('Action: autoLogin', () => {
     expect(store.state.existe).toBe(1);
   });
 
+  it('llamadas concurrentes comparten la misma Promise (un solo fetch de refresh)', async () => {
+    localStorage.setItem('refreshToken', 'valid-refresh');
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: 'new-access-token' }),
+    });
+    vi.stubGlobal('fetch', mockFetch);
+
+    // Disparar 3 autoLogin sin esperar entre ellos (p.ej. varios guards a la vez)
+    const [r1, r2, r3] = await Promise.all([
+      store.dispatch('autoLogin'),
+      store.dispatch('autoLogin'),
+      store.dispatch('autoLogin'),
+    ]);
+
+    expect(r1).toBe(true);
+    expect(r2).toBe(true);
+    expect(r3).toBe(true);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('tras terminar un autoLogin fallido, un reintento vuelve a hacer fetch (promesa liberada)', async () => {
+    localStorage.setItem('refreshToken', 'valid-refresh');
+
+    const mockFetch = vi.fn()
+      .mockRejectedValueOnce(new Error('network'))
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ accessToken: 'new-access-token' }) });
+    vi.stubGlobal('fetch', mockFetch);
+
+    const primero = await store.dispatch('autoLogin');
+    expect(primero).toBe(false);
+
+    const segundo = await store.dispatch('autoLogin');
+    expect(segundo).toBe(true);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
   it('resets refreshCount to 0 on successful refresh', async () => {
     localStorage.setItem('refreshToken', 'valid-refresh');
     store.commit('setRefreshCount', 2);

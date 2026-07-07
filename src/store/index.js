@@ -3,6 +3,11 @@ import { createStore } from "vuex";
 import jwtdecode from 'jwt-decode';
 import router from '../router'
 const apiUrl = import.meta.env.VITE_API_URL
+
+// Promesa compartida: evita que llamadas concurrentes a autoLogin (p.ej. varios
+// guards de navegación disparados a la vez) hagan múltiples peticiones de refresh.
+let autoLoginPromise = null;
+
 const store = createStore({
 
 
@@ -90,55 +95,67 @@ const store = createStore({
             localStorage.setItem('refreshToken', refreshToken);
         },
 
-        // Al reabrir la app: usa el refresh token para obtener un nuevo access token
-        async autoLogin({ commit, state }) {
+        // Al reabrir la app: usa el refresh token para obtener un nuevo access token.
+        // Las llamadas concurrentes comparten la misma Promise (un solo refresh).
+        autoLogin({ commit, state }) {
             // Si ya hay token en Vuex (autenticado en esta sesión), no hacer nada
             if (state.token && state.existe === 1) {
                 return true;
             }
 
-            const refreshToken = localStorage.getItem('refreshToken');
+            if (autoLoginPromise) return autoLoginPromise;
 
-            if (!refreshToken) {
-                commit("setExistetoken", 0);
-                return false;
-            }
+            autoLoginPromise = (async () => {
+                const refreshToken = localStorage.getItem('refreshToken');
 
-            try {
-                const response = await fetch(`${apiUrl}api/usuario/refresh`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ refreshToken }),
-                });
-
-                if (!response.ok) {
-                    localStorage.removeItem('refreshToken');
+                if (!refreshToken) {
                     commit("setExistetoken", 0);
                     return false;
                 }
 
-                const data = await response.json();
-                const accessToken = data.accessToken;
-                if (typeof accessToken !== 'string' || !accessToken) {
-                    throw new Error('Respuesta de refresh inválida');
+                try {
+                    const response = await fetch(`${apiUrl}api/usuario/refresh`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken }),
+                    });
+
+                    if (!response.ok) {
+                        localStorage.removeItem('refreshToken');
+                        commit("setExistetoken", 0);
+                        return false;
+                    }
+
+                    const data = await response.json();
+                    const accessToken = data.accessToken;
+                    if (typeof accessToken !== 'string' || !accessToken) {
+                        throw new Error('Respuesta de refresh inválida');
+                    }
+                    commit("setToken", accessToken);
+                    commit("setUsuario", jwtdecode(accessToken));
+                    commit("setExistetoken", 1);
+                    commit("setRefreshCount", 0);
+                    if (data.refreshToken) {
+                        localStorage.setItem('refreshToken', data.refreshToken);
+                    }
+                    return true;
+                } catch (error) {
+                    // El refreshToken inválido ya fue descartado en el bloque !response.ok.
+                    // Aquí solo llegamos por errores transitorios (red, JSON malformado,
+                    // jwtdecode sobre un accessToken ausente) — conservar el refreshToken
+                    // para que el usuario pueda reintentar.
+                    console.error("Error en autoLogin:", error);
+                    commit("setExistetoken", 0);
+                    return false;
                 }
-                commit("setToken", accessToken);
-                commit("setUsuario", jwtdecode(accessToken));
-                commit("setExistetoken", 1);
-                commit("setRefreshCount", 0);
-                if (data.refreshToken) {
-                    localStorage.setItem('refreshToken', data.refreshToken);
-                }
-                return true;
-            } catch (error) {
-                // El refreshToken inválido ya fue descartado en el bloque !response.ok.
-                // Aquí solo llegamos por errores transitorios (red, JSON malformado,
-                // jwtdecode sobre un accessToken ausente) — conservar el refreshToken
-                // para que el usuario pueda reintentar.
-                console.error("Error en autoLogin:", error);
-                commit("setExistetoken", 0);
-                return false;
-            }
+            })().finally(() => {
+                // .finally() externo: se ejecuta como microtask DESPUÉS de la
+                // asignación (un finally interno correría antes en la ruta
+                // síncrona sin refreshToken y dejaría cacheada la promesa).
+                autoLoginPromise = null;
+            });
+
+            return autoLoginPromise;
         },
 
         async sesionExpirada({ commit, dispatch, state }) {

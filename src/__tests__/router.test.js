@@ -131,32 +131,18 @@ describe('Router — authenticated child routes', () => {
 });
 
 // =============================================================================
-// Child routes with meta.public: true  (accessible without login)
+// Child routes inside /segura now require auth (fix: layout Segura asume sesión
+// y el backend exige token en todos sus endpoints)
 // =============================================================================
 
-describe('Router — public child routes inside /segura', () => {
-  it('/detallesequipo has meta.public: true', () => {
-    const route = findRoute('DetallesEquipo');
-    expect(route).toBeDefined();
-    expect(route.meta?.public).toBe(true);
-  });
-
-  it('/listarordenes has meta.public: true', () => {
-    const route = findRoute('ListarOrdenes');
-    expect(route).toBeDefined();
-    expect(route.meta?.public).toBe(true);
-  });
-
-  it('/listarrefequipos has meta.public: true', () => {
-    const route = findRoute('ListarRefEquipos');
-    expect(route).toBeDefined();
-    expect(route.meta?.public).toBe(true);
-  });
-
-  it('/pasos has meta.public: true', () => {
-    const route = findRoute('Pasos');
-    expect(route).toBeDefined();
-    expect(route.meta?.public).toBe(true);
+describe('Router — former public child routes inside /segura now require auth', () => {
+  ['DetallesEquipo', 'ListarOrdenes', 'ListarRefEquipos', 'Pasos'].forEach(name => {
+    it(`${name} has meta.auth: true and is no longer public`, () => {
+      const route = findRoute(name);
+      expect(route).toBeDefined();
+      expect(route.meta?.auth).toBe(true);
+      expect(route.meta?.public).toBeUndefined();
+    });
   });
 });
 

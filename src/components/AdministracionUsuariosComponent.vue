@@ -239,7 +239,7 @@ export default {
             password: '',
             telefono: ''
         },
-        rolesDisponibles: ["administrador", "calidad", "cotizaciones", "ventas", "ingresos", "soporte", "aplicaciones", "comercial", "bodega", "lumira"],
+        rolesDisponibles: ["administrador", "calidad", "cotizaciones", "ventas", "ingresos", "soporte", "aplicaciones", "comercial", "Dir. Comercial", "bodega", "lumira"],
         estadoOpciones: [
             { text: 'Activo', value: 1 },
             { text: 'Bloqueado', value: 0 }

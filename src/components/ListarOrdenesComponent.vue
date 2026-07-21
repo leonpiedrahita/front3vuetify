@@ -21,7 +21,7 @@
                                     clickable
                                     @click="toggleUbicacion(ub.nombre)"
                                 >
-                                    {{ ub.nombre }}
+                                    {{ $etiqueta(ub.nombre) }}
                                     <span class="ml-2 font-weight-bold text-black">{{ ub.count }}</span>
                                 </v-chip>
                                 <v-chip
@@ -55,7 +55,7 @@
                                     clickable
                                     @click="toggleEtapa(et.nombre)"
                                 >
-                                    {{ et.nombre }}
+                                    {{ $etiqueta(et.nombre) }}
                                     <span class="ml-2 font-weight-bold text-black">{{ et.count }}</span>
                                 </v-chip>
                                 <v-chip
@@ -116,7 +116,7 @@
                 {{ formatearFecha(item.updatedAt) }}
             </template>
             <template v-slot:item.ubicacionFlat="{ item }">
-    {{ item.ubicacionFlat }}
+    {{ $etiqueta(item.ubicacionFlat) }}
     <v-tooltip
         v-if="item.etapas?.some(e => e.confirmado === false && e.nombre !== 'Despachado')"
         location="top"
@@ -135,7 +135,7 @@
         class="font-weight-bold"
         variant="outlined"
     >
-        {{ item.etapaActualFlat }}
+        {{ $etiqueta(item.etapaActualFlat) }}
     </v-chip>
 </template>
 
@@ -473,6 +473,7 @@ export default {
     },
     created() {
         this.listarAbiertos();
+        this.$store.dispatch('cargarEtiquetasAlternativas');
     },
 };
 </script>

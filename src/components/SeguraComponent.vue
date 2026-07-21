@@ -130,10 +130,10 @@
             </v-list-item>
           </v-list-group>
 
-          <v-list-item v-if="['administrador','soporte','aplicaciones','comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }" prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
+          <v-list-item v-if="['administrador','soporte','aplicaciones','comercial','Dir. Comercial','calidad'].includes(this.$store.state.user.rol)" :to="{ name: 'MisBorradores' }" prepend-icon="mdi-file-document-edit-outline" title="Mis Borradores" />
 
           <v-list-item
-            v-if="['administrador','soporte','aplicaciones','comercial','cotizaciones','ventas','ingresos','lumira'].includes(this.$store.state.user.rol)"
+            v-if="['administrador','soporte','aplicaciones','comercial','Dir. Comercial','cotizaciones','ventas','ingresos','lumira'].includes(this.$store.state.user.rol)"
             :to="{ name: 'CalendarioPreventivos' }"
             prepend-icon="mdi-calendar-clock"
             title="Calendario Preventivos"

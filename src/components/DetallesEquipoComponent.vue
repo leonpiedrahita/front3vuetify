@@ -730,7 +730,7 @@ export default {
     });
   },
   documentosGestion() {
-    const rolesContrato = ['administrador', 'comercial', 'calidad', 'cotizaciones'];
+    const rolesContrato = ['administrador', 'comercial', 'Dir. Comercial', 'calidad', 'cotizaciones'];
     const puedeVerContrato = rolesContrato.includes(this.$store.state.user.rol);
     return this.documentosLegales.filter(item => {
       if (item.eliminado) return false;
@@ -763,7 +763,7 @@ export default {
     return ['administrador', 'cotizaciones'].includes(this.$store.state.user.rol);
   },
   esRolPermitido() {
-    const permitidos = ['administrador', 'calidad', 'cotizaciones', 'ventas', 'ingresos', 'comercial'];
+    const permitidos = ['administrador', 'calidad', 'cotizaciones', 'ventas', 'ingresos', 'comercial', 'Dir. Comercial'];
     return permitidos.includes(this.$store.state.user.rol);
   },
     formTitle() {

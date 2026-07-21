@@ -2,6 +2,7 @@ import { createStore } from "vuex";
 /* import { jwtdecode } from './modules'; */
 import axios from 'axios';
 import jwtdecode from 'jwt-decode';
+import { ROLES_ETIQUETAS_ALTERNATIVAS } from '../utils/etiquetas';
 import router from '../router'
 const apiUrl = import.meta.env.VITE_API_URL
 
@@ -33,6 +34,7 @@ const store = createStore({
         snackbarSesion: { visible: false, texto: '' },
         sesionExpirando: false,
         refreshCount: 0,
+        etiquetasAlternativas: false,  // toggle admin: vista simplificada de etapas/ubicaciones
     },
     mutations: {//creo las mutaciones para cambiar el valor de las variables del estado
         setToken(state, token) {//con state accedo a las variables del estado y con el token accedo al valor que devolvio el back al momento de loguearme
@@ -84,6 +86,17 @@ const store = createStore({
         },
         incrementRefreshCount(state) {
             state.refreshCount++;
+        },
+        setEtiquetasAlternativas(state, val) {
+            state.etiquetasAlternativas = val;
+        },
+    },
+    getters: {
+        // La vista con etiquetas alternativas aplica solo si el admin la habilitó
+        // y el usuario tiene uno de los roles con vista simplificada.
+        aplicaEtiquetasAlternativas(state) {
+            return state.etiquetasAlternativas
+                && ROLES_ETIQUETAS_ALTERNATIVAS.includes(state.user?.rol);
         },
     },
     actions: {
@@ -208,6 +221,17 @@ const store = createStore({
         },
         guardarDetallesEquipo({ commit }, detallesequipo) {
             commit("setDetallesEquipo", detallesequipo.detallesequipo);
+        },
+
+        // Carga el toggle de etiquetas alternativas (endpoint público). Solo tiene
+        // efecto visual para los roles con vista simplificada.
+        async cargarEtiquetasAlternativas({ commit }) {
+            try {
+                const { data } = await axios.get(`${apiUrl}api/configuracion/etiquetas-alternativas`);
+                commit('setEtiquetasAlternativas', data.habilitado === true);
+            } catch (err) {
+                console.warn('[store] No se pudo obtener etiquetas alternativas:', err.message);
+            }
         },
 
         async fetchMovimientosPendientes({ commit, state }) {

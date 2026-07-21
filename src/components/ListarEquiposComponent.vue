@@ -753,7 +753,7 @@ export default {
         value: "detalles",
         sortable: false,
         align: "center",
-        roles: ["administrador", "soporte", "aplicaciones", "comercial", "cotizaciones", "ventas", "ingresos", "calidad", "bodega"],
+        roles: ["administrador", "soporte", "aplicaciones", "comercial", "Dir. Comercial", "cotizaciones", "ventas", "ingresos", "calidad", "bodega"],
       },
       {
         title: "Editar",
@@ -774,7 +774,7 @@ export default {
         value: "crear",
         sortable: false,
         align: "center",
-        roles: ["administrador", "soporte", "aplicaciones", "comercial"],
+        roles: ["administrador", "soporte", "aplicaciones", "comercial", "Dir. Comercial"],
       },
       {
         title: "Historial Clientes",

@@ -58,6 +58,29 @@
             </div>
           </div>
         </v-card>
+
+        <v-card variant="outlined" class="pa-3" :color="etiquetasAlternativas ? 'info' : 'default'">
+          <div class="d-flex align-center ga-4">
+            <v-switch
+              v-model="etiquetasAlternativas"
+              color="info"
+              hide-details
+              :loading="guardandoEtiquetas"
+              @update:model-value="cambiarEtiquetas"
+            />
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">
+                <v-icon class="mr-2">mdi-tag-text-outline</v-icon>
+                Etiquetas simplificadas (Calidad y Dir. Comercial)
+              </div>
+              <div class="text-body-2 text-medium-emphasis">
+                {{ etiquetasAlternativas
+                  ? 'Activa — "Soporte aplicaciones" se muestra como "Soporte ingeniería" y "Bodega Prado" como "Bodega Cliente"'
+                  : 'Desactivada — estos roles ven las etapas y ubicaciones con su nombre real' }}
+              </div>
+            </div>
+          </div>
+        </v-card>
       </div>
 
       <!-- ── Tabla unificada: Notificaciones por etapa ─────────── -->
@@ -130,6 +153,7 @@ const ROLES = [
   { nombre: 'soporte' },
   { nombre: 'aplicaciones' },
   { nombre: 'comercial' },
+  { nombre: 'Dir. Comercial' },
   { nombre: 'cotizaciones' },
   { nombre: 'calidad' },
   { nombre: 'bodega' },
@@ -179,6 +203,8 @@ export default {
       guardandoGlobal: false,
       mostrarNovedades: false,
       guardandoNovedades: false,
+      etiquetasAlternativas: false,
+      guardandoEtiquetas: false,
       roles: ROLES,
       tiposEtapa: TIPOS_ETAPA,
       configuracion: configuracionInicial(),
@@ -231,6 +257,30 @@ export default {
         this.mostrarSnackbar('error', 'Error al actualizar la configuración de novedades');
       } finally {
         this.guardandoNovedades = false;
+      }
+    },
+    async cargarEtiquetas() {
+      try {
+        const { data } = await axios.get(this.$store.state.ruta + 'api/configuracion/etiquetas-alternativas');
+        this.etiquetasAlternativas = data.habilitado;
+      } catch (err) {
+        this.mostrarSnackbar('error', 'Error al cargar configuración de etiquetas');
+      }
+    },
+    async cambiarEtiquetas(valor) {
+      this.guardandoEtiquetas = true;
+      try {
+        await axios.put(
+          this.$store.state.ruta + 'api/configuracion/notificaciones',
+          { rol: 'sistema', tipoNotificacion: 'etiquetas_alternativas', habilitado: valor },
+          { headers: { token: this.$store.state.token } }
+        );
+        this.mostrarSnackbar('info', valor ? 'Etiquetas simplificadas activadas' : 'Etiquetas simplificadas desactivadas');
+      } catch (err) {
+        this.etiquetasAlternativas = !valor;
+        this.mostrarSnackbar('error', 'Error al actualizar la configuración de etiquetas');
+      } finally {
+        this.guardandoEtiquetas = false;
       }
     },
     async cambiarGlobal(valor) {
@@ -310,6 +360,7 @@ export default {
     });
     this.cargarGlobal();
     this.cargarNovedades();
+    this.cargarEtiquetas();
     this.cargar();
   },
 };

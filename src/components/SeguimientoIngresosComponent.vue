@@ -16,7 +16,7 @@
             <!-- Botón cerrar a la derecha -->
         </v-toolbar>
         <div class="d-flex justify-center align-center mb-2 mt-2"
-            v-if="ingreso.estado === 'Abierto' && this.$store.state.user.rol !== 'comercial' && this.$store.state.user.rol !== 'calidad'">
+            v-if="ingreso.estado === 'Abierto' && this.$store.state.user.rol !== 'comercial' && this.$store.state.user.rol !== 'Dir. Comercial' && this.$store.state.user.rol !== 'calidad'">
 
             <v-btn color="c6" prepend-icon="mdi-plus" @click="abrirDialogoNuevaEtapa">
                 Actualizar etapa
@@ -36,7 +36,7 @@
                 <template v-slot:opposite>
                     <div class="d-flex flex-column align-end text-end">
                         <div class="text-subtitle-1"><strong class="me-4">{{ etapa.fecha || 'Sin fecha' }}</strong></div>
-                        <div class="text-h6"><strong>{{ etapa.nombre }}</strong></div>
+                        <div class="text-h6"><strong>{{ $etiqueta(etapa.nombre) }}</strong></div>
                     </div>
                 </template>
                 <div>
@@ -44,7 +44,7 @@
                 <strong>Comentario:</strong> {{ etapa.comentario || 'Sin comentario' }}
             </div>
             <div class="text-body-1 mb-1">
-                <strong>Ubicación:</strong> {{ etapa.ubicacion || 'Sin ubicación' }}
+                <strong>Ubicación:</strong> {{ $etiqueta(etapa.ubicacion) || 'Sin ubicación' }}
             </div>
             <div class="text-body-1">
                 <strong>Responsable:</strong> {{ etapa.responsable || 'No asignado' }}
@@ -437,6 +437,7 @@ export default {
         } else {
             this.consultarEquipo();
             this.asignarEtapasDisponibles();
+            this.$store.dispatch('cargarEtiquetasAlternativas');
         }
 
     },

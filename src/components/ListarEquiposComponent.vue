@@ -275,7 +275,7 @@
                   label="Etapa de Ingreso" required></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacionEtapaSeleccionada" label="Ubicación del equipo *"
-                  :items="['Bodega de equipos nuevos', 'Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Bodega Prado', 'Cliente']"
+                  :items="ubicacionesEtapaInicial"
                   :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
                 <v-textarea v-model="nuevaEtapa.comentario" label="Comentario/Observaciones"
@@ -290,7 +290,7 @@
                   :rules="[v => !!v || 'El nombre es obligatorio']" required variant="outlined"></v-select>
 
                 <v-select v-model="nuevaEtapa.ubicacion" label="Ubicación del equipo *"
-                  :items="['Bodega de equipos nuevos', 'Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Cliente', 'Dado de baja']"
+                  :items="ubicacionesNuevaEtapa"
                   :rules="[v => !!v || 'La ubicación es obligatoria']" required variant="outlined"></v-select>
 
               </v-card-text>
@@ -299,13 +299,35 @@
                 <v-btn color="error" variant="flat" large @click="cancelarEtapa()">
                   Cancelar
                 </v-btn>
-                <v-btn color="success" variant="flat" large @click="confirmarEtapa(0)"
+                <v-btn color="success" variant="flat" large @click="consultarEstadoIngreso()"
                   :disabled="!nuevaEtapa.etapaSeleccionada || !nuevaEtapa.ubicacionEtapaSeleccionada || !nuevaEtapa.comentario || !nuevaEtapa.nombre || !nuevaEtapa.ubicacion">
                   Confirmar Ingreso
                 </v-btn>
               </v-card-actions>
             </v-card>
 
+          </v-dialog>
+          <!-- Diálogo de estado del equipo: se abre al confirmar un ingreso de equipo
+               existente cuya etapa requiere definir el estado (Listo para despacho, etc.) -->
+          <v-dialog v-model="cambiarestado" persistent width="500">
+            <v-card>
+              <v-toolbar flat color="primary">
+                <v-toolbar-title class="text-center font-weight-bold">
+                  Nuevo estado del equipo
+                </v-toolbar-title>
+              </v-toolbar>
+              <v-card-text>
+                <v-select v-model="nuevoestadoequipo" label="Nuevo estado *" :items="listadeestadosequipo"
+                  :rules="[v => !!v || 'El estado es obligatorio']" required></v-select>
+              </v-card-text>
+              <v-card-actions class="pa-4 bg-grey-lighten-4">
+                <v-spacer></v-spacer>
+                <v-btn color="error" variant="flat" @click="cancelarCambioEstadoIngreso">Cancelar</v-btn>
+                <v-btn :disabled="!nuevoestadoequipo" color="success" variant="flat" @click="confirmarEtapa(0)">
+                  Aceptar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
           </v-dialog>
           <v-dialog v-model="esperaguardar" persistent width="500">
             <v-card color="c6" dark>
@@ -632,6 +654,10 @@ import biosystemsLogo from '../imagenes/logo/biosystems.jpg';
 
 // Etapas asignables como "Nombre de la Etapa" al crear el primer ingreso de un
 // equipo (diálogo "Gestión de Ingreso"), según el rol del usuario.
+// Ubicaciones del menú de cambio de etapas (SeguimientoIngresos). El administrador
+// usa esta misma lista al crear un ingreso desde un equipo existente.
+const UBICACIONES_CAMBIO_ETAPA = ['Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Bodega de despachos', 'Bodega Prado', 'Cliente', 'Dado de baja'];
+
 const ETAPAS_NUEVO_INGRESO_POR_ROL = {
   administrador: ['Equipo nuevo', 'Listo para despacho', 'Desinfección', 'Soporte ingeniería', 'Soporte aplicaciones', 'Repuestos aprobados para entrega', 'Cotización solicitada', 'Entrenamiento realizado'],
   soporte: ['Soporte ingeniería', 'Soporte aplicaciones'],
@@ -680,6 +706,9 @@ export default {
     dialogomodificarequipocliente: false,
     dialogo: false,
     dialogoetapa: false,
+    cambiarestado: false,
+    nuevoestadoequipo: null,
+    listadeestadosequipo: ['En soporte', 'En uso', 'Disponible', 'Disponible Pdte. MP.', 'Fuera de servicio', 'Dado de baja'],
     esIngresoNuevoEquipo: false,
     // Id del equipo al que se le registra el ingreso. Propiedad dedicada porque
     // editedItem se resetea en close() (nextTick) y perdería el id antes de confirmar.
@@ -981,6 +1010,21 @@ export default {
     esAplicaciones() {
       return this.$store.state.user.rol === 'aplicaciones';
     },
+    // Ubicación de la etapa inicial. El administrador (en ingreso de equipo
+    // existente) usa la misma lista que el menú de cambio de etapas.
+    ubicacionesEtapaInicial() {
+      if (!this.esIngresoNuevoEquipo && this.$store.state.user.rol === 'administrador') {
+        return UBICACIONES_CAMBIO_ETAPA;
+      }
+      return ['Bodega de equipos nuevos', 'Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Bodega Prado', 'Cliente'];
+    },
+    // Ubicación de la nueva etapa. Igual criterio para el administrador.
+    ubicacionesNuevaEtapa() {
+      if (!this.esIngresoNuevoEquipo && this.$store.state.user.rol === 'administrador') {
+        return UBICACIONES_CAMBIO_ETAPA;
+      }
+      return ['Bodega de equipos nuevos', 'Cuarentena', 'Bodega de equipos usados', 'Taller de ingeniería', 'Taller Snibe', 'Cliente', 'Dado de baja'];
+    },
     etapasDisponiblesPorRol() {
       const userRol = this.$store.state.user.rol;
 
@@ -1166,6 +1210,8 @@ export default {
         ubicacion: null,
       };
       this.esIngresoNuevoEquipo = false;
+      this.cambiarestado = false;
+      this.nuevoestadoequipo = null;
     },
     cambiarEstadoDeMenu1(fechaseleccionadaincio) {
 
@@ -1611,7 +1657,25 @@ export default {
     asignarEtapasNuevoIngreso() {
       this.etapasParaNuevoIngreso = ETAPAS_NUEVO_INGRESO_POR_ROL[this.$store.state.user.rol] || [];
     },
+    // Gate previo a confirmar el ingreso: si es un equipo existente y la etapa
+    // requiere definir estado (Listo para despacho, Finalizado, Cancelado), abre
+    // el diálogo de estado; en otro caso confirma directamente. El flujo de
+    // equipo nuevo conserva su estado automático ("Nuevo").
+    consultarEstadoIngreso() {
+      const requiereEstado = ["Finalizado", "Cancelado", "Listo para despacho"].includes(this.nuevaEtapa.nombre);
+      if (!this.esIngresoNuevoEquipo && requiereEstado) {
+        this.cambiarestado = true;
+      } else {
+        this.confirmarEtapa(0);
+      }
+    },
+    cancelarCambioEstadoIngreso() {
+      this.cambiarestado = false;
+      this.nuevoestadoequipo = null;
+    },
     async confirmarEtapa(m) {
+      // Cierra el diálogo de estado si estaba abierto (un solo diálogo a la vez)
+      this.cambiarestado = false;
       // 1. Verificación de Autenticación (se mantiene igual)
       this.$store.dispatch("autoLogin");
       if (this.$store.state.existe === 0) {
@@ -1657,14 +1721,23 @@ export default {
         this.dialog = false;
         const eraIngresoNuevoEquipo = this.esIngresoNuevoEquipo;
         const etapaEraEquipoNuevo = this.nuevaEtapa.etapaSeleccionada === 'Equipo nuevo';
+        const estadoDefinido = this.nuevoestadoequipo; // estado elegido en el diálogo (si aplica)
         this.limpiarNuevaEtapa();
+        this.nuevoestadoequipo = null;
         this.close();
 
         // B. Actualizar Estado del Equipo (no bloquea el cierre del diálogo)
         const esNuevoEquipo = eraIngresoNuevoEquipo || etapaEraEquipoNuevo;
         const rolActualiza = ["bodega", "soporte", "aplicaciones", "administrador"].includes(this.$store.state.user.rol);
-        if (esNuevoEquipo || rolActualiza) {
-          const nuevoEstado = esNuevoEquipo ? "Nuevo" : "En soporte";
+        let nuevoEstado = null;
+        if (esNuevoEquipo) {
+          nuevoEstado = "Nuevo";
+        } else if (estadoDefinido) {
+          nuevoEstado = estadoDefinido; // el usuario definió el estado (Listo para despacho, etc.)
+        } else if (rolActualiza) {
+          nuevoEstado = "En soporte";
+        }
+        if (nuevoEstado) {
           this.$axios.patch(
             rutaBase + "api/equipo/actualizarestado/" + this.equipoIngresoId,
             { nuevoEstado },

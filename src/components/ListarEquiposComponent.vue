@@ -681,6 +681,9 @@ export default {
     dialogo: false,
     dialogoetapa: false,
     esIngresoNuevoEquipo: false,
+    // Id del equipo al que se le registra el ingreso. Propiedad dedicada porque
+    // editedItem se resetea en close() (nextTick) y perdería el id antes de confirmar.
+    equipoIngresoId: null,
     textodialogo: "",
     errorGuardar: false,
     mensajeErrorGuardar: "",
@@ -1282,6 +1285,7 @@ export default {
       this.$router.push({ name: "FormularioGenerarOrden" });
     },
     guardarGenerarOrden() {
+      this.equipoIngresoId = this.editedItem.id;
       this.dialogoetapa = true;
       this.generarordenseleccionado = false;
     },
@@ -1370,6 +1374,7 @@ export default {
             })
             this.buscarEquipos();
             this.editedItem.id = response.data.equipo.id;
+            this.equipoIngresoId = response.data.equipo.id;
             this.esIngresoNuevoEquipo = true;
             this.nuevaEtapa.etapaSeleccionada = 'Equipo nuevo';
             this.nuevaEtapa.ubicacionEtapaSeleccionada = 'Bodega de equipos nuevos';
@@ -1631,14 +1636,14 @@ export default {
       try {
         const token = this.$store.state.token;
         const rutaBase = this.$store.state.ruta;
-        console.log("equipo", this.editedItem.id);
+        console.log("equipo", this.equipoIngresoId);
         console.log("nuevaetapa", this.nuevaEtapa);
         // A. API Call 1: Registrar la Etapa
         // Usamos 'await' para esperar la respuesta antes de continuar.
         await this.$axios.post(
           rutaBase + "api/ingreso/registrar",
           {
-            equipo: { id: this.editedItem.id },
+            equipo: { id: this.equipoIngresoId },
             etapa: this.nuevaEtapa,
           },
           {
@@ -1661,7 +1666,7 @@ export default {
         if (esNuevoEquipo || rolActualiza) {
           const nuevoEstado = esNuevoEquipo ? "Nuevo" : "En soporte";
           this.$axios.patch(
-            rutaBase + "api/equipo/actualizarestado/" + this.editedItem.id,
+            rutaBase + "api/equipo/actualizarestado/" + this.equipoIngresoId,
             { nuevoEstado },
             { headers: { token } }
           ).then(r => console.log('Estado del equipo actualizado:', r.data))

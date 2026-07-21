@@ -9,6 +9,10 @@ const MAX_REFRESH = 2;
 // disparen múltiples llamadas al endpoint de refresh simultáneamente.
 let refreshPromise = null;
 
+// Endpoints de autenticación que NO deben pasar por la verificación de vigencia
+// (evita bucles de refresh). El resto de /api/usuario/ (CRUD de usuarios) SÍ se verifica.
+const AUTH_ENDPOINTS = ['api/usuario/ingresar', 'api/usuario/refresh', 'api/usuario/salir'];
+
 const axiosPlugin = {
   install: (app) => {
     const instance = axios.create({ timeout: 20000 });
@@ -36,95 +40,109 @@ const axiosPlugin = {
       return refreshPromise;
     };
 
-    // Verifica expiración del token ANTES de cualquier petición (todos los métodos).
-    // Renueva automáticamente el access token si expiró, hasta MAX_REFRESH veces por sesión.
-    instance.interceptors.request.use(async config => {
-      // No interceptar los endpoints de autenticación (evita bucles)
-      if (config.url?.includes('/api/usuario/')) return config;
+    // Registra los interceptores en un cliente axios (instancia $axios o el axios global).
+    const setupInterceptors = (client) => {
+      // Verifica expiración del token ANTES de cualquier petición (todos los métodos).
+      // Renueva automáticamente el access token si expiró, hasta MAX_REFRESH veces por sesión.
+      client.interceptors.request.use(async config => {
+        if (AUTH_ENDPOINTS.some(e => config.url?.includes(e))) return config;
 
-      const store = getStore();
-      if (!store) return config;
+        const store = getStore();
+        if (!store) return config;
 
-      // Si ya hay un cierre de sesión en curso, cancelar silenciosamente
-      if (store.state.sesionExpirando) return Promise.reject(new Error('SESION_EXPIRADA'));
+        // Si ya hay un cierre de sesión en curso, cancelar silenciosamente
+        if (store.state.sesionExpirando) return Promise.reject(new Error('SESION_EXPIRADA'));
 
-      const exp = store.state.user?.exp;
-      if (!exp || exp * 1000 >= Date.now()) return config; // token vigente
+        const exp = store.state.user?.exp;
+        if (!exp) return config; // sin sesión iniciada (rutas públicas)
 
-      // Token expirado — verificar límite de renovaciones
-      if (store.state.refreshCount >= MAX_REFRESH) {
-        store.dispatch('sesionExpirada');
-        return Promise.reject(new Error('SESION_EXPIRADA'));
-      }
-
-      if (localStorage.getItem('refreshToken')) {
-        try {
-          const newToken = await doRefresh();
-          config.headers['token'] = newToken;
+        if (exp * 1000 >= Date.now()) {
+          // Token vigente — adjuntarlo centralmente (siempre el más reciente del store)
+          config.headers['token'] = store.state.token;
           return config;
-        } catch (refreshError) {
-          // Refresh también expiró: continúa hacia sesionExpirada (feedback al usuario)
-          if (import.meta.env.DEV) console.error('[API] Falló renovación de token:', refreshError);
-        }
-      }
-
-      store.dispatch('sesionExpirada');
-      return Promise.reject(new Error('SESION_EXPIRADA'));
-    });
-
-    // Interceptor de request: log de salida (solo en desarrollo)
-    instance.interceptors.request.use(config => {
-      if (import.meta.env.DEV) console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
-      return config;
-    });
-
-    // Interceptor de respuesta: log de resultado + renueva el access token automáticamente en 403
-    instance.interceptors.response.use(
-      response => {
-        if (import.meta.env.DEV) {
-          console.log(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
-        }
-        return response;
-      },
-      async (error) => {
-        if (import.meta.env.DEV) {
-          const status = error.response?.status ?? 'ERR';
-          const url = error.config?.url ?? '';
-          const method = error.config?.method?.toUpperCase() ?? '';
-          console.error(`[API] ${status} ${method} ${url}`, error.response?.data ?? error.message);
         }
 
-        const original = error.config;
+        // Token expirado — verificar límite de renovaciones
+        if (store.state.refreshCount >= MAX_REFRESH) {
+          store.dispatch('sesionExpirada');
+          return Promise.reject(new Error('SESION_EXPIRADA'));
+        }
 
-        // Solo actúa en 403 y evita bucles infinitos
-        if (error.response?.status === 403 && !original._retry) {
-          original._retry = true;
-
-          const store = getStore();
-
-          if (store.state.refreshCount >= MAX_REFRESH) {
-            store.dispatch('sesionExpirada');
-            return Promise.reject(error);
-          }
-
-          if (!localStorage.getItem('refreshToken')) {
-            store.dispatch('salir');
-            return Promise.reject(error);
-          }
-
+        if (localStorage.getItem('refreshToken')) {
           try {
             const newToken = await doRefresh();
-            original.headers['token'] = newToken;
-            return instance(original);
+            config.headers['token'] = newToken;
+            return config;
           } catch (refreshError) {
-            store.dispatch('salir');
-            return Promise.reject(refreshError);
+            // Refresh también expiró: continúa hacia sesionExpirada (feedback al usuario)
+            if (import.meta.env.DEV) console.error('[API] Falló renovación de token:', refreshError);
           }
         }
 
-        return Promise.reject(error);
-      }
-    );
+        store.dispatch('sesionExpirada');
+        return Promise.reject(new Error('SESION_EXPIRADA'));
+      });
+
+      // Interceptor de request: log de salida (solo en desarrollo)
+      client.interceptors.request.use(config => {
+        if (import.meta.env.DEV) console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
+        return config;
+      });
+
+      // Interceptor de respuesta: log de resultado + renueva el access token automáticamente en 403
+      client.interceptors.response.use(
+        response => {
+          if (import.meta.env.DEV) {
+            console.log(`[API] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+          }
+          return response;
+        },
+        async (error) => {
+          if (import.meta.env.DEV) {
+            const status = error.response?.status ?? 'ERR';
+            const url = error.config?.url ?? '';
+            const method = error.config?.method?.toUpperCase() ?? '';
+            console.error(`[API] ${status} ${method} ${url}`, error.response?.data ?? error.message);
+          }
+
+          const original = error.config;
+
+          // Solo actúa en 403 y evita bucles infinitos
+          if (error.response?.status === 403 && !original._retry) {
+            original._retry = true;
+
+            const store = getStore();
+
+            if (store.state.refreshCount >= MAX_REFRESH) {
+              store.dispatch('sesionExpirada');
+              return Promise.reject(error);
+            }
+
+            if (!localStorage.getItem('refreshToken')) {
+              store.dispatch('salir');
+              return Promise.reject(error);
+            }
+
+            try {
+              const newToken = await doRefresh();
+              original.headers['token'] = newToken;
+              return client(original);
+            } catch (refreshError) {
+              store.dispatch('salir');
+              return Promise.reject(refreshError);
+            }
+          }
+
+          return Promise.reject(error);
+        }
+      );
+    };
+
+    setupInterceptors(instance);
+    // También en el axios global: cubre los componentes que aún importan axios
+    // directamente en lugar de usar this.$axios — así NINGUNA petición al back
+    // sale sin verificar primero la vigencia del token.
+    setupInterceptors(axios);
   },
 };
 

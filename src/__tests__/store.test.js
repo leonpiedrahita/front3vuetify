@@ -26,9 +26,15 @@ vi.mock('../router', () => ({
   default: { push: vi.fn() },
 }));
 
+// ── Mock axios (usado por fetchMovimientosPendientes) ────────────────────────
+vi.mock('axios', () => ({
+  default: { get: vi.fn() },
+}));
+
 // ── Import store AFTER mocks are in place ────────────────────────────────────
 import store from '../store/index.js';
 import router from '../router';
+import axios from 'axios';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -526,30 +532,25 @@ describe('Action: fetchMovimientosPendientes', () => {
       store.commit('setToken', 'tok');
       store.commit('setUsuario', { rol });
 
-      const mockFetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ count: 4 }),
-      });
-      vi.stubGlobal('fetch', mockFetch);
+      axios.get.mockResolvedValue({ data: { count: 4 } });
 
       await store.dispatch('fetchMovimientosPendientes');
 
-      expect(mockFetch).toHaveBeenCalled();
+      expect(axios.get).toHaveBeenCalled();
       expect(store.state.movimientosPendientes).toBe(4);
     });
   });
 
   rolesQueNoDescargan.forEach(rol => {
-    it(`no hace fetch para el rol "${rol}"`, async () => {
+    it(`no hace la petición para el rol "${rol}"`, async () => {
       store.commit('setToken', 'tok');
       store.commit('setUsuario', { rol });
 
-      const mockFetch = vi.fn();
-      vi.stubGlobal('fetch', mockFetch);
+      axios.get.mockClear();
 
       await store.dispatch('fetchMovimientosPendientes');
 
-      expect(mockFetch).not.toHaveBeenCalled();
+      expect(axios.get).not.toHaveBeenCalled();
     });
   });
 
@@ -558,7 +559,7 @@ describe('Action: fetchMovimientosPendientes', () => {
     store.commit('setUsuario', { rol: 'administrador' });
     store.commit('setMovimientosPendientes', 2);
 
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }));
+    axios.get.mockRejectedValue(new Error('500 Internal Server Error'));
 
     await store.dispatch('fetchMovimientosPendientes');
 

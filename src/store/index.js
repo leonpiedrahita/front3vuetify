@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 /* import { jwtdecode } from './modules'; */
+import axios from 'axios';
 import jwtdecode from 'jwt-decode';
 import router from '../router'
 const apiUrl = import.meta.env.VITE_API_URL
@@ -213,13 +214,10 @@ const store = createStore({
             const rol = state.user?.rol;
             if (!['administrador', 'bodega', 'soporte', 'aplicaciones', 'lumira', 'ingresos'].includes(rol)) return;
             try {
-                const res = await fetch(`${apiUrl}api/ingreso/movimientos/pendientes/count`, {
-                    headers: { token: state.token },
-                });
-                if (res.ok) {
-                    const { count } = await res.json();
-                    commit('setMovimientosPendientes', count);
-                }
+                // axios pasa por los interceptores globales: verifica vigencia del
+                // token (y lo renueva o notifica sesión vencida) antes de la petición.
+                const { data } = await axios.get(`${apiUrl}api/ingreso/movimientos/pendientes/count`);
+                commit('setMovimientosPendientes', data.count);
             } catch (err) {
                 console.warn('[store] No se pudo obtener movimientos pendientes:', err.message);
             }

@@ -39,6 +39,15 @@
               </v-btn>
             </v-col>
 
+            <v-col cols="6" sm="2"
+              v-if="['administrador','comercial','cotizaciones','calidad','bodega','ingresos','ventas'].includes($store.state.user.rol)">
+              <v-btn color="c6" min-width="228" size="large" variant="flat" large
+                :loading="exportando" @click="exportarAExcel()">
+                <v-icon start>mdi-file-excel</v-icon>
+                Exportar a Excel
+              </v-btn>
+            </v-col>
+
           </v-row>
           <!-- Dialogo para editar Cliente -->
           <v-dialog v-model="dialog" max-width="500px">
@@ -216,9 +225,12 @@
 <script>
 import axios from "axios";
 import municipiosData from "@/data/municipios.json";
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 export default {
   name: "ListarClientesComponent",
   data: () => ({
+    exportando: false,
     confirmacionguardado: false,
     mensajeDialogo: "",
     ciudadSeleccionada: null,
@@ -435,6 +447,35 @@ export default {
           console.log(error);
           return error;
         });
+    },
+    async exportarAExcel() {
+      this.exportando = true;
+      try {
+        const response = await axios.get(
+          this.$store.state.ruta + "api/cliente/exportar",
+          { headers: { token: this.$store.state.token } }
+        );
+        const exportData = response.data.map((c) => ({
+          NIT: c.nit,
+          'Razón social': c.nombre,
+          Ciudad: c.ciudad,
+          Asesor: c.asesor,
+        }));
+        const wb = new ExcelJS.Workbook();
+        const ws = wb.addWorksheet('Clientes');
+        if (exportData.length) {
+          ws.columns = Object.keys(exportData[0]).map((k) => ({ header: k, key: k, width: 30 }));
+        }
+        ws.addRows(exportData);
+        const buffer = await wb.xlsx.writeBuffer();
+        saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'Clientes.xlsx');
+      } catch (err) {
+        console.error("Error al exportar clientes a Excel:", err);
+        this.textodialogo = "No se pudo exportar el listado de clientes.";
+        this.dialogo = true;
+      } finally {
+        this.exportando = false;
+      }
     },
     nuevoCliente() {
       this.$store.dispatch("autoLogin");
